@@ -1,0 +1,73 @@
+{
+  "stats": {
+    "totalCustomers": 285,
+    "onlineCustomers": 242,
+    "todayPayments": 23,
+    "todayAmount": 67500,
+    "pendingPayments": 43,
+    "totalRouters": 85,
+    "smsCredits": 2500,
+    "paymentRate": 85.2
+  },
+  "packageDistribution": [
+    {
+      "name": "5 Mbps",
+      "value": 45,
+      "amount": 1500
+    },
+    {
+      "name": "10 Mbps",
+      "value": 30,
+      "amount": 2500
+    },
+    {
+      "name": "25 Mbps",
+      "value": 20,
+      "amount": 4000
+    },
+    {
+      "name": "50 Mbps",
+      "value": 5,
+      "amount": 6500
+    }
+  ],
+  "recentPayments": [
+    {
+      "id": 1,
+      "customer": "John Doe",
+      "amount": 2500,
+      "time": "10 mins ago",
+      "package": "Standard"
+    },
+    {
+      "id": 2,
+      "customer": "Jane Smith",
+      "amount": 4000,
+      "time": "25 mins ago",
+      "package": "Premium"
+    },
+    {
+      "id": 3,
+      "customer": "Mike Johnson",
+      "amount": 1500,
+      "time": "1 hour ago",
+      "package": "Basic"
+    }
+  ],
+  "alerts": [
+    {
+      "type": "info",
+      "message": "Payments received today will be credited between 12:00 AM - 12:30 AM."
+    },
+    {
+      "type": "warning",
+      "message": "Connections may be suspended during payment processing (12:00-12:30 AM)."
+    }
+  ],
+  "systemMetrics": {
+    "serverLoad": 45,
+    "networkUptime": 99.8,
+    "totalRoutersMax": 90,
+    "smsCreditsMax": 5000
+  }
+}
