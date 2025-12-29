@@ -19,12 +19,12 @@ export default function LoginPage() {
   const [identifier, setIdentifier] = useState("") // username or mobile
   const [password, setPassword] = useState("")
   const [showLoadingScreen, setShowLoadingScreen] = useState(false)
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true) // New state to track auth check
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   // Custom toast states
   const [toast, setToast] = useState({
     message: "",
-    type: "error", // 'success' or 'error'
+    type: "error",
     isVisible: false
   })
 
@@ -53,7 +53,6 @@ export default function LoginPage() {
       try {
         const cookieData = Cookies.get("user_data")
         if (cookieData) {
-          // Parse the cookie to validate it's proper JSON
           JSON.parse(cookieData)
           setShowLoadingScreen(true)
           setTimeout(() => {
@@ -63,11 +62,9 @@ export default function LoginPage() {
         }
       } catch (err) {
         console.error("Cookie parsing error:", err)
-        // If cookie is corrupted, remove it
         Cookies.remove("user_data")
       }
 
-      // If no valid user data, show login page
       setIsCheckingAuth(false)
     }
 
@@ -83,67 +80,51 @@ export default function LoginPage() {
     setIsLoading(true)
     setShowLoadingScreen(true)
 
-    // Build payload dynamically (if digits → mobile, else → username)
-    const payload = /^\d+$/.test(identifier)
-      ? { mobile: identifier, password }
-      : { username: identifier, password }
-
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login.php`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      })
-
-      const contentType = res.headers.get("content-type")
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Response is not JSON")
+    // Accept any credentials - create dummy user data
+    setTimeout(() => {
+      const userData = {
+        success: true,
+        message: "Login successful",
+        user: {
+          id: Math.floor(Math.random() * 1000) + 1,
+          name: identifier === "admin" ? "Admin User" : 
+                identifier === "1234567890" ? "Mobile User" : 
+                `User ${identifier}`,
+          username: identifier,
+          role: identifier === "admin" ? "admin" : "user",
+          email: `${identifier}@example.com`,
+          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(identifier)}&background=oklch(0.68%200.22%20285)&color=fff`
+        },
+        token: `dummy_jwt_token_${Date.now()}`
       }
 
-      const data = await res.json()
-      console.log("🔑 Login Response:", data)
-
-      if (!res.ok) {
-        showToast(data.message || "❌ Login failed", "error")
-        setShowLoadingScreen(false)
-        return
-      }
-
-      if (data.success) {
-        if (rememberMe) {
-          Cookies.set("user_data", JSON.stringify(data), { expires: 7 })
-        } else {
-          Cookies.set("user_data", JSON.stringify(data), { expires: 1 })
-        }
-
-        showToast("✅ Login successful!", "success")
-        // Keep loading screen visible while redirecting
-        setTimeout(() => router.push("/dashboard"), 2000)
+      if (rememberMe) {
+        Cookies.set("user_data", JSON.stringify(userData), { expires: 7 })
       } else {
-        showToast(data.message || "❌ Login failed", "error")
-        setShowLoadingScreen(false)
+        Cookies.set("user_data", JSON.stringify(userData), { expires: 1 })
       }
-    } catch (err) {
-      console.error("❌ Login error:", err)
-      showToast("Something went wrong. Please try again.", "error")
-      setShowLoadingScreen(false)
-    } finally {
-      setIsLoading(false)
+
+      showToast("✅ Login successful!", "success")
+      setTimeout(() => router.push("/dashboard"), 2000)
+    }, 1500)
+  }
+
+  const handleKeyPress = () => {
+    if (e.key === 'Enter') {
+      handleLogin()
     }
   }
 
   // Show loading screen while checking authentication or during login
   if (isCheckingAuth || showLoadingScreen) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white">
+      <div className="flex h-screen items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div className="relative mx-auto w-16 h-16">
-            {/* Outer ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-            {/* Animated ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-muted"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
           </div>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             {isCheckingAuth ? "Checking authentication..." : "Signing you in..."}
           </div>
         </div>
@@ -153,7 +134,6 @@ export default function LoginPage() {
 
   return (
     <>
-      {/* Custom Toast Component */}
       <CustomToast
         message={toast.message}
         type={toast.type}
@@ -161,56 +141,65 @@ export default function LoginPage() {
         onClose={hideToast}
       />
 
-      <div className="min-h-screen flex bg-gray-50">
+      <div className="min-h-screen flex bg-background">
         {/* Left Side */}
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="w-full max-w-md space-y-6">
-
-            <Card className="border-0 shadow-sm bg-white">
-              <CardHeader className="text-center pb-6 pt-5">
-                <Image src="/logo.png" alt="One Network Logo" width={70} height={30} className="mx-auto mb-2" />
-
-                <p className="text-sm text-gray-500">Sign in with your account</p>
+            <Card className="bg-card">
+              <CardHeader className="text-center pb-2 pt-5">
+                <Image 
+                  src="/logo.png" 
+                  alt="One Network Logo" 
+                  width={70} 
+                  height={30} 
+                  className="mx-auto mb-2" 
+                />
               </CardHeader>
 
               <CardContent className="px-6 pb-6">
                 <div className="space-y-4">
                   {/* Username or Mobile */}
                   <div className="space-y-2">
-                    <Label htmlFor="identifier" className="text-sm font-medium text-gray-700">Username or Mobile</Label>
+                    <Label htmlFor="identifier" className="text-sm font-medium text-card-foreground">
+                      Username or Mobile
+                    </Label>
                     <Input
                       id="identifier"
                       type="text"
-                      placeholder="Enter your username or mobile"
+                      placeholder="Enter any username or mobile"
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
-                      className="h-12 px-4 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg"
+                      onKeyPress={handleKeyPress}
+                      className="h-12 px-4 border-border focus:border-primary focus:ring-2 focus:ring-ring/20 rounded-lg bg-input"
                     />
                   </div>
 
                   {/* Password */}
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-sm font-medium text-gray-700">Password</Label>
+                    <Label htmlFor="password" className="text-sm font-medium text-card-foreground">
+                      Password
+                    </Label>
                     <div className="relative">
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
+                        placeholder="Enter any password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="pr-12 h-12 px-4 border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 rounded-lg"
+                        onKeyPress={handleKeyPress}
+                        className="pr-12 h-12 px-4 border-border focus:border-primary focus:ring-2 focus:ring-ring/20 rounded-lg bg-input"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100 rounded-md"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-secondary rounded-md"
                         onClick={() => setShowPassword(!showPassword)}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4 text-gray-500" />
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
                         ) : (
-                          <Eye className="h-4 w-4 text-gray-500" />
+                          <Eye className="h-4 w-4 text-muted-foreground" />
                         )}
                       </Button>
                     </div>
@@ -223,14 +212,13 @@ export default function LoginPage() {
                         id="remember"
                         checked={rememberMe}
                         onCheckedChange={(val) => setRememberMe(!!val)}
-                        className="h-5 w-5 border-2 border-gray-300 rounded text-blue-600 focus:ring-2 focus:ring-blue-500 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                        className="h-5 w-5 border-2 border-border rounded text-primary focus:ring-2 focus:ring-ring data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                       />
-                      <Label htmlFor="remember" className="text-sm font-medium text-gray-700 cursor-pointer">
+                      <Label htmlFor="remember" className="text-sm font-medium text-card-foreground cursor-pointer">
                         Remember me
                       </Label>
-
                     </div>
-                    <Button type="button" variant="link" className="text-sm text-blue-600 hover:text-blue-700 font-medium p-0 h-auto">
+                    <Button type="button" variant="link" className="text-sm text-primary hover:text-primary/80 font-medium p-0 h-auto">
                       Forgot password?
                     </Button>
                   </div>
@@ -239,7 +227,7 @@ export default function LoginPage() {
                   <Button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg mt-6 shadow-sm transition-all duration-200 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-medium rounded-lg mt-6 shadow-sm transition-all duration-200 hover:shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
                     onClick={handleLogin}
                   >
                     {isLoading ? <Loader2 className="h-5 w-5 animate-spin mx-auto" /> : "Sign in"}
@@ -248,13 +236,19 @@ export default function LoginPage() {
               </CardContent>
             </Card>
 
-            <p className="text-center text-xs text-gray-500">© 2024 One Network. All rights reserved.</p>
+            <p className="text-center text-xs text-muted-foreground">© 2026 GrowthSpire. All rights reserved.</p>
           </div>
         </div>
 
         {/* Right Side Image */}
         <div className="hidden lg:flex flex-1 relative">
-          <Image src="/sideimage.png" alt="Network dashboard illustration" fill className="object-cover" priority />
+          <Image 
+            src="/images/sideimage.png" 
+            alt="Network dashboard illustration" 
+            fill 
+            className="object-cover" 
+            priority 
+          />
         </div>
       </div>
     </>
