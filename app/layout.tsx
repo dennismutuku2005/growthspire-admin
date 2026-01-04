@@ -10,9 +10,22 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "One Network - ISP Management Dashboard",
-  description: "Professional PPPoE Management System for Internet Service Providers",
-  generator: "v0.app",
+  title: "GrowthSpire | Startup Accelerator",
+  description: "Accelerating the next generation of innovative startups. Join GrowthSpire to scale your vision.",
+  generator: "Dennis Mutuku and Ann Muoki",
+  icons: {
+    icon: "/favicon.ico",
+  },
+  openGraph: {
+    images: [
+      {
+        url: "/growthspire-og.png",
+        width: 1200,
+        height: 630,
+        alt: "GrowthSpire | Startup Accelerator",
+      },
+    ],
+  },
 }
 
 export default function RootLayout({
