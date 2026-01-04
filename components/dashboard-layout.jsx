@@ -155,52 +155,52 @@ export function DashboardLayout({ children }) {
   // Check authentication
   useEffect(() => {
     const checkAuth = () => {
-  try {
-    const userCookie = Cookies.get("user_data")
-    
-    if (!userCookie) {
-      console.log("No user cookie found")
-      router.replace("/login")
-      return
-    }
+      try {
+        const userCookie = Cookies.get("user_data")
 
-    const parsedUserData = JSON.parse(userCookie)
-    console.log("Parsed user data:", parsedUserData) // Debug log
-    
-    // Check multiple possible structures
-    let username = null
-    let userData = null
-    
-    if (parsedUserData.user?.username) {
-      // Structure from login: { user: { username, ... } }
-      username = parsedUserData.user.username
-      userData = parsedUserData
-    } else if (parsedUserData.username) {
-      // Direct user object: { username, ... }
-      username = parsedUserData.username
-      userData = { user: parsedUserData }
-    } else if (parsedUserData.success && parsedUserData.user?.username) {
-      // Success wrapper: { success: true, user: { username, ... } }
-      username = parsedUserData.user.username
-      userData = parsedUserData
-    }
+        if (!userCookie) {
+          console.log("No user cookie found")
+          router.replace("/login")
+          return
+        }
 
-    if (!username) {
-      console.error("Invalid user data structure:", parsedUserData)
-      Cookies.remove("user_data")
-      router.replace("/login")
-      return
-    }
+        const parsedUserData = JSON.parse(userCookie)
+        console.log("Parsed user data:", parsedUserData) // Debug log
 
-    setUserData(userData)
-    setIsLoading(false)
-    
-  } catch (error) {
-    console.error("Auth error:", error)
-    Cookies.remove("user_data")
-    router.replace("/login")
-  }
-}
+        // Check multiple possible structures
+        let username = null
+        let userData = null
+
+        if (parsedUserData.user?.username) {
+          // Structure from login: { user: { username, ... } }
+          username = parsedUserData.user.username
+          userData = parsedUserData
+        } else if (parsedUserData.username) {
+          // Direct user object: { username, ... }
+          username = parsedUserData.username
+          userData = { user: parsedUserData }
+        } else if (parsedUserData.success && parsedUserData.user?.username) {
+          // Success wrapper: { success: true, user: { username, ... } }
+          username = parsedUserData.user.username
+          userData = parsedUserData
+        }
+
+        if (!username) {
+          console.error("Invalid user data structure:", parsedUserData)
+          Cookies.remove("user_data")
+          router.replace("/login")
+          return
+        }
+
+        setUserData(userData)
+        setIsLoading(false)
+
+      } catch (error) {
+        console.error("Auth error:", error)
+        Cookies.remove("user_data")
+        router.replace("/login")
+      }
+    }
 
     checkAuth()
   }, [router])
@@ -289,7 +289,7 @@ export function DashboardLayout({ children }) {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto p-4 space-y-1">
         {navigation.map((item) => {
-          const isActive = pathname === item.href || 
+          const isActive = pathname === item.href ||
             (item.submenu && item.submenu.some(sub => pathname === sub.href))
           const hasSubmenu = item.submenu && item.submenu.length > 0
           const isExpanded = expandedItems[item.name]
@@ -299,8 +299,8 @@ export function DashboardLayout({ children }) {
               <div
                 className={cn(
                   "flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer",
-                  isActive 
-                    ? "bg-primary text-primary-foreground" 
+                  isActive
+                    ? "bg-primary text-primary-foreground"
                     : "hover:bg-accent hover:text-accent-foreground"
                 )}
                 onClick={() => hasSubmenu ? toggleSubmenu(item.name) : router.push(item.href)}
@@ -380,7 +380,7 @@ export function DashboardLayout({ children }) {
       {/* Mobile Sidebar Overlay */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed inset-0 z-50">
-          <div 
+          <div
             className="fixed inset-0 bg-background/80 backdrop-blur-sm"
             onClick={() => setMobileMenuOpen(false)}
           />
@@ -405,8 +405,8 @@ export function DashboardLayout({ children }) {
             </Button>
             <div className="hidden lg:block">
               <h2 className="text-lg font-semibold">
-                {navigation.find(item => 
-                  item.href === pathname || 
+                {navigation.find(item =>
+                  item.href === pathname ||
                   (item.submenu && item.submenu.some(sub => sub.href === pathname))
                 )?.name || "Dashboard"}
               </h2>
@@ -414,11 +414,13 @@ export function DashboardLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive"></span>
-            </Button>
-            
+            <Link href="/dashboard/notifications">
+              <Button variant="ghost" size="icon" className="relative">
+                <Bell className="h-5 w-5" />
+                <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive"></span>
+              </Button>
+            </Link>
+
             {/* Profile Dropdown */}
             <div className="relative profile-dropdown">
               <Button
