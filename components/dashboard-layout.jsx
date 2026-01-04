@@ -4,34 +4,36 @@ import { useState, useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Cookies from "js-cookie"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import {
-  Menu,
-  Bell,
   Home,
   Users,
-  Package,
-  MessageSquare,
-  CreditCard,
-  Search,
-  Receipt,
-  Router,
-  User,
-  Wifi,
-  BarChart3,
-  Phone,
-  ChevronRight,
-  UserPlus,
+  Rocket,
+  Building,
+  Calendar,
   FileText,
-  Eye,
-  Plus,
+  Settings,
+  Zap,
+  HelpCircle,
+  Search,
+  Bell,
+  User,
+  LogOut,
+  Shield,
+  Globe,
   TrendingUp,
-  Timer,
-  NotebookPen,
-  NotebookIcon,
-  BarChart3Icon,
-  LucideDollarSign,
-  ChevronLeft,
+  BookOpen,
+  MessageSquare,
+  ChevronRight,
+  ChevronDown,
+  Menu,
+  X,
+  BarChart,
+  CreditCard,
+  FileCode,
+  Tag,
+  Mail,
+  Smartphone,
+  LayoutDashboard,
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -39,166 +41,182 @@ import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Image from "next/image"
 
+// Updated navigation hierarchy based on your requirements
 const navigation = [
-  { 
-    name: "Dashboard", 
-    href: "/dashboard", 
-    icon: Home 
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
   },
-  { 
-    name: "Customers", 
-    href: "/dashboard/customers", 
-    icon: Users,
+  {
+    name: "Startups",
+    href: "/dashboard/startups",
+    icon: Rocket,
     submenu: [
-      { name: "View Customers", href: "/dashboard/customers", icon: Eye },
-      { name: "Add Customer", href: "/dashboard/customers/addcustomer", icon: UserPlus },
-      //{ name: "Customer Reports", href: "/dashboard/customers/customer-reports", icon: FileText },
+      { name: "All Startups", href: "/dashboard/startups", icon: Users },
+      { name: "Accelerated", href: "/dashboard/startups/accelerated", icon: Zap },
+      { name: "Applications", href: "/dashboard/startups/applications", icon: FileText },
+      { name: "Analytics", href: "/dashboard/startups/analytics", icon: BarChart },
     ]
   },
-   { 
-    name: "Isp NoteBook", 
-    href: "/dashboard/ispnotepad", 
-    icon: NotebookIcon
-  },
-  { 
-    name: "Packages", 
-    href: "/dashboard/packages", 
-    icon: Package,
+  {
+    name: "Sponsors",
+    href: "/dashboard/sponsors",
+    icon: Building,
     submenu: [
-      { name: "View Packages", href: "/dashboard/packages", icon: Eye },
-      { name: "Add Package", href: "/dashboard/packages/add-package", icon: Plus },
+      { name: "All Sponsors", href: "/dashboard/sponsors", icon: Building },
+      { name: "Partnerships", href: "/dashboard/sponsors/partnerships", icon: TrendingUp },
+      { name: "Funding", href: "/dashboard/sponsors/funding", icon: CreditCard },
     ]
   },
- // { 
-   // name: "Communication", 
-  //  href: "/dashboard/sms", 
-  //  icon: MessageSquare 
- // },
-  { 
-    name: "Payments", 
-    href: "/dashboard/payments", 
-    icon: CreditCard,
+  {
+    name: "Events",
+    href: "/dashboard/events",
+    icon: Calendar,
     submenu: [
-      { name: "Transactions", href: "/dashboard/payments", icon: CreditCard },
-      { name: "Withdrawals", href: "/dashboard/payments/withdrawals", icon: LucideDollarSign },
-      { name: "Auto Bills", href: "/dashboard/payments/autopayments", icon: Timer },
+      { name: "All Events", href: "/dashboard/events", icon: Calendar },
+      { name: "Upcoming", href: "/dashboard/events/upcoming", icon: Calendar },
+      { name: "Past Events", href: "/dashboard/events/past", icon: Calendar },
     ]
   },
-  { 
-    name: "Router", 
-    href: "/dashboard/network", 
-    icon: Router 
-  },
-  { 
-    name: "Notifications", 
-    href: "/dashboard/notifications", 
-    icon: Bell,
+  {
+    name: "Blogs",
+    href: "/dashboard/blogs",
+    icon: FileText,
     submenu: [
-      { name: "View Notifications", href: "/dashboard/notifications", icon: Eye },
-      { name: "Server Report", href: "/dashboard/reports", icon: BarChart3Icon },
+      { name: "All Blogs", href: "/dashboard/blogs", icon: FileText },
+      { name: "Create Blog", href: "/dashboard/blogs/create", icon: FileText },
+      { name: "Categories", href: "/dashboard/blogs/categories", icon: Tag },
     ]
   },
-  { 
-    name: "Billing", 
-    href: "/dashboard/billing", 
-    icon: Receipt 
+  {
+    name: "System Updates",
+    href: "/dashboard/system",
+    icon: Settings,
+    submenu: [
+      { name: "Privacy Policy", href: "/dashboard/system/privacy-policy", icon: Shield },
+      { name: "Terms & Conditions", href: "/dashboard/system/terms", icon: FileText },
+      { name: "User Data Policy", href: "/dashboard/system/user-data-policy", icon: Shield },
+      { name: "Other Policies", href: "/dashboard/system/policies", icon: FileCode },
+    ]
+  },
+  {
+    name: "Accelerator",
+    href: "/dashboard/accelerator",
+    icon: Zap,
+    submenu: [
+      { name: "Programs", href: "/dashboard/accelerator/programs", icon: Zap },
+      { name: "Mentors", href: "/dashboard/accelerator/mentors", icon: Users },
+      { name: "Resources", href: "/dashboard/accelerator/resources", icon: BookOpen },
+    ]
+  },
+  {
+    name: "FAQs",
+    href: "/dashboard/faqs",
+    icon: HelpCircle,
+    submenu: [
+      { name: "Manage FAQs", href: "/dashboard/faqs", icon: HelpCircle },
+      { name: "Add FAQ", href: "/dashboard/faqs/add", icon: HelpCircle },
+    ]
+  },
+  {
+    name: "Applications",
+    href: "/dashboard/applications",
+    icon: FileText,
+    description: "Using calculus-based hierarchy",
+    submenu: [
+      { name: "All Applications", href: "/dashboard/applications", icon: FileText },
+      { name: "Pending Review", href: "/dashboard/applications/pending", icon: FileText },
+      { name: "Approved", href: "/dashboard/applications/approved", icon: FileText },
+      { name: "Rejected", href: "/dashboard/applications/rejected", icon: FileText },
+    ]
+  },
+  {
+    name: "Communications",
+    href: "/dashboard/communications",
+    icon: MessageSquare,
+    submenu: [
+      { name: "Email", href: "/dashboard/communications/email", icon: Mail },
+      { name: "SMS", href: "/dashboard/communications/sms", icon: Smartphone },
+      { name: "Notifications", href: "/dashboard/communications/notifications", icon: Bell },
+    ]
   },
 ]
 
 export function DashboardLayout({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(true) // Default to collapsed
-  const [userData, setuserData] = useState(null)
-  const [isCardOpen, setIsCardOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hoveredItem, setHoveredItem] = useState(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [expandedItems, setExpandedItems] = useState({})
+  const [userData, setUserData] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
 
-  // Capitalize first letter of username
-  const capitalizeUsername = (username) => {
-    if (!username) return "user"
-    return username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()
-  }
-
-  // Get user initials for avatar
-  const getInitials = (username) => {
-    if (!username) return "US"
-    return username
-      .split(" ")
-      .map(word => word[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
-  }
-
-  // Check authentication and get user data
+  // Check authentication
   useEffect(() => {
     const checkAuth = () => {
-      try {
-        const userCookie = Cookies.get("user_data")
-        const sidebarPref = Cookies.get("sidebar_collapsed")
-
-        if (!userCookie) {
-          router.replace("/login")
-          return
-        }
-
-        // Parse the user data from cookie
-        const parseduserData = JSON.parse(userCookie)
-
-        // Validate required fields
-        if (!parseduserData.username || !parseduserData.mobile) {
-          console.warn("Invalid user data in cookie")
-          router.replace("/login")
-          return
-        }
-
-        // Set sidebar preference if exists
-        if (sidebarPref !== undefined) {
-          setSidebarCollapsed(sidebarPref === "true")
-        }
-
-        setuserData(parseduserData)
-        setIsLoading(false)
-      } catch (error) {
-        console.error("Error parsing user data:", error)
-        Cookies.remove("user_data")
-        Cookies.remove("sidebar_collapsed")
-        router.replace("/login")
-      }
+  try {
+    const userCookie = Cookies.get("user_data")
+    
+    if (!userCookie) {
+      console.log("No user cookie found")
+      router.replace("/login")
+      return
     }
 
-    checkAuth() // Run immediately
-    const interval = setInterval(checkAuth, 60 * 1000) // Check every minute
+    const parsedUserData = JSON.parse(userCookie)
+    console.log("Parsed user data:", parsedUserData) // Debug log
+    
+    // Check multiple possible structures
+    let username = null
+    let userData = null
+    
+    if (parsedUserData.user?.username) {
+      // Structure from login: { user: { username, ... } }
+      username = parsedUserData.user.username
+      userData = parsedUserData
+    } else if (parsedUserData.username) {
+      // Direct user object: { username, ... }
+      username = parsedUserData.username
+      userData = { user: parsedUserData }
+    } else if (parsedUserData.success && parsedUserData.user?.username) {
+      // Success wrapper: { success: true, user: { username, ... } }
+      username = parsedUserData.user.username
+      userData = parsedUserData
+    }
 
-    return () => clearInterval(interval)
+    if (!username) {
+      console.error("Invalid user data structure:", parsedUserData)
+      Cookies.remove("user_data")
+      router.replace("/login")
+      return
+    }
+
+    setUserData(userData)
+    setIsLoading(false)
+    
+  } catch (error) {
+    console.error("Auth error:", error)
+    Cookies.remove("user_data")
+    router.replace("/login")
+  }
+}
+
+    checkAuth()
   }, [router])
 
-  // Save sidebar preference to cookie
-  const toggleSidebar = () => {
-    const newCollapsedState = !sidebarCollapsed
-    setSidebarCollapsed(newCollapsedState)
-    Cookies.set("sidebar_collapsed", newCollapsedState.toString(), { 
-      expires: 365, // Store for 1 year
-      sameSite: 'strict'
-    })
-  }
-
-  // Close card when clicking outside
+  // Close profile dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (isCardOpen && !event.target.closest('.user-card-trigger')) {
-        setIsCardOpen(false)
+      if (isProfileOpen && !event.target.closest('.profile-dropdown')) {
+        setIsProfileOpen(false)
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [isCardOpen])
+  }, [isProfileOpen])
 
-  // Toggle submenu expansion for mobile
   const toggleSubmenu = (itemName) => {
     setExpandedItems(prev => ({
       ...prev,
@@ -206,164 +224,101 @@ export function DashboardLayout({ children }) {
     }))
   }
 
-  // Logout handler
   const handleLogout = () => {
     Cookies.remove("user_data")
-    Cookies.remove("sidebar_collapsed")
-    setuserData(null)
     router.replace("/login")
   }
 
-  // Show loading or redirect if no user data
+  const getInitials = (username) => {
+    if (!username) return "U"
+    return username.charAt(0).toUpperCase()
+  }
+
+  const capitalize = (str) => {
+    if (!str) return ""
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
+  }
+
   if (isLoading || !userData) {
     return (
-      <div className="flex h-screen items-center justify-center bg-white">
+      <div className="flex h-screen items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <div className="relative mx-auto w-16 h-16">
-            {/* Outer ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-gray-200"></div>
-            {/* Animated ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-blue-600 border-t-transparent animate-spin"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-border animate-pulse"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
           </div>
         </div>
       </div>
     )
   }
 
-  const SidebarContent = ({ collapsed = true }) => (
-    <div className="flex h-full flex-col bg-blue-900 text-white">
-      {/* Logo and Toggle Area */}
-      <div
-        className={cn(
-          "flex h-16 items-center border-b border-blue-800 transition-all duration-300 ease-in-out justify-between",
-          collapsed ? "px-2" : "px-4",
-        )}
-      >
-        <div className="flex items-center space-x-3 overflow-hidden">
-          <div className="flex-shrink-0 relative w-8 h-8">
-            <Image
-              src="/logo.png"
-              alt="One Network Logo"
-              width={32}
-              height={32}
-              className="rounded-lg object-contain transition-transform duration-300 ease-in-out hover:scale-105"
-            />
+  const username = userData.user?.username || "User"
+  const userRole = userData.user?.role || "Admin"
+
+  // Sidebar component
+  const Sidebar = () => (
+    <div className="h-full bg-sidebar border-r border-border flex flex-col">
+      {/* Logo */}
+      <div className="p-4 border-b border-border">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="relative h-10 w-10">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                fill
+                className="object-contain"
+              />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-primary">GrowthSpire</h1>
+              <p className="text-xs text-muted-foreground">Startup Ecosystem</p>
+            </div>
           </div>
-          <div
-            className={cn(
-              "transition-all duration-300 ease-in-out overflow-hidden",
-              collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-            )}
-          >
-            <h1 className="text-sm font-semibold text-white whitespace-nowrap">One Network</h1>
-            <p className="text-xs text-blue-200 whitespace-nowrap">ISP Management</p>
-          </div>
-        </div>
-        
-        {/* Toggle Button - Only show when not collapsed */}
-        {!collapsed && (
           <Button
             variant="ghost"
-            size="sm"
-            onClick={toggleSidebar}
-            className="h-8 w-8 p-0 hover:bg-blue-800 hover:text-white transition-all duration-200"
+            size="icon"
+            className="lg:hidden"
+            onClick={() => setMobileMenuOpen(false)}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </Button>
-        )}
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-2 py-4">
+      <nav className="flex-1 overflow-y-auto p-4 space-y-1">
         {navigation.map((item) => {
-          const isActive = pathname === item.href || (item.submenu && item.submenu.some(sub => pathname === sub.href))
+          const isActive = pathname === item.href || 
+            (item.submenu && item.submenu.some(sub => pathname === sub.href))
           const hasSubmenu = item.submenu && item.submenu.length > 0
           const isExpanded = expandedItems[item.name]
-          
-          return (
-            <div 
-              key={item.name} 
-              className="group relative"
-              onMouseEnter={() => collapsed && setHoveredItem(item.name)}
-              onMouseLeave={() => collapsed && setHoveredItem(null)}
-            >
-              {/* Main Menu Item */}
-              <div className="relative">
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "flex items-center rounded-lg px-3 py-3 text-sm transition-all duration-200 ease-in-out group relative overflow-hidden",
-                    collapsed ? "justify-center" : "space-x-3 justify-between",
-                    isActive
-                      ? "bg-blue-600 text-white shadow-lg transform scale-[1.02]"
-                      : "text-blue-100 hover:bg-blue-800 hover:text-white hover:transform hover:scale-[1.02] hover:shadow-md",
-                  )}
-                  onClick={(e) => {
-                    if (hasSubmenu && !collapsed) {
-                      e.preventDefault()
-                      toggleSubmenu(item.name)
-                    } else {
-                      setSidebarOpen(false)
-                    }
-                  }}
-                >
-                  <div className="flex items-center space-x-3">
-                    <item.icon className="h-5 w-5 flex-shrink-0 transition-transform duration-200 ease-in-out group-hover:scale-110" />
-                    <span
-                      className={cn(
-                        "transition-all duration-300 ease-in-out whitespace-nowrap font-medium",
-                        collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
-                      )}
-                    >
-                      {item.name}
-                    </span>
-                  </div>
-                  
-                  {/* Submenu indicator for expanded sidebar */}
-                  {hasSubmenu && !collapsed && (
-                    <ChevronRight className={cn(
-                      "h-4 w-4 transition-transform duration-200 flex-shrink-0",
-                      isExpanded && "rotate-90"
-                    )} />
-                  )}
-                  
-                  {/* Tooltip for main item */}
-                  {collapsed && (
-                    <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-gray-900 text-white text-xs rounded-md px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50 shadow-lg border border-gray-700">
-                      {item.name}
-                    </div>
-                  )}
-                </Link>
 
-                {/* Hover submenu for collapsed sidebar (DESKTOP) */}
-                {collapsed && hasSubmenu && hoveredItem === item.name && (
-                  <div className="absolute left-full top-0 ml-1 bg-white rounded-lg shadow-xl border border-gray-200 py-2 min-w-48 z-50">
-                    <div className="px-3 py-2 border-b border-gray-100 bg-gray-50">
-                      <h3 className="text-sm font-semibold text-gray-800">{item.name}</h3>
-                    </div>
-                    <div className="py-1">
-                      {item.submenu.map((subItem) => (
-                        <Link
-                          key={subItem.name}
-                          href={subItem.href}
-                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200"
-                          onClick={() => {
-                            setSidebarOpen(false)
-                            setHoveredItem(null)
-                          }}
-                        >
-                          <subItem.icon className="h-4 w-4 flex-shrink-0" />
-                          <span className="whitespace-nowrap">{subItem.name}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
+          return (
+            <div key={item.name} className="space-y-1">
+              <div
+                className={cn(
+                  "flex items-center justify-between px-3 py-2.5 rounded-lg transition-all duration-200 cursor-pointer",
+                  isActive 
+                    ? "bg-primary text-primary-foreground" 
+                    : "hover:bg-accent hover:text-accent-foreground"
+                )}
+                onClick={() => hasSubmenu ? toggleSubmenu(item.name) : router.push(item.href)}
+              >
+                <div className="flex items-center gap-3">
+                  <item.icon className="h-5 w-5 flex-shrink-0" />
+                  <span className="font-medium">{item.name}</span>
+                </div>
+                {hasSubmenu && (
+                  <ChevronDown className={cn(
+                    "h-4 w-4 transition-transform duration-200",
+                    isExpanded && "rotate-180"
+                  )} />
                 )}
               </div>
 
-              {/* Expanded submenu for non-collapsed sidebar (MOBILE) */}
-              {hasSubmenu && !collapsed && isExpanded && (
-                <div className="ml-4 mt-1 space-y-1 border-l border-blue-700 pl-2">
+              {hasSubmenu && isExpanded && (
+                <div className="ml-9 space-y-1 animate-in fade-in-50 slide-in-from-top-2">
                   {item.submenu.map((subItem) => {
                     const isSubActive = pathname === subItem.href
                     return (
@@ -371,12 +326,12 @@ export function DashboardLayout({ children }) {
                         key={subItem.name}
                         href={subItem.href}
                         className={cn(
-                          "flex items-center space-x-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 ease-in-out",
+                          "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-200",
                           isSubActive
-                            ? "bg-blue-700 text-white"
-                            : "text-blue-200 hover:bg-blue-800 hover:text-white"
+                            ? "bg-secondary text-foreground font-medium"
+                            : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                         )}
-                        onClick={() => setSidebarOpen(false)}
+                        onClick={() => setMobileMenuOpen(false)}
                       >
                         <subItem.icon className="h-4 w-4 flex-shrink-0" />
                         <span>{subItem.name}</span>
@@ -390,179 +345,120 @@ export function DashboardLayout({ children }) {
         })}
       </nav>
 
-      {/* Footer with user info and expand button */}
-      <div className={cn(
-        "border-t border-blue-800 transition-all duration-300",
-        collapsed ? "p-3" : "p-3"
-      )}>
-        {collapsed ? (
-          <div className="flex flex-col items-center space-y-3">
-            <Avatar className="h-8 w-8 ring-2 ring-blue-400 transition-transform duration-200 ease-in-out hover:scale-105">
-              <AvatarFallback className="bg-blue-600 text-white text-xs font-semibold">
-                {getInitials(userData?.username)}
-              </AvatarFallback>
-            </Avatar>
-            {/* Expand button for collapsed sidebar */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleSidebar}
-              className="h-8 w-8 p-0 hover:bg-blue-800 hover:text-white transition-all duration-200"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+      {/* User Profile */}
+      <div className="p-4 border-t border-border">
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarFallback className="bg-primary text-primary-foreground">
+              {getInitials(username)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium truncate">{capitalize(username)}</p>
+            <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
           </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="flex items-center space-x-3">
-              <Avatar className="h-8 w-8 ring-2 ring-blue-400 transition-transform duration-200 ease-in-out hover:scale-105">
-                <AvatarFallback className="bg-blue-600 text-white text-xs font-semibold">
-                  {getInitials(userData?.username)}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-white whitespace-nowrap">
-                  {capitalizeUsername(userData?.username)}
-                </p>
-                <p className="text-xs text-blue-200 whitespace-nowrap">
-                  {userData?.mobile || "N/A"}
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleLogout}
+            className="h-8 w-8"
+          >
+            <LogOut className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   )
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Desktop Sidebar - Toggleable */}
-      <div 
-        className={cn(
-          "hidden lg:flex h-screen shadow-xl transition-all duration-300 ease-in-out relative bg-blue-900",
-          sidebarCollapsed ? "w-16" : "w-64"
-        )}
-        onMouseLeave={() => setHoveredItem(null)}
-      >
-        <SidebarContent collapsed={sidebarCollapsed} />
-      </div>
+    <div className="flex h-screen bg-background">
+      {/* Desktop Sidebar - Always visible */}
+      <aside className="hidden lg:flex w-64 flex-col border-r border-border bg-sidebar">
+        <Sidebar />
+      </aside>
 
-      {/* Mobile Sidebar - Full Width */}
-      <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
-        <SheetContent side="left" className="w-64 p-0 sm:w-72">
-          <SidebarContent collapsed={false} />
-        </SheetContent>
-      </Sheet>
+      {/* Mobile Sidebar Overlay */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden fixed inset-0 z-50">
+          <div 
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+          <div className="fixed inset-y-0 left-0 w-64 bg-sidebar border-r border-border animate-in slide-in-from-left">
+            <Sidebar />
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="flex h-14 sm:h-16 items-center justify-between border-b border-gray-200 px-3 sm:px-6 bg-white shadow-sm transition-all duration-200 ease-in-out">
-          <div className="flex items-center gap-2 sm:gap-4">
-            {/* Mobile Menu Button */}
-            <div
-              className="lg:hidden flex items-center justify-center h-14 w-14 rounded-md transition-all duration-200 ease-in-out hover:bg-blue-50 hover:text-blue-600 cursor-pointer"
-              onClick={() => setSidebarOpen(true)}
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setMobileMenuOpen(true)}
             >
-              <Menu className="h-7 w-7" />
-            </div>
-
-            {/* Desktop Toggle Button - Only show when sidebar is collapsed */}
-            {sidebarCollapsed && (
-              <div
-                className="hidden lg:flex items-center justify-center h-10 w-10 rounded-md transition-all duration-200 ease-in-out hover:bg-blue-50 hover:text-blue-600 cursor-pointer"
-                onClick={toggleSidebar}
-              >
-                <ChevronRight className="h-5 w-5" />
-              </div>
-            )}
-
-            {/* Mobile Search - Hidden on desktop */}
-            <div className="lg:hidden flex-1 max-w-xs">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 transition-colors duration-200" />
-                <Input
-                  placeholder="Search..."
-                  className="w-full pl-9 pr-3 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 ease-in-out h-9 text-sm"
-                />
-              </div>
-            </div>
-
-            {/* Desktop Search */}
-            <div className="hidden lg:block relative w-64">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 transition-colors duration-200" />
-              <Input
-                placeholder="Search..."
-                className="w-full pl-9 border-gray-200 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200 ease-in-out"
-              />
+              <Menu className="h-5 w-5" />
+            </Button>
+            <div className="hidden lg:block">
+              <h2 className="text-lg font-semibold">
+                {navigation.find(item => 
+                  item.href === pathname || 
+                  (item.submenu && item.submenu.some(sub => sub.href === pathname))
+                )?.name || "Dashboard"}
+              </h2>
             </div>
           </div>
 
-          {/* Avatar with improved mobile design */}
-          <div className="relative user-card-trigger">
-            <div
-              className="flex items-center gap-2 cursor-pointer p-1 rounded-lg transition-all duration-200 hover:bg-gray-100"
-              onClick={() => setIsCardOpen(!isCardOpen)}
-            >
-              <Avatar className="h-8 w-8 sm:h-9 sm:w-9 ring-2 ring-transparent hover:ring-blue-200 transition-all duration-200">
-                <AvatarFallback className="bg-blue-500 text-white text-xs font-semibold">
-                  {getInitials(userData?.username)}
-                </AvatarFallback>
-              </Avatar>
-              <span className="hidden sm:block text-sm font-medium text-gray-700">
-                {capitalizeUsername(userData?.username)}
-              </span>
-            </div>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive"></span>
+            </Button>
+            
+            {/* Profile Dropdown */}
+            <div className="relative profile-dropdown">
+              <Button
+                variant="ghost"
+                className="flex items-center gap-2"
+                onClick={() => setIsProfileOpen(!isProfileOpen)}
+              >
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {getInitials(username)}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:inline">{capitalize(username)}</span>
+              </Button>
 
-            {/* Enhanced Hover Card */}
-            <div
-              className={cn(
-                "absolute right-0 mt-2 w-72 sm:w-80 rounded-xl bg-white shadow-xl border border-gray-100 overflow-hidden z-50 transition-all duration-300 ease-out backdrop-blur-sm",
-                isCardOpen
-                  ? "opacity-100 scale-100 translate-y-0"
-                  : "opacity-0 scale-95 -translate-y-2 pointer-events-none"
-              )}
-            >
-
-              {/* Card Content */}
-              <div className="p-4 space-y-3">
-                {/* User Info Items */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
-                    <User className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500">Username</p>
-                      <p className="text-sm font-medium text-gray-800 truncate">{capitalizeUsername(userData?.username)}</p>
-                    </div>
+              {isProfileOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-lg border border-border bg-popover shadow-lg animate-in fade-in-80 slide-in-from-top-2">
+                  <div className="p-4 border-b border-border">
+                    <p className="font-medium">{capitalize(username)}</p>
+                    <p className="text-sm text-muted-foreground capitalize">{userRole}</p>
                   </div>
-
-                  <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200">
-                    <Phone className="h-4 w-4 text-blue-600 flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500">Mobile</p>
-                      <p className="text-sm font-medium text-gray-800">{userData?.mobile || "N/A"}</p>
-                    </div>
+                  <div className="p-2">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start text-destructive hover:text-destructive"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </Button>
                   </div>
                 </div>
-
-                {/* Logout Button */}
-                <Button
-                  onClick={handleLogout}
-                  variant="destructive"
-                  size="sm"
-                  className="w-full bg-red-500 hover:bg-red-600 text-white transition-all duration-200 ease-in-out hover:scale-[1.02] active:scale-[0.98] shadow-sm"
-                >
-                  Sign Out
-                </Button>
-              </div>
+              )}
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-3 sm:p-4 lg:p-6 transition-all duration-300 ease-in-out">
-          <div className="animate-in fade-in-0 slide-in-from-bottom-2 duration-500">
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+          <div className="max-w-7xl mx-auto">
             {children}
           </div>
         </main>

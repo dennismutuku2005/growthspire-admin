@@ -109,7 +109,7 @@ export default function LoginPage() {
     }, 1500)
   }
 
-  const handleKeyPress = () => {
+  const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       handleLogin()
     }
