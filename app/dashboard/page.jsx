@@ -7,90 +7,90 @@ import {
   Rocket,
   Building,
   Calendar,
-  TrendingUp,
   FileText,
   BarChart3,
   ArrowRight,
-  MoreHorizontal,
   Zap,
   CheckCircle2,
-  Clock
+  Clock,
+  TrendingUp,
+  Activity,
+  Layers,
+  ChevronRight
 } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line } from "recharts";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 // Mock Data
 const statsData = [
   {
-    title: "Active Startups",
+    title: "Vetted Startups",
     value: "24",
-    change: "+12%",
+    change: "+12.4%",
     trend: "up",
     icon: Rocket,
     color: "text-blue-600",
-    bg: "bg-blue-100 dark:bg-blue-900/20"
+    bg: "bg-blue-50"
   },
   {
-    title: "Pending Applications",
+    title: "Intake Queue",
     value: "156",
-    change: "+8.2%",
+    change: "+82 New",
     trend: "up",
-    icon: FileText,
+    icon: Layers,
     color: "text-purple-600",
-    bg: "bg-purple-100 dark:bg-purple-900/20"
+    bg: "bg-purple-50"
   },
   {
-    title: "Active Mentors",
+    title: "Global Mentors",
     value: "42",
-    change: "+4%",
+    change: "+4.1%",
     trend: "up",
     icon: Users,
-    color: "text-green-600",
-    bg: "bg-green-100 dark:bg-green-900/20"
+    color: "text-emerald-600",
+    bg: "bg-emerald-50"
   },
   {
-    title: "Upcoming Events",
-    value: "7",
+    title: "Deployments",
+    value: "07",
     change: "This Week",
     trend: "neutral",
-    icon: Calendar,
-    color: "text-orange-600",
-    bg: "bg-orange-100 dark:bg-orange-900/20"
+    icon: Activity,
+    color: "text-amber-600",
+    bg: "bg-amber-50"
   }
 ];
 
 const sectorData = [
-  { name: "Fintech", value: 35, color: "#3B82F6" },
-  { name: "HealthTech", value: 25, color: "#10B981" },
-  { name: "EdTech", value: 20, color: "#F59E0B" },
-  { name: "AgriTech", value: 15, color: "#6366F1" },
-  { name: "Other", value: 5, color: "#EC4899" },
+  { name: "Fintech", value: 35, color: "#3b82f6" },
+  { name: "HealthTech", value: 25, color: "#10b981" },
+  { name: "EdTech", value: 20, color: "#8b5cf6" },
+  { name: "AgriTech", value: 15, color: "#f59e0b" },
+  { name: "Other", value: 5, color: "#6b7280" },
 ];
 
 const performanceData = [
-  { name: "Jan", applications: 40, accepted: 4 },
-  { name: "Feb", applications: 30, accepted: 3 },
-  { name: "Mar", applications: 55, accepted: 6 },
-  { name: "Apr", applications: 45, accepted: 5 },
-  { name: "May", applications: 60, accepted: 7 },
-  { name: "Jun", applications: 75, accepted: 8 },
+  { name: "Jan", val: 400, acc: 240 },
+  { name: "Feb", val: 300, acc: 139 },
+  { name: "Mar", val: 200, acc: 980 },
+  { name: "Apr", val: 278, acc: 390 },
+  { name: "May", val: 189, acc: 480 },
+  { name: "Jun", val: 239, acc: 380 },
 ];
 
 const recentApplications = [
-  { id: 1, name: "EcoFlow", sector: "CleanTech", stage: "Seed", date: "2 mins ago", status: "New" },
-  { id: 2, name: "MedAI", sector: "HealthTech", stage: "Pre-Seed", date: "1 hour ago", status: "Reviewing" },
-  { id: 3, name: "PayEasy", sector: "Fintech", stage: "Series A", date: "3 hours ago", status: "Interview" },
-  { id: 4, name: "LearnLoop", sector: "EdTech", stage: "Seed", date: "5 hours ago", status: "New" },
-  { id: 5, name: "AgriSmart", sector: "AgriTech", stage: "Pre-Seed", date: "1 day ago", status: "Rejected" },
+  { id: 1, name: "EcoFlow", sector: "CleanTech", score: "88/100", date: "2 mins ago", status: "New" },
+  { id: 2, name: "MedAI", sector: "HealthTech", score: "72/100", date: "1 hr ago", status: "Reviewing" },
+  { id: 3, name: "PayEasy", sector: "Fintech", score: "94/100", date: "3 hrs ago", status: "Interview" },
+  { id: 4, name: "LearnLoop", sector: "EdTech", score: "61/100", date: "5 hrs ago", status: "New" },
+  { id: 5, name: "AgriSmart", sector: "AgriTech", score: "45/100", date: "1 day ago", status: "Rejected" },
 ];
 
 const upcomingEvents = [
-  { id: 1, title: "Demo Day Rehearsal", date: "Today, 2:00 PM", type: "Internal" },
-  { id: 2, title: "Mentor Mixer", date: "Tomorrow, 6:00 PM", type: "Networking" },
-  { id: 3, title: "Workshop: Valuation", date: "Fri, 10:00 AM", type: "Workshop" },
+  { id: 1, title: "Demo Day Rehearsal", time: "14:00", date: "Today", type: "Internal" },
+  { id: 2, title: "Mentor Mixer", time: "18:00", date: "Tomorrow", type: "Networking" },
+  { id: 3, title: "Workshop: Valuation", time: "10:00", date: "Friday", type: "Workshop" },
 ];
 
 export default function Dashboard() {
@@ -104,203 +104,207 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-8 animate-in fade-in-50 slide-in-from-bottom-5 duration-500">
+      <div className="space-y-6 animate-in fade-in duration-500">
 
-        {/* Welcome Section */}
+        {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">Accelerator Overview</h1>
-            <p className="text-muted-foreground mt-1">
-              Welcome back! Here's what's happening in your ecosystem today.
+            <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+              <BarChart3 className="text-blue-600" size={24} />
+              Accelerator Command Center
+            </h1>
+            <p className="text-sm text-gray-500 mt-1">
+              GrowthSpire Core Analytics • Version 4.2.0
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/dashboard/applications">
-              <Button>
-                <FileText className="mr-2 h-4 w-4" /> Review Applications
+              <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-sm">
+                Process Pipeline
               </Button>
             </Link>
-            <Button variant="outline">
-              <BarChart3 className="mr-2 h-4 w-4" /> Generate Report
-            </Button>
           </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           {statsData.map((stat, i) => (
-            <Card key={i} className="border-border/50 shadow-sm hover:shadow-md transition-all duration-200">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between space-y-0 pb-2">
-                  <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
-                  <div className={`p-2 rounded-full ${stat.bg}`}>
-                    <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                  </div>
+            <div key={i} className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-200">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm font-medium text-gray-500">{stat.title}</p>
+                <div className={`p-2 rounded-lg ${stat.bg}`}>
+                  <stat.icon size={16} className={stat.color} />
                 </div>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="text-2xl font-bold">{stat.value}</div>
-                  <div className={`text-xs font-medium px-2 py-0.5 rounded-full ${stat.trend === 'up' ? 'text-green-700 bg-green-100' : 'text-gray-600 bg-gray-100'
-                    }`}>
-                    {stat.change}
-                  </div>
+              </div>
+              <div className="flex items-end justify-between">
+                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
+                <div className={cn(
+                  "text-xs font-medium px-2 py-1 rounded-full",
+                  stat.trend === 'up' ? 'text-emerald-700 bg-emerald-50' : 'text-gray-600 bg-gray-50'
+                )}>
+                  {stat.change}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
 
-        {/* Main Content Info */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        {/* Main Operational Grid */}
+        <div className="grid gap-6 lg:grid-cols-12">
 
-          {/* Charts - Left Column */}
-          <div className="col-span-4 space-y-4">
-
-            {/* Applicant Growth Chart */}
-            <Card className="col-span-4">
-              <CardHeader>
-                <CardTitle>Application Growth</CardTitle>
-                <CardDescription>Monthly application submissions vs acceptances</CardDescription>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <div className="h-[300px]">
+          {/* Center Column: Big Chart & Activity */}
+          <div className="lg:col-span-8 space-y-6">
+            {/* Analytics Panel */}
+            <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-gray-50 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <TrendingUp size={18} className="text-blue-600" />
+                  <h3 className="text-sm font-semibold text-gray-900">Growth Vector Analysis</h3>
+                </div>
+              </div>
+              <div className="p-6">
+                <div className="h-[300px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={performanceData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
-                      <XAxis
-                        dataKey="name"
-                        stroke="#888888"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                      />
-                      <YAxis
-                        stroke="#888888"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        tickFormatter={(value) => `${value}`}
-                      />
+                    <LineChart data={performanceData}>
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                      <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#6b7280' }} />
+                      <YAxis fontSize={12} tickLine={false} axisLine={false} tick={{ fill: '#6b7280' }} />
                       <Tooltip
-                        contentStyle={{ backgroundColor: 'var(--card)', borderRadius: '8px', border: '1px solid var(--border)' }}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                       />
-                      <Bar dataKey="applications" name="Applications" fill="var(--primary)" radius={[4, 4, 0, 0]} />
-                      <Bar dataKey="accepted" name="Accepted" fill="var(--chart-2)" radius={[4, 4, 0, 0]} />
-                    </BarChart>
+                      <Line type="monotone" dataKey="val" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} activeDot={{ r: 6 }} />
+                      <Line type="monotone" dataKey="acc" stroke="#e5e7eb" strokeWidth={2} dot={{ r: 0 }} />
+                    </LineChart>
                   </ResponsiveContainer>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Upcoming Events */}
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle>Upcoming Events</CardTitle>
-                  <Link href="/dashboard/events" className="text-sm text-primary hover:underline">View All</Link>
-                </div>
-                <CardDescription>Key dates for the accelerated cohorts</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {upcomingEvents.map((event) => (
-                    <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs uppercase">
-                          {event.date.split(',')[0].slice(0, 3)}
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">{event.title}</p>
-                          <p className="text-xs text-muted-foreground">{event.date.includes(',') ? event.date.split(',')[1] : event.date}</p>
-                        </div>
-                      </div>
-                      <Badge variant="secondary" className="text-xs">{event.type}</Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
+            {/* Submission Pipeline */}
+            <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-gray-50 flex justify-between items-center">
+                <h3 className="text-sm font-semibold text-gray-900">Recent Intake Pipeline</h3>
+                <Link href="/dashboard/applications" className="text-xs font-medium text-blue-600 hover:text-blue-700">View All</Link>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-gray-50/50 border-b border-gray-50">
+                      <th className="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Venture</th>
+                      <th className="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Sector</th>
+                      <th className="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                      <th className="py-3 px-4 text-xs font-medium text-gray-500 uppercase tracking-wider text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentApplications.map((app) => (
+                      <tr key={app.id} className="border-b last:border-0 border-gray-50 hover:bg-gray-50 transition-colors">
+                        <td className="py-3 px-4">
+                          <span className="text-sm font-medium text-gray-900 block">{app.name}</span>
+                          <span className="text-xs text-gray-400">{app.date}</span>
+                        </td>
+                        <td className="py-3 px-4 text-sm text-gray-600">{app.sector}</td>
+                        <td className="py-3 px-4 text-sm font-medium text-gray-900">{app.score}</td>
+                        <td className="py-3 px-4 text-right">
+                          <span className={cn(
+                            "text-xs font-medium px-2.5 py-0.5 rounded-full inline-block",
+                            app.status === 'New' ? 'text-blue-700 bg-blue-50' :
+                              app.status === 'Rejected' ? 'text-red-700 bg-red-50' :
+                                'text-emerald-700 bg-emerald-50'
+                          )}>{app.status}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
 
-          {/* Right Column */}
-          <div className="col-span-3 space-y-4">
+          {/* Right Column: Events & Distribution */}
+          <div className="lg:col-span-4 space-y-6">
 
             {/* Sector Distribution */}
-            <Card className="col-span-3">
-              <CardHeader>
-                <CardTitle>Portfolio Distribution</CardTitle>
-                <CardDescription>Startups by industry sector</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="h-[200px] flex items-center justify-center">
+            <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-gray-50">
+                <h3 className="text-sm font-semibold text-gray-900">Ecosystem Density</h3>
+              </div>
+              <div className="p-6">
+                <div className="h-[200px] relative">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={sectorData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="value"
+                        cx="50%" cy="50%"
+                        innerRadius={60} outerRadius={80}
+                        paddingAngle={5} dataKey="value"
                       >
                         {sectorData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
+                          <Cell key={`cell-${index}`} fill={entry.color} stroke="none" cornerRadius={4} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip contentStyle={{ fontSize: '12px', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                     </PieChart>
                   </ResponsiveContainer>
+                  {/* Center Text */}
+                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                    <div className="text-center">
+                      <p className="text-2xl font-bold text-gray-900 leading-none">100%</p>
+                      <p className="text-xs text-gray-400 mt-1">Total</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2 mt-4">
+                <div className="space-y-3 mt-6">
                   {sectorData.map((item, index) => (
-                    <div key={index} className="flex items-center gap-2 text-sm">
-                      <div className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
-                      <span className="text-muted-foreground">{item.name}</span>
-                      <span className="font-medium ml-auto">{item.value}%</span>
+                    <div key={index} className="flex items-center justify-between text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: item.color }} />
+                        <span className="text-gray-600">{item.name}</span>
+                      </div>
+                      <span className="font-medium text-gray-900">{item.value}%</span>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            {/* Recent Applications */}
-            <Card className="col-span-3">
-              <CardHeader>
-                <CardTitle>Recent Applications</CardTitle>
-                <CardDescription>Latest submissions requiring review</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentApplications.map((app) => (
-                    <div key={app.id} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-9 w-9">
-                          <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                            {app.name.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium leading-none">{app.name}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{app.sector} • {app.stage}</p>
-                        </div>
+            {/* Upcoming Briefing */}
+            <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+              <div className="p-4 border-b border-gray-50 flex justify-between items-center">
+                <h3 className="text-sm font-semibold text-gray-900">Briefing Calendar</h3>
+                <Calendar size={16} className="text-gray-400" />
+              </div>
+              <div className="divide-y divide-gray-50">
+                {upcomingEvents.map((event) => (
+                  <div key={event.id} className="p-4 hover:bg-gray-50 transition-colors cursor-pointer group">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-xs font-medium text-blue-600 mb-1">{event.date} • {event.time}</p>
+                        <p className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors">{event.title}</p>
                       </div>
-                      <div className="flex flex-col items-end gap-1">
-                        <Badge variant={app.status === 'New' ? 'default' : 'secondary'} className="text-[10px]">
-                          {app.status}
-                        </Badge>
-                        <span className="text-[10px] text-muted-foreground">{app.date}</span>
-                      </div>
+                      <ChevronRight size={16} className="text-gray-300 group-hover:text-blue-600 transition-colors" />
                     </div>
-                  ))}
-                </div>
-                <Button variant="ghost" className="w-full mt-4 text-xs" asChild>
-                  <Link href="/dashboard/applications">
-                    View All Applications <ArrowRight className="ml-2 h-3 w-3" />
-                  </Link>
+                  </div>
+                ))}
+              </div>
+              <div className="p-3 bg-gray-50 border-t border-gray-100">
+                <Button variant="ghost" className="w-full text-xs text-gray-600 hover:text-gray-900 h-8">
+                  View Full Calendar
                 </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+
+            {/* Platform Status */}
+            <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-4 text-white flex items-center justify-between shadow-md">
+              <div>
+                <p className="text-xs font-medium opacity-80">Network Status</p>
+                <p className="text-sm font-bold mt-0.5 flex items-center gap-2">
+                  <CheckCircle2 size={14} className="text-emerald-400" />
+                  Operational
+                </p>
+              </div>
+              <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+            </div>
 
           </div>
         </div>

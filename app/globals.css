@@ -17,15 +17,15 @@
   --secondary-foreground: oklch(0.25 0.02 260);
   --muted: oklch(0.96 0.005 240);
   --muted-foreground: oklch(0.5 0.01 240);
-  --accent: oklch(0.75 0.18 180);
-  --accent-foreground: oklch(0.15 0.02 180);
+  --accent: oklch(0.94 0.03 285);
+  --accent-foreground: oklch(0.35 0.15 285);
   --destructive: oklch(0.65 0.25 25);
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.9 0.005 240);
   --input: oklch(0.92 0.005 240);
   --ring: oklch(0.68 0.22 285);
   --chart-1: oklch(0.65 0.24 260);
-  --chart-2: oklch(0.7 0.22 180);
+  --chart-2: oklch(0.7 0.22 285);
   --chart-3: oklch(0.68 0.2 320);
   --chart-4: oklch(0.72 0.18 40);
   --chart-5: oklch(0.65 0.2 200);
@@ -38,6 +38,10 @@
   --sidebar-accent-foreground: oklch(0.3 0.02 260);
   --sidebar-border: oklch(0.93 0.005 240);
   --sidebar-ring: oklch(0.75 0.15 260);
+
+  /* Brand Design Tokens from Pace */
+  --pace-purple: #4B1D8F;
+  --pace-purple-light: #F4F0FF;
 }
 
 /* Making dark mode much lighter - changing backgrounds from very dark to light gray tones */
@@ -116,6 +120,9 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  --color-pace-purple: var(--pace-purple);
+  --color-pace-purple-light: var(--pace-purple-light);
+
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
 
@@ -147,10 +154,101 @@
 
   body {
     @apply bg-background text-foreground;
+    font-size: 13px;
   }
 
   html {
     scroll-behavior: smooth;
+  }
+
+  /* 2D Flat Look - Removing shadows and depth */
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl,
+  .shadow {
+    box-shadow: none !important;
+  }
+
+  /* Flat Borders and Backgrounds */
+  .border,
+  .border-t,
+  .border-b,
+  .border-l,
+  .border-r {
+    border-color: #f1f1f1 !important;
+  }
+
+  .bg-card,
+  .bg-background {
+    background-color: #ffffff !important;
+  }
+
+  /* Sharp Corners for 2D look */
+  .rounded-xl,
+  .rounded-lg,
+  .rounded-md,
+  .rounded-sm,
+  .rounded {
+    border-radius: 0px !important;
+  }
+
+  /* Tight Table Row Heights */
+  table {
+    border-collapse: collapse !important;
+    width: 100%;
+  }
+
+  th {
+    font-weight: 600;
+    color: #666;
+    background-color: #fcfcfc;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding: 8px 12px !important;
+    font-size: 11px !important;
+    border-bottom: 1px solid #eee !important;
+  }
+
+  td {
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    border-bottom: 1px solid #f8f8f8 !important;
+    height: 34px !important;
+    color: #444;
+  }
+
+  tr:hover td {
+    background-color: #f9f9f9 !important;
+  }
+
+  /* Input Flatness */
+  input,
+  select,
+  textarea {
+    border-radius: 0px !important;
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    font-size: 13px !important;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--pace-purple) !important;
+    outline: none !important;
+  }
+
+  /* Badge Flatness */
+  .badge,
+  [class*="Badge"] {
+    border-radius: 2px !important;
+    box-shadow: none !important;
+    font-weight: 500 !important;
+    text-transform: none !important;
+    font-size: 11px !important;
+    border: 1px solid transparent !important;
   }
 }
 

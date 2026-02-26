@@ -100,9 +100,8 @@ const ReceiptTemplate = ({ payment, onDownload }) => {
         </div>
         <div>
           <p className="text-sm text-gray-500">Status</p>
-          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
-            payment.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-          }`}>
+          <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${payment.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+            }`}>
             {payment.status}
           </span>
         </div>
@@ -211,20 +210,20 @@ export default function BillingPage() {
 
   const downloadPDFReceipt = (payment) => {
     const doc = new jsPDF();
-    
+
     // Add Logo (assuming logo.png is accessible)
     doc.addImage("/logo.png", "PNG", 80, 10, 20, 20);
-    
+
     // Header
     doc.setFontSize(18);
     doc.setFont("helvetica", "bold");
     doc.text("Payment Receipt", 105, 40, { align: "center" });
-    
+
     // Details
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
     doc.setTextColor(100);
-    
+
     const details = [
       { label: "Date", value: payment.date },
       { label: "Reference", value: payment.reference },
@@ -267,9 +266,8 @@ export default function BillingPage() {
           {isLoading ? (
             <div className="h-8 w-20 bg-gray-100 rounded animate-pulse mt-1"></div>
           ) : isBadge ? (
-            <span className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-semibold ${
-              value === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-            }`}>
+            <span className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-semibold ${value === "Active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+              }`}>
               {value}
             </span>
           ) : (
@@ -309,9 +307,9 @@ export default function BillingPage() {
         </div>
         <Shield className="text-green-600" size={18} />
       </div>
-      
+
       <p className="text-sm text-gray-600 mb-3">{description}</p>
-      
+
       <div className="space-y-2 bg-gray-50 p-3 rounded-lg">
         <div className="flex items-center justify-between">
           <div>
@@ -330,7 +328,7 @@ export default function BillingPage() {
             )}
           </button>
         </div>
-        
+
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-gray-500">Account Number</p>
@@ -435,7 +433,7 @@ export default function BillingPage() {
                   description="Use this account to purchase SMS credits"
                   icon={MessageSquare}
                 />
-                
+
                 <PaymentAccountCard
                   title="WhatsApp Credits"
                   businessNumber="5677188"
@@ -443,7 +441,7 @@ export default function BillingPage() {
                   description="Use this account to purchase WhatsApp credits"
                   icon={MessageCircle}
                 />
-                
+
                 <PaymentAccountCard
                   title="General Billing"
                   businessNumber="5677188"
@@ -456,7 +454,7 @@ export default function BillingPage() {
               <div className="mt-6 p-4 bg-gray-50 rounded-lg text-center">
                 <div className="flex items-center text-center space-x-2">
                   <p className="text-sm text-gray-700 text-center">
-                    All transactions are processed through Safaricom M-Pesa Paybill. 
+                    All transactions are processed through Safaricom M-Pesa Paybill.
                     Your payment will reflect in your account within 5 minutes.
                   </p>
                 </div>
@@ -521,7 +519,7 @@ export default function BillingPage() {
               </tbody>
             </table>
           </div>
-          
+
           {payments.length === 0 && !isLoading && (
             <div className="p-12 text-center">
               <Receipt className="mx-auto text-gray-300 mb-4" size={48} />

@@ -1,77 +1,102 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Users, BookOpen, Zap } from "lucide-react"
+import { Users, BookOpen, Activity, ChevronRight, Rocket } from "lucide-react"
 import Link from "next/link"
+import { cn } from "@/lib/utils"
 
 export default function AcceleratorDashboard() {
+    const modules = [
+        {
+            title: "Programs",
+            count: "3 ACTIVE BATCHES",
+            description: "MANAGE ONGOING ACCELERATOR COHORTS, CURRICULUM AND SELECTION PHASES.",
+            href: "/dashboard/accelerator/programs",
+            icon: Activity,
+            color: "text-gray-950",
+            bg: "bg-gray-50"
+        },
+        {
+            title: "Mentors",
+            count: "45 ACTIVE MENTORS",
+            description: "COORDINATE MENTORSHIP SESSIONS, OFFICE HOURS AND MENTOR MATCHING.",
+            href: "/dashboard/accelerator/mentors",
+            icon: Users,
+            color: "text-gray-950",
+            bg: "bg-gray-50"
+        },
+        {
+            title: "Resources",
+            count: "120+ DOCUMENTS",
+            description: "MANAGE DIGITAL LIBRARY, TEMPLATES AND SOFTWARE TOOLS FOR STARTUPS.",
+            href: "/dashboard/accelerator/resources",
+            icon: BookOpen,
+            color: "text-gray-950",
+            bg: "bg-gray-50"
+        },
+    ]
+
     return (
         <DashboardLayout>
-            <div className="space-y-6 animate-in fade-in-50 slide-in-from-bottom-5 duration-500">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-primary">Accelerator Overview</h1>
-                    <p className="text-muted-foreground mt-1">Monitor program health and resources.</p>
+            <div className="space-y-4 animate-in fade-in duration-500">
+                {/* 2D Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+                    <div>
+                        <h1 className="text-lg font-semibold tracking-tight text-gray-900 uppercase flex items-center gap-2">
+                            <Rocket size={18} className="text-black" />
+                            Program Management
+                        </h1>
+                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mt-0.5">
+                            MONITOR PROGRAM HEALTH, RESOURCES AND ECOSYSTEM GROWTH
+                        </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button size="sm" className="bg-black text-white hover:bg-black/90 rounded-none h-8 text-[11px] font-medium uppercase tracking-wide">
+                            View Roadmap
+                        </Button>
+                    </div>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-3">
-                    <Link href="/dashboard/accelerator/programs">
-                        <Card className="h-full hover:bg-accent/50 transition-colors cursor-pointer border-border/50">
-                            <CardHeader>
-                                <div className="flex items-center gap-4">
-                                    <div className="p-2 bg-primary/10 rounded-lg">
-                                        <Zap className="h-6 w-6 text-primary" />
+                {/* Flat 2D Grid Section */}
+                <div className="grid gap-2 md:grid-cols-3">
+                    {modules.map((mod, i) => (
+                        <Link key={mod.title} href={mod.href}>
+                            <div className="group bg-white border border-gray-200 p-4 h-full relative cursor-pointer hover:border-black transition-all border-t-2 border-t-transparent hover:border-t-black">
+                                <div className="flex items-start justify-between">
+                                    <div className={cn("p-2", mod.bg)}>
+                                        <mod.icon size={16} className={mod.color} />
                                     </div>
-                                    <div>
-                                        <CardTitle>Programs</CardTitle>
-                                        <CardDescription>3 Active Batches</CardDescription>
-                                    </div>
+                                    <ChevronRight size={14} className="text-gray-300 group-hover:text-black group-hover:translate-x-1 transition-all" />
                                 </div>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-muted-foreground">Manage ongoing accelerator cohorts and curriculum.</p>
-                            </CardContent>
-                        </Card>
-                    </Link>
+                                <div className="mt-4">
+                                    <h3 className="text-[13px] font-bold text-gray-900 uppercase tracking-tight">{mod.title}</h3>
+                                    <p className="text-[10px] text-black font-bold mt-1 uppercase">
+                                        {mod.count}
+                                    </p>
+                                    <p className="text-[11px] text-gray-500 mt-2 leading-relaxed font-medium">
+                                        {mod.description}
+                                    </p>
+                                </div>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
 
-                    <Link href="/dashboard/accelerator/mentors">
-                        <Card className="h-full hover:bg-accent/50 transition-colors cursor-pointer border-border/50">
-                            <CardHeader>
-                                <div className="flex items-center gap-4">
-                                    <div className="p-2 bg-purple-500/10 rounded-lg">
-                                        <Users className="h-6 w-6 text-purple-500" />
-                                    </div>
-                                    <div>
-                                        <CardTitle>Mentors</CardTitle>
-                                        <CardDescription>45 Active Mentors</CardDescription>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-muted-foreground">Coordinate mentorship sessions and office hours.</p>
-                            </CardContent>
-                        </Card>
-                    </Link>
-
-                    <Link href="/dashboard/accelerator/resources">
-                        <Card className="h-full hover:bg-accent/50 transition-colors cursor-pointer border-border/50">
-                            <CardHeader>
-                                <div className="flex items-center gap-4">
-                                    <div className="p-2 bg-blue-500/10 rounded-lg">
-                                        <BookOpen className="h-6 w-6 text-blue-500" />
-                                    </div>
-                                    <div>
-                                        <CardTitle>Resources</CardTitle>
-                                        <CardDescription>120+ Documents</CardDescription>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-muted-foreground">Manage digital library and tools for startups.</p>
-                            </CardContent>
-                        </Card>
-                    </Link>
+                {/* 2D Stats Info Bar */}
+                <div className="bg-gray-50 border border-gray-200 p-3 flex flex-wrap gap-6 items-center">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Cohorts:</span>
+                        <span className="text-sm font-semibold text-gray-800">C2, C3, C4</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Enrollment Rate:</span>
+                        <span className="text-sm font-semibold text-emerald-600">84%</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Success Metric:</span>
+                        <span className="text-sm font-semibold text-gray-800">4.8/5.0</span>
+                    </div>
                 </div>
             </div>
         </DashboardLayout>

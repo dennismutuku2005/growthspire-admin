@@ -1,10 +1,11 @@
 "use client"
 
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, Users } from "lucide-react"
+import { Calendar, Users, Search, Filter, BarChart } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
 
 export default function PastEventsPage() {
     const events = [
@@ -32,35 +33,90 @@ export default function PastEventsPage() {
 
     return (
         <DashboardLayout>
-            <div className="space-y-6 animate-in fade-in-50 slide-in-from-bottom-5 duration-500">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-primary">Past Events</h1>
-                    <p className="text-muted-foreground mt-1">Archive of previous events.</p>
+            <div className="space-y-4 animate-in fade-in duration-500">
+                {/* 2D Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+                    <div>
+                        <h1 className="text-lg font-semibold tracking-tight text-gray-900 uppercase flex items-center gap-2">
+                            <Calendar size={18} className="text-gray-400" />
+                            Event Archives
+                        </h1>
+                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mt-0.5">
+                            HISTORICAL RECORD OF COMPLETED ENGAGEMENTS AND ATTENDANCE METRICS
+                        </p>
+                    </div>
                 </div>
 
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {events.map((event) => (
-                        <Card key={event.id} className="flex flex-col border-border/50 bg-card/50 opacity-75 hover:opacity-100 transition-opacity">
-                            <CardHeader>
-                                <div className="flex justify-between items-start mb-2">
-                                    <Badge variant="outline" className="bg-secondary/50">{event.type}</Badge>
-                                    <Badge variant="secondary">{event.status}</Badge>
-                                </div>
-                                <CardTitle className="text-xl">{event.title}</CardTitle>
-                            </CardHeader>
-                            <CardContent className="flex-1 space-y-4">
-                                <div className="flex items-center text-sm text-muted-foreground gap-2">
-                                    <Calendar className="h-4 w-4" />
-                                    <span>{event.date}</span>
-                                </div>
-                                <div className="flex items-center text-sm text-muted-foreground gap-2">
-                                    <Users className="h-4 w-4" />
-                                    <span>{event.attendees} Attended</span>
-                                </div>
-                                <Button variant="outline" className="w-full mt-4">View Report</Button>
-                            </CardContent>
-                        </Card>
-                    ))}
+                {/* 2D Filter Bar */}
+                <div className="flex flex-col md:flex-row gap-2 bg-gray-50 border border-t-2 border-t-gray-400 p-2">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search historical events..."
+                            className="pl-8 h-8 rounded-none border-gray-200 bg-white text-[12px] focus-visible:ring-0 focus-visible:border-gray-400"
+                        />
+                    </div>
+                    <Button variant="outline" className="h-8 rounded-none border-gray-200 bg-white text-[11px] font-medium uppercase tracking-wider px-4">
+                        <Filter className="mr-1.5 h-3.5 w-3.5 text-gray-400" /> Filter
+                    </Button>
+                </div>
+
+                {/* 2D Table Layout */}
+                <div className="border border-gray-200 bg-white overflow-hidden">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-gray-50 border-b border-gray-200">
+                                <th>EVENT TITLE</th>
+                                <th>COMPLETION DATE</th>
+                                <th>LOCATION</th>
+                                <th>TOTAL ATTENDEES</th>
+                                <th>CATEGORY</th>
+                                <th className="text-right">ANALYTICS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {events.map((event) => (
+                                <tr key={event.id} className="group border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                                    <td className="py-2 px-3">
+                                        <span className="text-[13px] font-semibold text-gray-500 group-hover:text-pace-purple tracking-tight">
+                                            {event.title}
+                                        </span>
+                                    </td>
+                                    <td className="py-2 px-3 text-[11px] font-bold text-gray-400 uppercase tracking-tight">
+                                        {event.date}
+                                    </td>
+                                    <td className="py-2 px-3 text-[11px] font-medium text-gray-400 italic">
+                                        {event.location}
+                                    </td>
+                                    <td className="py-2 px-3">
+                                        <div className="flex items-center gap-1.5 text-[11px] font-bold text-gray-600">
+                                            <Users size={12} className="text-gray-300" />
+                                            {event.attendees} REACH
+                                        </div>
+                                    </td>
+                                    <td className="py-2 px-3">
+                                        <span className="text-[9px] font-bold uppercase px-1.5 py-0.5 bg-gray-50 text-gray-400 border border-gray-100">
+                                            {event.type}
+                                        </span>
+                                    </td>
+                                    <td className="py-2 px-3 text-right">
+                                        <Button variant="ghost" className="h-6 gap-1 px-2 rounded-none text-gray-400 hover:text-pace-purple font-bold text-[10px] uppercase opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <BarChart size={12} />
+                                            Post-Event
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* 2D Stat Info */}
+                <div className="flex gap-4 p-2 bg-gray-50 border border-gray-200">
+                    <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Lifetime Reach:</span>
+                        <span className="text-sm font-semibold text-gray-800">4,280+ PARTICIPANTS</span>
+                    </div>
                 </div>
             </div>
         </DashboardLayout>

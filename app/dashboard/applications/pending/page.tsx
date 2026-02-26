@@ -2,14 +2,13 @@
 
 import { useState } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Eye, Check, X, Trash2 } from "lucide-react"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Eye, Check, X, Search, Filter, Clock } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
+import { cn } from "@/lib/utils"
 
 export default function PendingApplicationsPage() {
     const [applications, setApplications] = useState([
@@ -18,7 +17,7 @@ export default function PendingApplicationsPage() {
             applicant: "Jane Doe",
             email: "jane@solarsolution.com",
             project: "Solar Solution",
-            description: "A decentralized solar energy trading platform using blockchain.",
+            description: "A decentralized solar energy trading platform using blockchain for peer-to-peer energy sharing in off-grid communities.",
             submissionDate: "2024-03-10",
             status: "Pending Review",
         },
@@ -27,7 +26,7 @@ export default function PendingApplicationsPage() {
             applicant: "John Smith",
             email: "john@agritech.ai",
             project: "AgriTech AI",
-            description: "AI-powered crop disease detection for rural farmers.",
+            description: "AI-powered crop disease detection for rural farmers through accessible mobile imaging and climate data analysis.",
             submissionDate: "2024-03-09",
             status: "Pending Review",
         },
@@ -36,7 +35,7 @@ export default function PendingApplicationsPage() {
             applicant: "Alice Brown",
             email: "alice@edusphere.io",
             project: "EduSphere",
-            description: "VR classrooms for remote education in developing regions.",
+            description: "VR classrooms for remote education in developing regions, providing immersive learning experiences without infrastructure.",
             submissionDate: "2024-03-12",
             status: "Pending Review",
         },
@@ -47,14 +46,9 @@ export default function PendingApplicationsPage() {
 
     const handleApprove = (id: number) => {
         setApplications(applications.filter(app => app.id !== id))
-        // In a real app, this would make an API call to change status
     }
 
     const handleReject = (id: number) => {
-        setApplications(applications.filter(app => app.id !== id))
-    }
-
-    const handleDelete = (id: number) => {
         setApplications(applications.filter(app => app.id !== id))
     }
 
@@ -65,103 +59,132 @@ export default function PendingApplicationsPage() {
 
     return (
         <DashboardLayout>
-            <div className="space-y-6 animate-in fade-in-50 slide-in-from-bottom-5 duration-500">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-primary">Pending Applications</h1>
-                    <p className="text-muted-foreground mt-1">Review waiting applications.</p>
+            <div className="space-y-4 animate-in fade-in duration-500">
+                {/* 2D Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+                    <div>
+                        <h1 className="text-lg font-semibold tracking-tight text-gray-900 uppercase flex items-center gap-2">
+                            <Clock size={18} className="text-amber-600" />
+                            Review Queue
+                        </h1>
+                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mt-0.5">
+                            MANAGE INCOMING APPLICATIONS WAITING FOR INITIAL SCREENING
+                        </p>
+                    </div>
                 </div>
 
-                <Card className="border-border/50 bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <CardTitle>Queue ({applications.length})</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="hover:bg-transparent border-border/50">
-                                    <TableHead>Applicant</TableHead>
-                                    <TableHead>Project Name</TableHead>
-                                    <TableHead>Date</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {applications.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center h-24 text-muted-foreground">
-                                            No pending applications. Good job!
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    applications.map((app) => (
-                                        <TableRow key={app.id} className="hover:bg-accent/50 border-border/50 transition-colors">
-                                            <TableCell className="font-medium">
-                                                <div>{app.applicant}</div>
-                                                <div className="text-xs text-muted-foreground">{app.email}</div>
-                                            </TableCell>
-                                            <TableCell>{app.project}</TableCell>
-                                            <TableCell>{app.submissionDate}</TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className="bg-yellow-500/10 text-yellow-600 border-yellow-200">
-                                                    {app.status}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                <div className="flex justify-end gap-2">
-                                                    <Button size="icon" variant="ghost" onClick={() => openViewModal(app)} title="View Details">
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button size="icon" variant="ghost" className="text-green-600 hover:text-green-700 hover:bg-green-100" onClick={() => handleApprove(app.id)} title="Approve">
-                                                        <Check className="h-4 w-4" />
-                                                    </Button>
-                                                    <Button size="icon" variant="ghost" className="text-red-600 hover:text-red-700 hover:bg-red-100" onClick={() => handleReject(app.id)} title="Reject">
-                                                        <X className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+                {/* 2D Filter Bar */}
+                <div className="flex flex-col md:flex-row gap-2 bg-gray-50 border border-t-2 border-t-amber-500 p-2">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Filter by applicant or project..."
+                            className="pl-8 h-8 rounded-none border-gray-200 bg-white text-[12px] focus-visible:ring-0 focus-visible:border-gray-400"
+                        />
+                    </div>
+                    <Button variant="outline" className="h-8 rounded-none border-gray-200 bg-white text-[11px] font-medium uppercase tracking-wider px-4">
+                        <Filter className="mr-1.5 h-3.5 w-3.5 text-gray-400" /> Filter
+                    </Button>
+                </div>
 
+                {/* 2D Table Layout */}
+                <div className="border border-gray-200 bg-white overflow-hidden">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-gray-50 border-b border-gray-200">
+                                <th>APPLICANT</th>
+                                <th>PROJECT NAME</th>
+                                <th>SUBMISSION DATE</th>
+                                <th>STATUS</th>
+                                <th className="text-right">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {applications.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="py-8 text-center text-[11px] font-bold text-gray-400 uppercase italic">
+                                        No pending applications in queue.
+                                    </td>
+                                </tr>
+                            ) : (
+                                applications.map((app) => (
+                                    <tr key={app.id} className="group border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
+                                        <td className="py-2 px-3">
+                                            <div className="flex flex-col">
+                                                <span className="text-[13px] font-semibold text-gray-900 group-hover:text-pace-purple">
+                                                    {app.applicant}
+                                                </span>
+                                                <span className="text-[10px] text-gray-400 font-medium uppercase truncate max-w-[150px]">
+                                                    {app.email}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td className="py-2 px-3 text-[12px] font-bold text-gray-700">
+                                            {app.project}
+                                        </td>
+                                        <td className="py-2 px-3 text-[11px] font-medium text-gray-400">
+                                            {app.submissionDate}
+                                        </td>
+                                        <td className="py-2 px-3">
+                                            <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 bg-amber-50 text-amber-600 border border-amber-100">
+                                                {app.status}
+                                            </span>
+                                        </td>
+                                        <td className="py-2 px-3">
+                                            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <Button variant="ghost" className="h-6 w-6 p-0 rounded-none text-gray-400 hover:text-pace-purple" onClick={() => openViewModal(app)}>
+                                                    <Eye size={12} />
+                                                </Button>
+                                                <Button variant="ghost" className="h-6 w-6 p-0 rounded-none text-emerald-500 hover:bg-emerald-50" onClick={() => handleApprove(app.id)}>
+                                                    <Check size={12} />
+                                                </Button>
+                                                <Button variant="ghost" className="h-6 w-6 p-0 rounded-none text-red-500 hover:bg-red-50" onClick={() => handleReject(app.id)}>
+                                                    <X size={12} />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* View Details Modal */}
                 <Dialog open={isViewOpen} onOpenChange={setIsViewOpen}>
-                    <DialogContent className="sm:max-w-[600px]">
+                    <DialogContent className="sm:max-w-[600px] rounded-none">
                         <DialogHeader>
-                            <DialogTitle>Application Details</DialogTitle>
-                            <DialogDescription>Review the full application submission.</DialogDescription>
+                            <DialogTitle className="text-[14px] font-bold uppercase italic">Application Review</DialogTitle>
+                            <DialogDescription className="text-[11px]">REVIEW THE FULL SUBMISSION FOR PROJECT: {selectedApp?.project.toUpperCase()}</DialogDescription>
                         </DialogHeader>
                         {selectedApp && (
-                            <div className="space-y-4 py-4">
-                                <div className="grid grid-cols-4 items-start gap-4">
-                                    <Label className="text-right font-medium">Applicant</Label>
+                            <div className="space-y-4 py-2">
+                                <div className="grid grid-cols-4 items-start gap-4 pb-2 border-b border-gray-100">
+                                    <Label className="text-right text-[11px] font-bold uppercase text-gray-500 mt-1">Applicant</Label>
                                     <div className="col-span-3">
-                                        <p className="font-semibold">{selectedApp.applicant}</p>
-                                        <p className="text-sm text-muted-foreground">{selectedApp.email}</p>
+                                        <p className="text-[13px] font-bold">{selectedApp.applicant}</p>
+                                        <p className="text-[11px] text-gray-400 font-medium">{selectedApp.email}</p>
                                     </div>
                                 </div>
-                                <div className="grid grid-cols-4 items-start gap-4">
-                                    <Label className="text-right font-medium">Project</Label>
-                                    <div className="col-span-3 font-semibold">{selectedApp.project}</div>
+                                <div className="grid grid-cols-4 items-start gap-4 pb-2 border-b border-gray-100">
+                                    <Label className="text-right text-[11px] font-bold uppercase text-gray-500">Project</Label>
+                                    <div className="col-span-3 text-[13px] font-bold text-pace-purple">{selectedApp.project}</div>
                                 </div>
-                                <div className="grid grid-cols-4 items-start gap-4">
-                                    <Label className="text-right font-medium">Description</Label>
-                                    <div className="col-span-3 p-3 bg-muted rounded-md text-sm">
+                                <div className="grid grid-cols-4 items-start gap-4 pb-2 border-b border-gray-100">
+                                    <Label className="text-right text-[11px] font-bold uppercase text-gray-500">Pitch Info</Label>
+                                    <div className="col-span-3 p-3 bg-gray-50 border border-gray-100 text-[11px] text-gray-600 leading-relaxed font-medium">
                                         {selectedApp.description}
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-4 items-start gap-4">
-                                    <Label className="text-right font-medium">Submitted</Label>
-                                    <div className="col-span-3">{selectedApp.submissionDate}</div>
+                                    <Label className="text-right text-[11px] font-bold uppercase text-gray-500">Received</Label>
+                                    <div className="col-span-3 text-[11px] font-bold">{selectedApp.submissionDate}</div>
                                 </div>
                             </div>
                         )}
-                        <DialogFooter className="gap-2 sm:gap-0">
-                            <Button variant="outline" className="text-destructive hover:text-destructive" onClick={() => { handleReject(selectedApp?.id); setIsViewOpen(false); }}>Reject</Button>
-                            <Button className="bg-green-600 hover:bg-green-700" onClick={() => { handleApprove(selectedApp?.id); setIsViewOpen(false); }}>Approve Application</Button>
+                        <DialogFooter className="gap-2 sm:gap-1">
+                            <Button size="sm" variant="outline" className="rounded-none border-red-200 text-red-500 hover:bg-red-50 h-8 text-[11px] font-bold uppercase px-6" onClick={() => { handleReject(selectedApp?.id); setIsViewOpen(false); }}>Reject</Button>
+                            <Button size="sm" className="rounded-none bg-emerald-600 h-8 text-[11px] font-bold uppercase px-6" onClick={() => { handleApprove(selectedApp?.id); setIsViewOpen(false); }}>Approve</Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>

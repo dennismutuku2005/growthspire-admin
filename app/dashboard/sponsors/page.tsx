@@ -2,15 +2,19 @@
 
 import { useState } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Plus, Building2, ExternalLink, Pencil, Trash2 } from "lucide-react"
+import { Plus, Building2, Pencil, Trash2, Search, Filter, Edit2, X, MoreHorizontal } from "lucide-react"
 import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { cn } from "@/lib/utils"
+import { Modal } from "@/components/Modal"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export default function SponsorsPage() {
     // Initial Data
@@ -49,10 +53,11 @@ export default function SponsorsPage() {
         },
     ])
 
-    // State for Dialog interactions
+    // State for Modals
     const [isAddOpen, setIsAddOpen] = useState(false)
     const [isEditOpen, setIsEditOpen] = useState(false)
-    const [currentSponsor, setCurrentSponsor] = useState<any>(null)
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+    const [currentSponsor, setCurrentSponsor] = useState(null)
     const [newSponsor, setNewSponsor] = useState({
         name: "",
         type: "Corporate",
@@ -64,13 +69,15 @@ export default function SponsorsPage() {
     // Handlers
     const handleAddSponsor = () => {
         const id = sponsors.length + 1
-        setSponsors([...sponsors, { id, ...newSponsor }])
+        setSponsors([{ id, ...newSponsor }, ...sponsors])
         setIsAddOpen(false)
         setNewSponsor({ name: "", type: "Corporate", tier: "Bronze", contribution: "", status: "Active" })
     }
 
-    const handleDeleteSponsor = (id: number) => {
-        setSponsors(sponsors.filter(s => s.id !== id))
+    const handleDeleteSponsor = () => {
+        setSponsors(sponsors.filter(s => s.id !== currentSponsor.id))
+        setIsDeleteOpen(false)
+        setCurrentSponsor(null)
     }
 
     const handleEditSponsor = () => {
@@ -79,271 +86,270 @@ export default function SponsorsPage() {
         setCurrentSponsor(null)
     }
 
-    const openEditModal = (sponsor: any) => {
+    const openEditModal = (sponsor) => {
         setCurrentSponsor(sponsor)
         setIsEditOpen(true)
     }
 
+    const openDeleteModal = (sponsor) => {
+        setCurrentSponsor(sponsor)
+        setIsDeleteOpen(true)
+    }
+
     return (
         <DashboardLayout>
-            <div className="space-y-6 animate-in fade-in-50 slide-in-from-bottom-5 duration-500">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-6 animate-in fade-in duration-500">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Sponsors</h1>
-                        <p className="text-muted-foreground mt-1">Manage relationships with your key partners and sponsors.</p>
+                        <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+                            <Building2 className="text-blue-600" size={24} />
+                            Sponsor Network
+                        </h1>
+                        <p className="text-sm text-gray-500 mt-1">
+                            Manage relationships with key partners and sponsors
+                        </p>
+                    </div>
+                    <Button
+                        onClick={() => setIsAddOpen(true)}
+                        size="sm"
+                        className="bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-sm"
+                    >
+                        <Plus className="mr-2 h-4 w-4" /> Add New Sponsor
+                    </Button>
+                </div>
+
+                {/* Metrics Bar */}
+                <div className="grid gap-4 md:grid-cols-3">
+                    <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                        <p className="text-sm font-medium text-gray-500">Total Funding</p>
+                        <div className="mt-2 text-3xl font-bold text-gray-900">$1.75M</div>
+                        <div className="mt-1 flex items-center text-sm font-medium text-emerald-600">
+                            +12% <span className="text-gray-500 ml-1">from last quarter</span>
+                        </div>
+                    </div>
+                    <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                        <p className="text-sm font-medium text-gray-500">Active Partners</p>
+                        <div className="mt-2 text-3xl font-bold text-gray-900">{sponsors.length}</div>
+                        <div className="mt-1 flex items-center text-sm font-medium text-gray-500">
+                            Across 4 regions
+                        </div>
+                    </div>
+                    <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
+                        <p className="text-sm font-medium text-gray-500">Pending Renewals</p>
+                        <div className="mt-2 text-3xl font-bold text-amber-600">
+                            {sponsors.filter(s => s.status === 'Pending Renewal').length}
+                        </div>
+                        <div className="mt-1 flex items-center text-sm font-medium text-amber-600">
+                            Requires attention
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filter and Table Section */}
+                <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+                    {/* Filter Bar */}
+                    <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div className="relative w-full md:w-96">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <Input
+                                placeholder="Search organization or type..."
+                                className="pl-9 h-10 rounded-lg border-gray-200 bg-white focus:ring-blue-500 focus:border-blue-500"
+                            />
+                        </div>
+                        <Button variant="outline" className="h-10 rounded-lg border-gray-200 text-gray-600 hover:text-gray-900">
+                            <Filter className="mr-2 h-4 w-4" /> Filter
+                        </Button>
                     </div>
 
-                    <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-                        <DialogTrigger asChild>
-                            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20">
-                                <Plus className="mr-2 h-4 w-4" /> Add Sponsor
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <DialogHeader>
-                                <DialogTitle>Add New Sponsor</DialogTitle>
-                                <DialogDescription>
-                                    Enter the details of the new sponsor organization.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="name" className="text-right">Name</Label>
-                                    <Input
-                                        id="name"
-                                        value={newSponsor.name}
-                                        onChange={(e) => setNewSponsor({ ...newSponsor, name: e.target.value })}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="type" className="text-right">Type</Label>
-                                    <div className="col-span-3">
-                                        <Select
-                                            value={newSponsor.type}
-                                            onValueChange={(val) => setNewSponsor({ ...newSponsor, type: val })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Venture Capital">Venture Capital</SelectItem>
-                                                <SelectItem value="Corporate">Corporate</SelectItem>
-                                                <SelectItem value="Non-Profit">Non-Profit</SelectItem>
-                                                <SelectItem value="Technology Partner">Technology Partner</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="tier" className="text-right">Tier</Label>
-                                    <div className="col-span-3">
-                                        <Select
-                                            value={newSponsor.tier}
-                                            onValueChange={(val) => setNewSponsor({ ...newSponsor, tier: val })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select tier" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Platinum">Platinum</SelectItem>
-                                                <SelectItem value="Gold">Gold</SelectItem>
-                                                <SelectItem value="Silver">Silver</SelectItem>
-                                                <SelectItem value="Bronze">Bronze</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="contribution" className="text-right">Contribution</Label>
-                                    <Input
-                                        id="contribution"
-                                        placeholder="$50,000"
-                                        value={newSponsor.contribution}
-                                        onChange={(e) => setNewSponsor({ ...newSponsor, contribution: e.target.value })}
-                                        className="col-span-3"
-                                    />
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <Button type="submit" onClick={handleAddSponsor}>Save Sponsor</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                </div>
-
-                <div className="grid gap-6 md:grid-cols-3">
-                    <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-border/50">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-lg font-medium">Total Funding</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-primary">$1.75M</div>
-                            <p className="text-xs text-muted-foreground mt-1">+12% from last quarter</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card/50 border-border/50">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-lg font-medium">Active Partners</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold">{sponsors.length}</div>
-                            <p className="text-xs text-muted-foreground mt-1">Total active entries</p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card/50 border-border/50">
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-lg font-medium">Pending Renewals</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="text-3xl font-bold text-orange-500">
-                                {sponsors.filter(s => s.status === 'Pending Renewal').length}
-                            </div>
-                            <p className="text-xs text-muted-foreground mt-1">Requires attention</p>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                <Card className="border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <CardTitle>Sponsor Directory</CardTitle>
-                        <CardDescription>A detailed list of all organizations supporting the accelerator.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="hover:bg-transparent border-border/50">
-                                    <TableHead>Organization</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Tier</TableHead>
-                                    <TableHead>Contribution</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
+                    {/* Table */}
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead>
+                                <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 font-medium tracking-wider">
+                                    <th className="py-3 px-6">Organization</th>
+                                    <th className="py-3 px-6">Type</th>
+                                    <th className="py-3 px-6">Tier</th>
+                                    <th className="py-3 px-6">Contribution</th>
+                                    <th className="py-3 px-6">Status</th>
+                                    <th className="py-3 px-6 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-gray-100">
                                 {sponsors.map((sponsor) => (
-                                    <TableRow key={sponsor.id} className="hover:bg-accent/50 border-border/50 transition-colors">
-                                        <TableCell className="font-medium flex items-center gap-2">
-                                            <div className="bg-primary/10 p-2 rounded-lg">
-                                                <Building2 className="h-4 w-4 text-primary" />
+                                    <tr key={sponsor.id} className="hover:bg-gray-50 transition-colors">
+                                        <td className="py-4 px-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                                                    <Building2 size={16} />
+                                                </div>
+                                                <span className="text-sm font-semibold text-gray-900">
+                                                    {sponsor.name}
+                                                </span>
                                             </div>
-                                            {sponsor.name}
-                                        </TableCell>
-                                        <TableCell>{sponsor.type}</TableCell>
-                                        <TableCell>
-                                            <Badge variant="outline" className={`
-                        ${sponsor.tier === 'Platinum' ? 'border-indigo-300 bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' : ''}
-                        ${sponsor.tier === 'Gold' ? 'border-yellow-300 bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300' : ''}
-                        ${sponsor.tier === 'Silver' ? 'border-slate-300 bg-slate-50 text-slate-700 dark:bg-slate-900 dark:text-slate-300' : ''}
-                        ${sponsor.tier === 'Bronze' ? 'border-orange-300 bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-300' : ''}
-                    `}>
+                                        </td>
+                                        <td className="py-4 px-6 text-sm text-gray-600">
+                                            {sponsor.type}
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <span className={cn(
+                                                "text-xs font-medium px-2.5 py-0.5 rounded-full inline-block border",
+                                                sponsor.tier === 'Platinum' ? "bg-indigo-50 text-indigo-700 border-indigo-100" :
+                                                    sponsor.tier === 'Gold' ? "bg-amber-50 text-amber-700 border-amber-100" :
+                                                        sponsor.tier === 'Silver' ? "bg-slate-50 text-slate-700 border-slate-100" :
+                                                            "bg-orange-50 text-orange-700 border-orange-100"
+                                            )}>
                                                 {sponsor.tier}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>{sponsor.contribution}</TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                className={
-                                                    sponsor.status === "Active" ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/25 border-emerald-200/20" :
-                                                        "bg-orange-500/15 text-orange-600 dark:text-orange-400 hover:bg-orange-500/25 border-orange-200/20"
-                                                }
-                                                variant="secondary"
-                                            >
+                                            </span>
+                                        </td>
+                                        <td className="py-4 px-6 text-sm font-semibold text-gray-900">
+                                            {sponsor.contribution}
+                                        </td>
+                                        <td className="py-4 px-6">
+                                            <span className={cn(
+                                                "text-xs font-medium px-2.5 py-0.5 rounded-full inline-block",
+                                                sponsor.status === "Active" ? "bg-emerald-50 text-emerald-700" :
+                                                    "bg-amber-50 text-amber-700"
+                                            )}>
                                                 {sponsor.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <div className="flex justify-end gap-2">
-                                                <Button variant="ghost" size="icon" onClick={() => openEditModal(sponsor)}>
-                                                    <Pencil className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive" onClick={() => handleDeleteSponsor(sponsor.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
+                                            </span>
+                                        </td>
+                                        <td className="py-4 px-6 text-right">
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100">
+                                                        <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-[160px] rounded-lg shadow-lg border-gray-100">
+                                                    <DropdownMenuItem onClick={() => openEditModal(sponsor)} className="cursor-pointer text-sm font-medium text-gray-700">
+                                                        <Edit2 className="mr-2 h-4 w-4" /> Edit Details
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem onClick={() => openDeleteModal(sponsor)} className="cursor-pointer text-sm font-medium text-red-600 focus:text-red-700 focus:bg-red-50">
+                                                        <Trash2 className="mr-2 h-4 w-4" /> Terminate
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </td>
+                                    </tr>
                                 ))}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                {/* Edit Modal (Dialog) */}
-                <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-                    <DialogContent className="sm:max-w-[425px]">
-                        <DialogHeader>
-                            <DialogTitle>Edit Sponsor</DialogTitle>
-                            <DialogDescription>
-                                Update the details of the sponsor.
-                            </DialogDescription>
-                        </DialogHeader>
-                        {currentSponsor && (
-                            <div className="grid gap-4 py-4">
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="edit-name" className="text-right">Name</Label>
-                                    <Input
-                                        id="edit-name"
-                                        value={currentSponsor.name}
-                                        onChange={(e) => setCurrentSponsor({ ...currentSponsor, name: e.target.value })}
-                                        className="col-span-3"
-                                    />
+                {/* Add Sponsor Modal */}
+                <Modal
+                    isOpen={isAddOpen}
+                    onClose={() => setIsAddOpen(false)}
+                    title="Add New Sponsor"
+                    description="Enter organization details to register a new partner."
+                    type="info"
+                    confirmText="Save Sponsor"
+                    onConfirm={handleAddSponsor}
+                >
+                    <div className="space-y-4 pt-4">
+                        <div className="space-y-2">
+                            <Label>Organization Name</Label>
+                            <Input
+                                value={newSponsor.name}
+                                onChange={(e) => setNewSponsor({ ...newSponsor, name: e.target.value })}
+                                className="rounded-lg border-gray-200"
+                                placeholder="e.g. Acme Corp"
+                            />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Category</Label>
+                                <select
+                                    className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={newSponsor.type}
+                                    onChange={(e) => setNewSponsor({ ...newSponsor, type: e.target.value })}
+                                >
+                                    <option value="Venture Capital">Venture Capital</option>
+                                    <option value="Corporate">Corporate</option>
+                                    <option value="Non-Profit">Non-Profit</option>
+                                    <option value="Technology Partner">Technology Partner</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Partnership Tier</Label>
+                                <select
+                                    className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    value={newSponsor.tier}
+                                    onChange={(e) => setNewSponsor({ ...newSponsor, tier: e.target.value })}
+                                >
+                                    <option value="Platinum">Platinum</option>
+                                    <option value="Gold">Gold</option>
+                                    <option value="Silver">Silver</option>
+                                    <option value="Bronze">Bronze</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </Modal>
+
+                {/* Edit Sponsor Modal */}
+                <Modal
+                    isOpen={isEditOpen}
+                    onClose={() => setIsEditOpen(false)}
+                    title="Edit Partner Profile"
+                    description={`Updating details for ${currentSponsor?.name}`}
+                    type="info"
+                    confirmText="Update Record"
+                    onConfirm={handleEditSponsor}
+                >
+                    {currentSponsor && (
+                        <div className="space-y-4 pt-4">
+                            <div className="space-y-2">
+                                <Label>Organization Name</Label>
+                                <Input
+                                    value={currentSponsor.name}
+                                    onChange={(e) => setCurrentSponsor({ ...currentSponsor, name: e.target.value })}
+                                    className="rounded-lg border-gray-200"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Category</Label>
+                                    <select
+                                        className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        value={currentSponsor.type}
+                                        onChange={(e) => setCurrentSponsor({ ...currentSponsor, type: e.target.value })}
+                                    >
+                                        <option value="Venture Capital">Venture Capital</option>
+                                        <option value="Corporate">Corporate</option>
+                                        <option value="Non-Profit">Non-Profit</option>
+                                        <option value="Technology Partner">Technology Partner</option>
+                                    </select>
                                 </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="edit-type" className="text-right">Type</Label>
-                                    <div className="col-span-3">
-                                        <Select
-                                            value={currentSponsor.type}
-                                            onValueChange={(val) => setCurrentSponsor({ ...currentSponsor, type: val })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select type" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Venture Capital">Venture Capital</SelectItem>
-                                                <SelectItem value="Corporate">Corporate</SelectItem>
-                                                <SelectItem value="Non-Profit">Non-Profit</SelectItem>
-                                                <SelectItem value="Technology Partner">Technology Partner</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="edit-tier" className="text-right">Tier</Label>
-                                    <div className="col-span-3">
-                                        <Select
-                                            value={currentSponsor.tier}
-                                            onValueChange={(val) => setCurrentSponsor({ ...currentSponsor, tier: val })}
-                                        >
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select tier" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Platinum">Platinum</SelectItem>
-                                                <SelectItem value="Gold">Gold</SelectItem>
-                                                <SelectItem value="Silver">Silver</SelectItem>
-                                                <SelectItem value="Bronze">Bronze</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="edit-contribution" className="text-right">Contribution</Label>
-                                    <Input
-                                        id="edit-contribution"
-                                        value={currentSponsor.contribution}
-                                        onChange={(e) => setCurrentSponsor({ ...currentSponsor, contribution: e.target.value })}
-                                        className="col-span-3"
-                                    />
+                                <div className="space-y-2">
+                                    <Label>Status</Label>
+                                    <select
+                                        className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        value={currentSponsor.status}
+                                        onChange={(e) => setCurrentSponsor({ ...currentSponsor, status: e.target.value })}
+                                    >
+                                        <option value="Active">Active</option>
+                                        <option value="Pending Renewal">Pending Renewal</option>
+                                        <option value="Suspended">Suspended</option>
+                                    </select>
                                 </div>
                             </div>
-                        )}
-                        <DialogFooter>
-                            <Button type="submit" onClick={handleEditSponsor}>Update Sponsor</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                        </div>
+                    )}
+                </Modal>
+
+                {/* Delete Confirmation Modal */}
+                <Modal
+                    isOpen={isDeleteOpen}
+                    onClose={() => setIsDeleteOpen(false)}
+                    title="Confirm Termination"
+                    description={`Are you sure you want to remove ${currentSponsor?.name}? This action will archive all partnership history.`}
+                    type="danger"
+                    confirmText="Terminate Partner"
+                    onConfirm={handleDeleteSponsor}
+                />
             </div>
         </DashboardLayout>
     )
