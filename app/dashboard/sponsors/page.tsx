@@ -1,354 +1,260 @@
 "use client"
 
-import { useState } from "react"
 import { DashboardLayout } from "@/components/dashboard-layout"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Plus, Building2, Pencil, Trash2, Search, Filter, Edit2, X, MoreHorizontal } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Building, Shield, Search, Filter, Edit2, Trash2, Plus, Loader2, Globe, Heart } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 
 export default function SponsorsPage() {
-    // Initial Data
-    const [sponsors, setSponsors] = useState([
-        {
-            id: 1,
-            name: "Global Tech Ventures",
-            type: "Venture Capital",
-            tier: "Gold",
-            contribution: "$500,000",
-            status: "Active",
-        },
-        {
-            id: 2,
-            name: "Future Fund Foundation",
-            type: "Non-Profit",
-            tier: "Platinum",
-            contribution: "$1,000,000",
-            status: "Active",
-        },
-        {
-            id: 3,
-            name: "Innovate Bank",
-            type: "Corporate",
-            tier: "Silver",
-            contribution: "$250,000",
-            status: "Pending Renewal",
-        },
-        {
-            id: 4,
-            name: "TechHub Systems",
-            type: "Technology Partner",
-            tier: "Bronze",
-            contribution: "In-Kind",
-            status: "Active",
-        },
-    ])
-
-    // State for Modals
-    const [isAddOpen, setIsAddOpen] = useState(false)
-    const [isEditOpen, setIsEditOpen] = useState(false)
+    const [sponsors, setSponsors] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-    const [currentSponsor, setCurrentSponsor] = useState(null)
-    const [newSponsor, setNewSponsor] = useState({
+    const [selectedSponsor, setSelectedSponsor] = useState(null)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [isEdit, setIsEdit] = useState(false)
+
+    const [formData, setFormData] = useState({
         name: "",
-        type: "Corporate",
-        tier: "Bronze",
-        contribution: "",
-        status: "Active"
+        logo_url: "",
+        website_url: "",
+        is_active: 1
     })
 
-    // Handlers
-    const handleAddSponsor = () => {
-        const id = sponsors.length + 1
-        setSponsors([{ id, ...newSponsor }, ...sponsors])
-        setIsAddOpen(false)
-        setNewSponsor({ name: "", type: "Corporate", tier: "Bronze", contribution: "", status: "Active" })
+    useEffect(() => {
+        fetchSponsors()
+    }, [])
+
+    const fetchSponsors = async () => {
+        setLoading(true)
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/sponsors.php?action=get_sponsors")
+            const data = await res.json()
+            if (data.success) {
+                setSponsors(data.data)
+            }
+        } catch (err) {
+            toast.error("Failed to fetch sponsors")
+        } finally {
+            setLoading(false)
+        }
     }
 
-    const handleDeleteSponsor = () => {
-        setSponsors(sponsors.filter(s => s.id !== currentSponsor.id))
-        setIsDeleteOpen(false)
-        setCurrentSponsor(null)
+    const handleSubmit = async () => {
+        const action = isEdit ? "update_sponsor" : "create_sponsor"
+        const body = isEdit ? { action, id: selectedSponsor.id, ...formData } : { action, ...formData }
+        
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            })
+            const data = await res.json()
+            if (data.success) {
+                toast.success(isEdit ? "Partner updated" : "Partner onboarded")
+                setIsFormOpen(false)
+                fetchSponsors()
+                resetForm()
+            } else {
+                toast.error(data.message)
+            }
+        } catch (err) {
+            toast.error("An error occurred")
+        }
     }
 
-    const handleEditSponsor = () => {
-        setSponsors(sponsors.map(s => s.id === currentSponsor.id ? currentSponsor : s))
-        setIsEditOpen(false)
-        setCurrentSponsor(null)
+    const handleDelete = async () => {
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "delete_sponsor", id: selectedSponsor.id })
+            })
+            const data = await res.json()
+            if (data.success) {
+                toast.success("Partner removed")
+                setIsDeleteOpen(false)
+                fetchSponsors()
+            }
+        } catch (err) {
+            toast.error("Failed to delete")
+        }
     }
 
-    const openEditModal = (sponsor) => {
-        setCurrentSponsor(sponsor)
-        setIsEditOpen(true)
+    const openEdit = (sponsor) => {
+        setSelectedSponsor(sponsor)
+        setIsEdit(true)
+        setFormData({
+            name: sponsor.name,
+            logo_url: sponsor.logo_url || "",
+            website_url: sponsor.website_url || "",
+            is_active: sponsor.is_active || 1
+        })
+        setIsFormOpen(true)
     }
 
-    const openDeleteModal = (sponsor) => {
-        setCurrentSponsor(sponsor)
-        setIsDeleteOpen(true)
+    const resetForm = () => {
+        setIsEdit(false)
+        setFormData({
+            name: "",
+            logo_url: "",
+            website_url: "",
+            is_active: 1
+        })
     }
+
+    const filteredSponsors = sponsors.filter(s => 
+        s.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
     return (
         <DashboardLayout>
-            <div className="space-y-6 animate-in fade-in duration-500">
+            <div className="space-y-8 animate-in fade-in duration-500 pb-10">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
-                            <Building2 className="text-blue-600" size={24} />
-                            Sponsor Network
+                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
+                            <Heart size={20} className="text-primary" />
+                            Partner Network
                         </h1>
-                        <p className="text-sm text-gray-500 mt-1">
-                            Manage relationships with key partners and sponsors
+                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
+                            Manage relationships with organizations supporting GrowthSpire
                         </p>
                     </div>
                     <Button
-                        onClick={() => setIsAddOpen(true)}
-                        size="sm"
-                        className="bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-sm"
+                        onClick={() => { resetForm(); setIsFormOpen(true); }}
+                        className="admin-button-primary"
                     >
-                        <Plus className="mr-2 h-4 w-4" /> Add New Sponsor
+                        <Plus size={16} /> <span>Add Partner</span>
                     </Button>
                 </div>
 
-                {/* Metrics Bar */}
-                <div className="grid gap-4 md:grid-cols-3">
-                    <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
-                        <p className="text-sm font-medium text-gray-500">Total Funding</p>
-                        <div className="mt-2 text-3xl font-bold text-gray-900">$1.75M</div>
-                        <div className="mt-1 flex items-center text-sm font-medium text-emerald-600">
-                            +12% <span className="text-gray-500 ml-1">from last quarter</span>
-                        </div>
-                    </div>
-                    <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
-                        <p className="text-sm font-medium text-gray-500">Active Partners</p>
-                        <div className="mt-2 text-3xl font-bold text-gray-900">{sponsors.length}</div>
-                        <div className="mt-1 flex items-center text-sm font-medium text-gray-500">
-                            Across 4 regions
-                        </div>
-                    </div>
-                    <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm hover:shadow-md transition-all">
-                        <p className="text-sm font-medium text-gray-500">Pending Renewals</p>
-                        <div className="mt-2 text-3xl font-bold text-amber-600">
-                            {sponsors.filter(s => s.status === 'Pending Renewal').length}
-                        </div>
-                        <div className="mt-1 flex items-center text-sm font-medium text-amber-600">
-                            Requires attention
-                        </div>
+                {/* Filter Bar */}
+                <div className="flex gap-2 bg-muted/30 border border-border p-2">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <input
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="FIND PARTNERS BY NAME..."
+                            className="w-full bg-white h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none focus:border-foreground border border-border/50"
+                        />
                     </div>
                 </div>
 
-                {/* Filter and Table Section */}
-                <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
-                    {/* Filter Bar */}
-                    <div className="p-4 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row gap-4 items-center justify-between">
-                        <div className="relative w-full md:w-96">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                            <Input
-                                placeholder="Search organization or type..."
-                                className="pl-9 h-10 rounded-lg border-gray-200 bg-white focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-                        <Button variant="outline" className="h-10 rounded-lg border-gray-200 text-gray-600 hover:text-gray-900">
-                            <Filter className="mr-2 h-4 w-4" /> Filter
-                        </Button>
-                    </div>
-
-                    {/* Table */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-gray-50 border-b border-gray-100 text-xs uppercase text-gray-500 font-medium tracking-wider">
-                                    <th className="py-3 px-6">Organization</th>
-                                    <th className="py-3 px-6">Type</th>
-                                    <th className="py-3 px-6">Tier</th>
-                                    <th className="py-3 px-6">Contribution</th>
-                                    <th className="py-3 px-6">Status</th>
-                                    <th className="py-3 px-6 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-100">
-                                {sponsors.map((sponsor) => (
-                                    <tr key={sponsor.id} className="hover:bg-gray-50 transition-colors">
-                                        <td className="py-4 px-6">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                                    <Building2 size={16} />
-                                                </div>
-                                                <span className="text-sm font-semibold text-gray-900">
-                                                    {sponsor.name}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-6 text-sm text-gray-600">
-                                            {sponsor.type}
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <span className={cn(
-                                                "text-xs font-medium px-2.5 py-0.5 rounded-full inline-block border",
-                                                sponsor.tier === 'Platinum' ? "bg-indigo-50 text-indigo-700 border-indigo-100" :
-                                                    sponsor.tier === 'Gold' ? "bg-amber-50 text-amber-700 border-amber-100" :
-                                                        sponsor.tier === 'Silver' ? "bg-slate-50 text-slate-700 border-slate-100" :
-                                                            "bg-orange-50 text-orange-700 border-orange-100"
-                                            )}>
-                                                {sponsor.tier}
-                                            </span>
-                                        </td>
-                                        <td className="py-4 px-6 text-sm font-semibold text-gray-900">
-                                            {sponsor.contribution}
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <span className={cn(
-                                                "text-xs font-medium px-2.5 py-0.5 rounded-full inline-block",
-                                                sponsor.status === "Active" ? "bg-emerald-50 text-emerald-700" :
-                                                    "bg-amber-50 text-amber-700"
-                                            )}>
-                                                {sponsor.status}
-                                            </span>
-                                        </td>
-                                        <td className="py-4 px-6 text-right">
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100">
-                                                        <MoreHorizontal className="h-4 w-4 text-gray-500" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-[160px] rounded-lg shadow-lg border-gray-100">
-                                                    <DropdownMenuItem onClick={() => openEditModal(sponsor)} className="cursor-pointer text-sm font-medium text-gray-700">
-                                                        <Edit2 className="mr-2 h-4 w-4" /> Edit Details
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => openDeleteModal(sponsor)} className="cursor-pointer text-sm font-medium text-red-600 focus:text-red-700 focus:bg-red-50">
-                                                        <Trash2 className="mr-2 h-4 w-4" /> Terminate
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Add Sponsor Modal */}
-                <Modal
-                    isOpen={isAddOpen}
-                    onClose={() => setIsAddOpen(false)}
-                    title="Add New Sponsor"
-                    description="Enter organization details to register a new partner."
-                    type="info"
-                    confirmText="Save Sponsor"
-                    onConfirm={handleAddSponsor}
-                >
-                    <div className="space-y-4 pt-4">
-                        <div className="space-y-2">
-                            <Label>Organization Name</Label>
-                            <Input
-                                value={newSponsor.name}
-                                onChange={(e) => setNewSponsor({ ...newSponsor, name: e.target.value })}
-                                className="rounded-lg border-gray-200"
-                                placeholder="e.g. Acme Corp"
-                            />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Category</Label>
-                                <select
-                                    className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    value={newSponsor.type}
-                                    onChange={(e) => setNewSponsor({ ...newSponsor, type: e.target.value })}
-                                >
-                                    <option value="Venture Capital">Venture Capital</option>
-                                    <option value="Corporate">Corporate</option>
-                                    <option value="Non-Profit">Non-Profit</option>
-                                    <option value="Technology Partner">Technology Partner</option>
-                                </select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Partnership Tier</Label>
-                                <select
-                                    className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    value={newSponsor.tier}
-                                    onChange={(e) => setNewSponsor({ ...newSponsor, tier: e.target.value })}
-                                >
-                                    <option value="Platinum">Platinum</option>
-                                    <option value="Gold">Gold</option>
-                                    <option value="Silver">Silver</option>
-                                    <option value="Bronze">Bronze</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </Modal>
-
-                {/* Edit Sponsor Modal */}
-                <Modal
-                    isOpen={isEditOpen}
-                    onClose={() => setIsEditOpen(false)}
-                    title="Edit Partner Profile"
-                    description={`Updating details for ${currentSponsor?.name}`}
-                    type="info"
-                    confirmText="Update Record"
-                    onConfirm={handleEditSponsor}
-                >
-                    {currentSponsor && (
-                        <div className="space-y-4 pt-4">
-                            <div className="space-y-2">
-                                <Label>Organization Name</Label>
-                                <Input
-                                    value={currentSponsor.name}
-                                    onChange={(e) => setCurrentSponsor({ ...currentSponsor, name: e.target.value })}
-                                    className="rounded-lg border-gray-200"
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Category</Label>
-                                    <select
-                                        className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        value={currentSponsor.type}
-                                        onChange={(e) => setCurrentSponsor({ ...currentSponsor, type: e.target.value })}
-                                    >
-                                        <option value="Venture Capital">Venture Capital</option>
-                                        <option value="Corporate">Corporate</option>
-                                        <option value="Non-Profit">Non-Profit</option>
-                                        <option value="Technology Partner">Technology Partner</option>
-                                    </select>
+                {/* Grid Layout for Sponsors */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {loading ? (
+                        <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                    ) : filteredSponsors.length > 0 ? (
+                        filteredSponsors.map((sponsor) => (
+                            <div key={sponsor.id} className="admin-card group hover:border-foreground transition-all flex flex-col h-full bg-card">
+                                <div className="h-32 bg-muted border-b border-border flex items-center justify-center p-6 bg-white shrink-0">
+                                    {sponsor.logo_url ? (
+                                        <img src={sponsor.logo_url} alt="" className="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300" />
+                                    ) : (
+                                        <Building size={32} className="text-muted-foreground/20" />
+                                    )}
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Status</Label>
-                                    <select
-                                        className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                        value={currentSponsor.status}
-                                        onChange={(e) => setCurrentSponsor({ ...currentSponsor, status: e.target.value })}
-                                    >
-                                        <option value="Active">Active</option>
-                                        <option value="Pending Renewal">Pending Renewal</option>
-                                        <option value="Suspended">Suspended</option>
-                                    </select>
+                                <div className="p-4 flex-1 flex flex-col">
+                                    <h3 className="text-[12px] font-bold uppercase tracking-widest leading-tight mb-1 group-hover:text-primary transition-colors">
+                                        {sponsor.name}
+                                    </h3>
+                                    {sponsor.website_url && (
+                                       <a href={sponsor.website_url} target="_blank" className="text-[10px] font-bold text-muted-foreground uppercase opacity-60 flex items-center gap-1 hover:underline">
+                                           Visit Hub <ExternalLink size={10} />
+                                       </a>
+                                    )}
+                                    
+                                    <div className="flex gap-2 pt-6 border-t border-border mt-auto">
+                                        <button 
+                                            onClick={() => openEdit(sponsor)}
+                                            className="flex-1 py-1.5 border border-border text-[10px] font-bold uppercase tracking-widest hover:border-foreground transition-all"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => { setSelectedSponsor(sponsor); setIsDeleteOpen(true); }}
+                                            className="px-2 py-1.5 border border-border text-muted-foreground hover:text-destructive hover:border-destructive transition-all"
+                                        >
+                                            <Trash2 size={12} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        ))
+                    ) : (
+                        <div className="col-span-full py-20 text-center text-muted-foreground font-bold uppercase text-[11px] border border-dashed border-border opacity-50">No partner records found.</div>
                     )}
+                </div>
+
+                {/* Form Modal */}
+                <Modal
+                    isOpen={isFormOpen}
+                    onClose={() => setIsFormOpen(false)}
+                    title={isEdit ? "Update Partnership" : "Register Partner"}
+                    description={isEdit ? `MODIFYING METADATA FOR ${formData.name.toUpperCase()}` : "DETERMINE THE CORE DATA FOR A NEW ECOSYSTEM SPONSOR"}
+                    confirmText={isEdit ? "Update Profile" : "Confirm Partner"}
+                    onConfirm={handleSubmit}
+                    maxWidth="max-w-md"
+                >
+                    <div className="space-y-6">
+                        <div className="space-y-1">
+                            <label className="admin-label">Partner Name</label>
+                            <input 
+                                className="admin-input" 
+                                placeholder="E.G. SAFARICOM" 
+                                value={formData.name}
+                                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                            />
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="admin-label">Logo URL</label>
+                            <input 
+                                className="admin-input" 
+                                placeholder="HTTPS://IMAGE.URL/LOGO.PNG" 
+                                value={formData.logo_url}
+                                onChange={(e) => setFormData({...formData, logo_url: e.target.value})}
+                            />
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="admin-label">Website URL</label>
+                            <input 
+                                className="admin-input" 
+                                placeholder="HTTPS://WEBSITE.COM" 
+                                value={formData.website_url}
+                                onChange={(e) => setFormData({...formData, website_url: e.target.value})}
+                            />
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="admin-label">Status</label>
+                            <select 
+                                className="admin-input font-bold"
+                                value={formData.is_active}
+                                onChange={(e) => setFormData({...formData, is_active: parseInt(e.target.value)})}
+                            >
+                                <option value={1}>ACTIVE PARTNER</option>
+                                <option value={0}>INACTIVE / PAST</option>
+                            </select>
+                        </div>
+                    </div>
                 </Modal>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
-                    title="Confirm Termination"
-                    description={`Are you sure you want to remove ${currentSponsor?.name}? This action will archive all partnership history.`}
+                    title="Dissolve Partnership"
+                    description={`REMOVE "${selectedSponsor?.name}" FROM THE PARTNER DIRECTORY?`}
                     type="danger"
-                    confirmText="Terminate Partner"
-                    onConfirm={handleDeleteSponsor}
+                    confirmText="Remove Irreversibly"
+                    onConfirm={handleDelete}
                 />
             </div>
         </DashboardLayout>
