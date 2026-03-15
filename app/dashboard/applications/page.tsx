@@ -2,99 +2,346 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { Clock, CheckCircle2, XCircle, FileText, ChevronRight } from "lucide-react"
-import Link from "next/link"
+import { Inbox, CheckCircle, Clock, XCircle, Search, Filter, Loader2, User, Building, Landmark, ExternalLink, MessageSquare, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useState, useEffect } from "react"
+import { Modal } from "@/components/Modal"
+import { toast } from "sonner"
 
-export default function ApplicationsDashboard() {
-    const categories = [
-        {
-            title: "Pending Review",
-            count: "12 WAITING",
-            description: "APPLICATIONS WAITING FOR INITIAL SCREENING AND DOCUMENT VERIFICATION.",
-            href: "/dashboard/applications/pending",
-            icon: Clock,
-            color: "text-gray-950",
-            bg: "bg-gray-50"
-        },
-        {
-            title: "Approved",
-            count: "45 ACCEPTED",
-            description: "APPLICATIONS THAT HAVE BEEN SUCCESSFULLY ACCEPTED INTO THE COHORT.",
-            href: "/dashboard/applications/approved",
-            icon: CheckCircle2,
-            color: "text-gray-950",
-            bg: "bg-gray-50"
-        },
-        {
-            title: "Rejected",
-            count: "23 ARCHIVED",
-            description: "APPLICATIONS THAT DID NOT MEET THE REQUIRED PROGRAM CRITERIA.",
-            href: "/dashboard/applications/rejected",
-            icon: XCircle,
-            color: "text-gray-950",
-            bg: "bg-gray-50"
+export default function ApplicationsPage() {
+    const [apps, setApps] = useState<any[]>([])
+    const [loading, setLoading] = useState(true)
+    const [selectedApp, setSelectedApp] = useState<any>(null)
+    const [isDetailOpen, setIsDetailOpen] = useState(false)
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+    const [activeTab, setActiveTab] = useState("all")
+    const [searchQuery, setSearchQuery] = useState("")
+
+    useEffect(() => {
+        fetchApps()
+    }, [])
+
+    const fetchApps = async () => {
+        setLoading(true)
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/applications.php?action=get_applications")
+            const data = await res.json()
+            if (data.success) {
+                setApps(data.data)
+            }
+        } catch (err) {
+            toast.error("Failed to fetch applications")
+        } finally {
+            setLoading(false)
         }
-    ]
+    }
+
+    const updateStatus = async (appId: string, status: string) => {
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/applications.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "update_status", id: appId, status })
+            })
+            const data = await res.json()
+            if (data.success) {
+                toast.success(`Marked as ${status.replace('_', ' ')}`)
+                setIsDetailOpen(false)
+                fetchApps()
+            }
+        } catch (err) {
+            toast.error("Status update failed")
+        }
+    }
+
+    const deleteApp = async () => {
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/applications.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "delete_application", id: selectedApp.id })
+            })
+            const data = await res.json()
+            if (data.success) {
+                toast.success("Record expunged")
+                setIsDeleteOpen(false)
+                fetchApps()
+            }
+        } catch (err) {
+            toast.error("Deletion failed")
+        }
+    }
+
+    const filteredApps = apps.filter(app => {
+        const matchesSearch = app.full_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                             app.company_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                             app.email.toLowerCase().includes(searchQuery.toLowerCase());
+        
+        if (activeTab === "all") return matchesSearch;
+        return matchesSearch && app.status === activeTab;
+    })
+
+    const statusMap: Record<string, any> = {
+        pending: { label: "PENDING", color: "bg-amber-50 text-amber-700 border-amber-100", icon: Clock },
+        under_review: { label: "REVIEWING", color: "bg-blue-50 text-blue-700 border-blue-100", icon: Search },
+        interview: { label: "INTERVIEW", color: "bg-purple-50 text-purple-700 border-purple-100", icon: User },
+        accepted: { label: "ACCEPTED", color: "bg-emerald-50 text-emerald-700 border-emerald-100", icon: CheckCircle },
+        rejected: { label: "REJECTED", color: "bg-red-50 text-red-700 border-red-100", icon: XCircle },
+    }
 
     return (
         <DashboardLayout>
-            <div className="space-y-4 animate-in fade-in duration-500">
-                {/* 2D Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+            <div className="space-y-8 animate-in fade-in duration-500 pb-10">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
                     <div>
-                        <h1 className="text-lg font-bold tracking-tight text-gray-900 uppercase flex items-center gap-2">
-                            <FileText size={18} className="text-black" />
-                            Applications Hub
+                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
+                            <Inbox size={20} className="text-primary" />
+                            Submissions Inbox
                         </h1>
-                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mt-0.5">
-                            TRACK AND MANAGE ALL INCOMING STARTUP APPLICATIONS
+                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
+                            Monitor and process incoming cohort applications & partner inquiries
                         </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                        <Button size="sm" className="bg-black text-white hover:bg-black/90 rounded-none h-8 text-[11px] font-bold uppercase tracking-wide">
-                            Process Queue
-                        </Button>
+                </div>
+
+                {/* Filter & Search Bar */}
+                <div className="flex flex-col md:flex-row gap-4">
+                    <div className="flex bg-muted/30 border border-border p-1 gap-1 w-fit">
+                        {["all", "pending", "under_review", "accepted", "rejected"].map((tab) => (
+                            <button
+                                key={tab}
+                                onClick={() => setActiveTab(tab)}
+                                className={cn(
+                                    "px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all",
+                                    activeTab === tab ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                {tab.replace('_', ' ')}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <input
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="OPERATIONAL SEARCH: NAME, COMPANY, EMAIL..."
+                            className="w-full bg-white h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none border border-border/50 focus:border-foreground transition-colors"
+                        />
                     </div>
                 </div>
 
-                {/* Flat 2D Grid Section */}
-                <div className="grid gap-2 md:grid-cols-3">
-                    {categories.map((cat, i) => (
-                        <Link href={cat.href} key={i}>
-                            <div className="group bg-white border border-gray-200 p-4 h-full relative cursor-pointer hover:border-black transition-all border-t-2 border-t-transparent hover:border-t-black">
-                                <div className="flex items-start justify-between">
-                                    <div className={cn("p-2", cat.bg)}>
-                                        <cat.icon size={16} className={cat.color} />
+                {/* Table Layout */}
+                <div className="admin-table-container">
+                    {loading ? (
+                        <div className="p-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                    ) : (
+                        <table className="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Applicant & Lead</th>
+                                    <th>Submission Type</th>
+                                    <th>Phase / Sector</th>
+                                    <th>Status</th>
+                                    <th className="text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredApps.length > 0 ? filteredApps.map((app) => (
+                                    <tr key={app.id} className="group cursor-pointer" onClick={() => { setSelectedApp(app); setIsDetailOpen(true); }}>
+                                        <td>
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 bg-muted border border-border flex items-center justify-center shrink-0">
+                                                    <span className="text-[10px] font-black">{app.full_name.charAt(0)}</span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-[12px] font-bold text-foreground block uppercase leading-tight">
+                                                        {app.full_name}
+                                                    </span>
+                                                    <span className="text-[9px] font-bold text-muted-foreground uppercase tracking-tighter opacity-60">
+                                                        {app.email}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="flex items-center gap-2">
+                                                {app.application_type === 'startup' ? <Building size={12} className="opacity-40" /> : <Landmark size={12} className="opacity-40" />}
+                                                <span className="text-[11px] font-bold text-foreground uppercase">
+                                                    {app.company_name}
+                                                </span>
+                                            </div>
+                                            <p className="text-[9px] text-muted-foreground/40 font-bold uppercase tracking-widest">{app.application_type}</p>
+                                        </td>
+                                        <td>
+                                            <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-80">
+                                                {app.industry || "General"}
+                                            </span>
+                                            <p className="text-[9px] text-muted-foreground/40 font-bold uppercase tracking-widest">{app.startup_stage || "N/A"}</p>
+                                        </td>
+                                        <td>
+                                            <span className={cn(
+                                                "text-[9px] font-black uppercase px-2 py-0.5 border flex items-center gap-1 w-fit tracking-tighter",
+                                                statusMap[app.status]?.color || "bg-muted text-muted-foreground"
+                                            )}>
+                                                {statusMap[app.status]?.label || app.status.toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td className="text-right">
+                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 rounded-none border border-transparent hover:border-border">
+                                                <ExternalLink size={14} className="opacity-40" />
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr><td colSpan={5} className="text-center py-20 text-muted-foreground font-bold uppercase text-[11px] border border-dashed border-border">No records discovered in this sector</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    )}
+                </div>
+
+                {/* Detail Modal */}
+                <Modal
+                    isOpen={isDetailOpen}
+                    onClose={() => setIsDetailOpen(false)}
+                    title="Submission Dossier"
+                    description={`ANALYSING RECORD: ${selectedApp?.full_name.toUpperCase()}`}
+                    confirmText="Update Record"
+                    onConfirm={() => setIsDetailOpen(false)}
+                    maxWidth="max-w-4xl"
+                >
+                    {selectedApp && (
+                        <div className="space-y-10 py-4">
+                            {/* Summary Bar */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-muted/20 border border-border p-4">
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">Current Status</label>
+                                    <div className={cn("text-[10px] font-black uppercase px-2 py-0.5 border w-fit", statusMap[selectedApp.status]?.color)}>
+                                        {selectedApp.status.replace('_', ' ')}
                                     </div>
-                                    <ChevronRight size={14} className="text-gray-300 group-hover:text-black group-hover:translate-x-1 transition-all" />
                                 </div>
-                                <div className="mt-4">
-                                    <h3 className="text-[13px] font-bold text-gray-900 uppercase tracking-tight">{cat.title}</h3>
-                                    <p className="text-[11px] font-bold text-black bg-gray-50 inline-block px-1.5 py-0.5 mt-1 uppercase">
-                                        {cat.count}
-                                    </p>
-                                    <p className="text-[11px] text-gray-500 mt-2 leading-relaxed font-bold uppercase">
-                                        {cat.description}
-                                    </p>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">Submission Date</label>
+                                    <div className="text-[11px] font-bold uppercase">{new Date(selectedApp.created_at).toLocaleDateString()}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">Category</label>
+                                    <div className="text-[11px] font-bold uppercase">{selectedApp.application_type}</div>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-40">Reference ID</label>
+                                    <div className="text-[11px] font-bold uppercase opacity-60 font-mono">{selectedApp.id.substring(0,8)}...</div>
                                 </div>
                             </div>
-                        </Link>
-                    ))}
-                </div>
 
-                {/* 2D Info Table Style Callout */}
-                <div className="bg-gray-50 border border-gray-200 p-4">
-                    <div className="flex items-center gap-4">
-                        <div className="h-10 w-10 bg-white border border-gray-200 flex items-center justify-center">
-                            <FileText size={20} className="text-gray-400" />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                <div className="space-y-8">
+                                    <div className="space-y-4">
+                                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                                            <User size={14} /> Personnel Data
+                                        </h3>
+                                        <div className="grid gap-4 border-l-2 border-border pl-4">
+                                            <div>
+                                                <p className="text-[9px] font-bold text-muted-foreground uppercase">Full Legal Name</p>
+                                                <p className="text-[13px] font-bold uppercase">{selectedApp.full_name}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] font-bold text-muted-foreground uppercase">Electronic Mail</p>
+                                                <p className="text-[13px] font-bold uppercase">{selectedApp.email}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-[9px] font-bold text-muted-foreground uppercase">Communication Line</p>
+                                                <p className="text-[13px] font-bold uppercase">{selectedApp.phone}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                                            <Building size={14} /> Enterprise Profile
+                                        </h3>
+                                        <div className="grid gap-4 border-l-2 border-border pl-4">
+                                            <div>
+                                                <p className="text-[9px] font-bold text-muted-foreground uppercase">Organization Name</p>
+                                                <p className="text-[14px] font-black uppercase tracking-tight">{selectedApp.company_name}</p>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <p className="text-[9px] font-bold text-muted-foreground uppercase">Sector</p>
+                                                    <p className="text-[12px] font-bold uppercase">{selectedApp.industry || "UNSPECIFIED"}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[9px] font-bold text-muted-foreground uppercase">Growth Stage</p>
+                                                    <p className="text-[12px] font-bold uppercase">{selectedApp.startup_stage || "UNSPECIFIED"}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-8">
+                                    <div className="space-y-4">
+                                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                                            <MessageSquare size={14} /> Strategic Intent
+                                        </h3>
+                                        <div className="bg-muted/30 border border-border p-4 min-h-[120px] relative">
+                                            <div className="absolute top-0 left-0 w-1 h-full bg-primary/20"></div>
+                                            <p className="text-[12px] font-medium leading-relaxed italic text-foreground/80">
+                                                "{selectedApp.message}"
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
+                                            Operational Controls
+                                        </h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            <button 
+                                                onClick={() => updateStatus(selectedApp.id, 'under_review')}
+                                                className="flex-1 border border-border py-3 text-[10px] font-black uppercase tracking-widest hover:border-blue-500 hover:bg-blue-50/50 transition-all"
+                                            >
+                                                Initiate Review
+                                            </button>
+                                            <button 
+                                                onClick={() => updateStatus(selectedApp.id, 'accepted')}
+                                                className="flex-1 border border-border py-3 text-[10px] font-black uppercase tracking-widest hover:border-emerald-500 hover:bg-emerald-50/50 transition-all text-emerald-700"
+                                            >
+                                                Confirm Acceptance
+                                            </button>
+                                            <button 
+                                                onClick={() => updateStatus(selectedApp.id, 'rejected')}
+                                                className="flex-1 border border-border py-3 text-[10px] font-black uppercase tracking-widest hover:border-red-500 hover:bg-red-50/50 transition-all text-red-700"
+                                            >
+                                                Reject Entry
+                                            </button>
+                                        </div>
+                                        <button 
+                                            onClick={() => { setIsDetailOpen(false); setIsDeleteOpen(true); }}
+                                            className="w-full border-t border-border pt-4 flex items-center justify-center gap-2 text-[9px] font-bold uppercase text-muted-foreground hover:text-destructive transition-colors"
+                                        >
+                                            <Trash2 size={12} /> Expunge Data Record
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-[12px] font-bold text-gray-800 uppercase tracking-tight">Application Processing Tip</p>
-                            <p className="text-[11px] text-gray-500 font-bold uppercase">AVERAGE REVIEW TIME: 4.2 DAYS PER SUBMISSION</p>
-                        </div>
-                    </div>
-                </div>
+                    )}
+                </Modal>
+
+                <Modal
+                    isOpen={isDeleteOpen}
+                    onClose={() => setIsDeleteOpen(false)}
+                    title="TERMINATE RECORD"
+                    description={`SYSTEM WARNING: IRREVERSIBLY REMOVE ALL DATA TRACES FOR "${selectedApp?.full_name.toUpperCase()}"?`}
+                    type="danger"
+                    confirmText="Proceed with Deletion"
+                    onConfirm={deleteApp}
+                >
+                    <div />
+                </Modal>
             </div>
         </DashboardLayout>
     )
