@@ -1,12 +1,12 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Outfit } from "next/font/google"
+import { Rubik } from "next/font/google"
 import { Suspense } from "react"
 import "./globals.css"
 
-const outfit = Outfit({
+const rubik = Rubik({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-rubik",
 })
 
 export const metadata: Metadata = {
@@ -35,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`font-sans ${outfit.variable}`}>
+      <body className={`font-sans ${rubik.variable}`}>
         <Suspense fallback={null}>{children}</Suspense>
       </body>
     </html>
