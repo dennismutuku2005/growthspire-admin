@@ -2,262 +2,336 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { Calendar, MapPin, Users, Clock, Plus, Filter, Search, Edit2, Trash2 } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { Calendar, CheckCircle, Clock, Search, Filter, Eye, ChevronRight, MapPin, Edit2, Trash2, Plus, Loader2, Image as ImageIcon, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 
 export default function EventsPage() {
-    const [isAddOpen, setIsAddOpen] = useState(false)
-    const [isEditOpen, setIsEditOpen] = useState(false)
+    const [events, setEvents] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const [selectedEvent, setSelectedEvent] = useState(null)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [isEdit, setIsEdit] = useState(false)
 
-    const events = [
-        {
-            id: 1,
-            title: "Startup Pitch Night",
-            date: "2024-04-15",
-            time: "18:00",
-            location: "Innovation Hub Auditrium",
-            attendees: 120,
-            type: "Networking",
-            status: "Upcoming",
-        },
-        {
-            id: 2,
-            title: "Founder's Workshop: Fundraising",
-            date: "2024-04-20",
-            time: "10:00",
-            location: "Virtual (Zoom)",
-            attendees: 45,
-            type: "Workshop",
-            status: "Upcoming",
-        },
-        {
-            id: 3,
-            title: "Tech Trends 2024",
-            date: "2024-03-10",
-            time: "14:00",
-            location: "Main Hall",
-            attendees: 200,
-            type: "Conference",
-            status: "Past",
-        },
-    ]
+    const [formData, setFormData] = useState({
+        title: "",
+        description: "",
+        event_date: "",
+        start_time: "09:00",
+        end_time: "17:00",
+        location: "Nairobi, KE",
+        event_type: "In-Person",
+        image_url: "",
+        registration_link: "",
+        featured: 0
+    })
 
-    const handleEdit = (event) => {
-        setSelectedEvent(event)
-        setIsEditOpen(true)
+    useEffect(() => {
+        fetchEvents()
+    }, [])
+
+    const fetchEvents = async () => {
+        setLoading(true)
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/events.php?action=get_events")
+            const data = await res.json()
+            if (data.success) {
+                setEvents(data.data)
+            }
+        } catch (err) {
+            toast.error("Failed to fetch events")
+        } finally {
+            setLoading(false)
+        }
     }
 
-    const handleDelete = (event) => {
-        setSelectedEvent(event)
-        setIsDeleteOpen(true)
+    const handleSubmit = async () => {
+        const action = isEdit ? "update_event" : "create_event"
+        const body = isEdit ? { action, id: selectedEvent.id, ...formData } : { action, ...formData }
+        
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/events.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            })
+            const data = await res.json()
+            if (data.success) {
+                toast.success(isEdit ? "Event updated" : "Event created")
+                setIsFormOpen(false)
+                fetchEvents()
+                resetForm()
+            } else {
+                toast.error(data.message)
+            }
+        } catch (err) {
+            toast.error("An error occurred")
+        }
     }
+
+    const handleDelete = async () => {
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/events.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "delete_event", id: selectedEvent.id })
+            })
+            const data = await res.json()
+            if (data.success) {
+                toast.success("Event removed")
+                setIsDeleteOpen(false)
+                fetchEvents()
+            }
+        } catch (err) {
+            toast.error("Failed to delete")
+        }
+    }
+
+    const openEdit = (event) => {
+        setSelectedEvent(event)
+        setIsEdit(true)
+        setFormData({
+            title: event.title,
+            description: event.description || "",
+            event_date: event.event_date,
+            start_time: event.start_time || "09:00",
+            end_time: event.end_time || "17:00",
+            location: event.location || "Nairobi, KE",
+            event_type: event.event_type,
+            image_url: event.image_url || "",
+            registration_link: event.registration_link || "",
+            featured: event.featured || 0
+        })
+        setIsFormOpen(true)
+    }
+
+    const resetForm = () => {
+        setIsEdit(false)
+        setFormData({
+            title: "",
+            description: "",
+            event_date: "",
+            start_time: "09:00",
+            end_time: "17:00",
+            location: "Nairobi, KE",
+            event_type: "In-Person",
+            image_url: "",
+            registration_link: "",
+            featured: 0
+        })
+    }
+
+    const filteredEvents = events.filter(e => 
+        e.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        e.location?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
     return (
         <DashboardLayout>
-            <div className="space-y-4 animate-in fade-in duration-500">
-                {/* 2D Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+            <div className="space-y-8 animate-in fade-in duration-500 pb-10">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
                     <div>
-                        <h1 className="text-lg font-bold tracking-tight text-gray-900 uppercase flex items-center gap-2">
-                            <Calendar size={18} className="text-black" />
-                            Eco-System Events
+                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
+                            <Calendar size={20} className="text-primary" />
+                            Event Command
                         </h1>
-                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mt-0.5">
-                            MANAGE ECOSYSTEM EVENTS AND NETWORKING OPPORTUNITIES
+                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
+                            Orchestrate meetups, demo days and networking events
                         </p>
                     </div>
                     <Button
-                        onClick={() => setIsAddOpen(true)}
-                        size="sm"
-                        className="bg-black text-white hover:bg-black/90 rounded-none h-8 text-[11px] font-bold uppercase tracking-wide"
+                        onClick={() => { resetForm(); setIsFormOpen(true); }}
+                        className="admin-button-primary"
                     >
-                        <Plus className="mr-1.5 h-3.5 w-3.5" /> Create New Event
+                        <Plus size={16} /> <span>Schedule Event</span>
                     </Button>
                 </div>
 
-                {/* 2D Filter Bar */}
-                <div className="flex flex-col md:flex-row gap-2 bg-gray-50 border border-t-2 border-t-black p-2">
+                {/* Filter Bar */}
+                <div className="flex gap-2 bg-muted/30 border border-border p-2">
                     <div className="relative flex-1">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                            placeholder="Search events by title, location or type..."
-                            className="pl-8 h-8 rounded-none border-gray-200 bg-white text-[12px] focus-visible:ring-0 focus-visible:border-gray-400"
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <input
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="FIND EVENTS BY TITLE OR LOCATION..."
+                            className="w-full bg-white h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none focus:border-foreground border border-border/50"
                         />
                     </div>
-                    <Button variant="outline" className="h-8 rounded-none border-gray-200 bg-white text-[11px] font-bold uppercase tracking-wider px-4">
-                        <Filter className="mr-1.5 h-3.5 w-3.5 text-gray-400" /> Filter
-                    </Button>
                 </div>
 
-                {/* 2D Table Layout */}
-                <div className="border border-gray-200 bg-white overflow-hidden">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="bg-gray-50 border-b border-gray-200">
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">EVENT TITLE</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">DATE & TIME</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">LOCATION</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">TYPE</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">STATUS</th>
-                                <th className="py-2.5 px-3 text-right text-[10px] font-bold text-gray-400 uppercase">RSVPS</th>
-                                <th className="py-2.5 px-3 text-right text-[10px] font-bold text-gray-400 uppercase">ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {events.map((event) => (
-                                <tr key={event.id} className="group border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
-                                    <td className="py-2.5 px-3">
-                                        <div className="flex flex-col">
-                                            <span className="text-[13px] font-bold text-gray-900 group-hover:text-black uppercase">
-                                                {event.title}
-                                            </span>
-                                        </div>
-                                    </td>
-                                    <td className="py-2.5 px-3">
-                                        <div className="flex items-center gap-2 text-[11px] font-bold text-gray-500 uppercase">
-                                            <Calendar size={12} className="text-gray-300" />
-                                            {event.date}
-                                            <Clock size={12} className="text-gray-300 ml-1" />
-                                            {event.time}
-                                        </div>
-                                    </td>
-                                    <td className="py-2.5 px-3">
-                                        <div className="flex items-center gap-1.5 text-[11px] text-gray-600 font-bold uppercase">
-                                            <MapPin size={12} className="text-gray-300" />
-                                            {event.location}
-                                        </div>
-                                    </td>
-                                    <td className="py-2.5 px-3">
-                                        <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 bg-gray-100 text-gray-600 border border-gray-200">
-                                            {event.type}
+                {/* Grid Layout for Events */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {loading ? (
+                        <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                    ) : filteredEvents.length > 0 ? (
+                        filteredEvents.map((event) => (
+                            <div key={event.id} className="admin-card group hover:border-foreground transition-all flex flex-col h-full bg-card">
+                                <div className="h-40 bg-muted border-b border-border flex items-center justify-center overflow-hidden relative">
+                                    {event.image_url ? (
+                                        <img src={event.image_url} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                                    ) : (
+                                        <ImageIcon size={24} className="text-muted-foreground/30" />
+                                    )}
+                                    <div className="absolute top-3 left-3">
+                                        <span className="bg-foreground text-background text-[9px] font-bold py-1 px-2 uppercase tracking-widest border border-foreground">
+                                            {event.event_type}
                                         </span>
-                                    </td>
-                                    <td className="py-2.5 px-3">
-                                        <span className={cn(
-                                            "text-[10px] font-bold uppercase px-1.5 py-0.5 border",
-                                            event.status === "Upcoming" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                                                "bg-gray-50 text-gray-400 border-gray-200"
-                                        )}>
-                                            {event.status}
-                                        </span>
-                                    </td>
-                                    <td className="py-2.5 px-3 text-right">
-                                        <div className="flex items-center justify-end gap-1.5 text-[11px] font-bold text-gray-700 uppercase">
-                                            <Users size={12} className="text-gray-300" />
-                                            {event.attendees}
-                                        </div>
-                                    </td>
-                                    <td className="py-2.5 px-3 text-right">
-                                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button
-                                                onClick={() => handleEdit(event)}
-                                                variant="ghost" className="h-7 px-2 rounded-none text-gray-400 hover:text-black text-[10px] font-bold uppercase"
-                                            >
-                                                <Edit2 size={12} className="mr-1" /> Edit
-                                            </Button>
-                                            <Button
-                                                onClick={() => handleDelete(event)}
-                                                variant="ghost" className="h-7 px-2 rounded-none text-gray-400 hover:text-red-600 text-[10px] font-bold uppercase"
-                                            >
-                                                <Trash2 size={12} className="mr-1" /> Delete
-                                            </Button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                    </div>
+                                </div>
+                                <div className="p-5 flex-1 flex flex-col">
+                                    <div className="flex items-center gap-2 mb-2 text-[10px] font-bold text-primary uppercase tracking-wider">
+                                        <Clock size={12} />
+                                        {new Date(event.event_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                        <span>•</span>
+                                        {event.start_time}
+                                    </div>
+                                    <h3 className="text-sm font-bold uppercase tracking-widest leading-tight mb-2 group-hover:text-primary transition-colors">
+                                        {event.title}
+                                    </h3>
+                                    <p className="text-[11px] text-muted-foreground line-clamp-2 mb-4 leading-relaxed font-medium">
+                                        {event.description || "No detailed description provided for this session."}
+                                    </p>
+                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase mt-auto pb-4">
+                                        <MapPin size={12} className="text-muted-foreground/60" />
+                                        {event.location}
+                                    </div>
+                                    <div className="flex gap-2 pt-4 border-t border-border mt-auto">
+                                        <button 
+                                            onClick={() => openEdit(event)}
+                                            className="flex-1 py-2 border border-border text-[10px] font-bold uppercase tracking-widest hover:border-foreground transition-all"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => { setSelectedEvent(event); setIsDeleteOpen(true); }}
+                                            className="px-3 py-2 border border-border text-muted-foreground hover:text-destructive hover:border-destructive transition-all"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="col-span-full py-20 text-center text-muted-foreground font-bold uppercase text-[11px] border border-dashed border-border">No events scheduled.</div>
+                    )}
                 </div>
 
-                {/* Add Event Modal */}
+                {/* Form Modal */}
                 <Modal
-                    isOpen={isAddOpen}
-                    onClose={() => setIsAddOpen(false)}
-                    title="Create New Event"
-                    description="Schedule a new workshop, meetup or conference."
-                    type="info"
-                    confirmText="Schedule Event"
-                    onConfirm={() => setIsAddOpen(false)}
+                    isOpen={isFormOpen}
+                    onClose={() => setIsFormOpen(false)}
+                    title={isEdit ? "Revise Event" : "Brief New Event"}
+                    description={isEdit ? `MODIFYING PARAMETERS FOR ${formData.title.toUpperCase()}` : "DETERMINE THE LOGISTICS FOR AN UPCOMING GROWTHSPIRE GATHERING"}
+                    confirmText={isEdit ? "Save Changes" : "Confirm Schedule"}
+                    onConfirm={handleSubmit}
+                    maxWidth="max-w-2xl"
                 >
-                    <div className="space-y-4 pt-2">
+                    <div className="space-y-6">
                         <div className="space-y-1">
-                            <Label className="text-[10px] font-bold uppercase text-gray-400">Event Title</Label>
-                            <Input className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase" placeholder="E.G. SUMMER DEMO DAY" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                                <Label className="text-[10px] font-bold uppercase text-gray-400">Date</Label>
-                                <Input type="date" className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase" />
-                            </div>
-                            <div className="space-y-1">
-                                <Label className="text-[10px] font-bold uppercase text-gray-400">Time</Label>
-                                <Input type="time" className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase" />
-                            </div>
-                        </div>
-                        <div className="space-y-1">
-                            <Label className="text-[10px] font-bold uppercase text-gray-400">Location</Label>
-                            <Input className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase" placeholder="E.G. MAIN AUDITORIUM OR ZOOM LINK" />
-                        </div>
-                    </div>
-                </Modal>
-
-                {/* Edit Event Modal */}
-                <Modal
-                    isOpen={isEditOpen}
-                    onClose={() => setIsEditOpen(false)}
-                    title="Edit Event Details"
-                    description={`Updating information for ${selectedEvent?.title}`}
-                    type="info"
-                    confirmText="Save Updates"
-                    onConfirm={() => setIsEditOpen(false)}
-                >
-                    <div className="space-y-4 pt-2">
-                        <div className="space-y-1">
-                            <Label className="text-[10px] font-bold uppercase text-gray-400">Title</Label>
-                            <Input
-                                defaultValue={selectedEvent?.title}
-                                className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase"
+                            <label className="admin-label">Event Title</label>
+                            <input 
+                                className="admin-input" 
+                                placeholder="E.G. GROWTH SUMMIT 2024" 
+                                value={formData.title}
+                                onChange={(e) => setFormData({...formData, title: e.target.value})}
                             />
                         </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <label className="admin-label">Date</label>
+                                <input 
+                                    type="date"
+                                    className="admin-input"
+                                    value={formData.event_date}
+                                    onChange={(e) => setFormData({...formData, event_date: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="admin-label">Event Type</label>
+                                <select 
+                                    className="admin-input"
+                                    value={formData.event_type}
+                                    onChange={(e) => setFormData({...formData, event_type: e.target.value})}
+                                >
+                                    <option value="In-Person">In-Person</option>
+                                    <option value="Online">Online Webinar</option>
+                                    <option value="Hybrid">Hybrid Session</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <label className="admin-label">Start Time</label>
+                                <input 
+                                    type="time"
+                                    className="admin-input" 
+                                    value={formData.start_time}
+                                    onChange={(e) => setFormData({...formData, start_time: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="admin-label">Location / Link</label>
+                                <input 
+                                    className="admin-input" 
+                                    placeholder="Nairobi Garage or Zoom Link" 
+                                    value={formData.location}
+                                    onChange={(e) => setFormData({...formData, location: e.target.value})}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <label className="admin-label">Banner Image URL</label>
+                                <input 
+                                    className="admin-input" 
+                                    placeholder="HTTPS://IMAGE.URL/BANNER.JPG" 
+                                    value={formData.image_url}
+                                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="admin-label">Registration URL</label>
+                                <input 
+                                    className="admin-input" 
+                                    placeholder="HTTPS://EVENTBRITE.COM/..." 
+                                    value={formData.registration_link}
+                                    onChange={(e) => setFormData({...formData, registration_link: e.target.value})}
+                                />
+                            </div>
+                        </div>
+
                         <div className="space-y-1">
-                            <Label className="text-[10px] font-bold uppercase text-gray-400">Status</Label>
-                            <select className="w-full h-9 border border-gray-200 text-[12px] px-2 font-bold uppercase outline-none focus:border-black">
-                                <option>Upcoming</option>
-                                <option>Past</option>
-                                <option>Cancelled</option>
-                            </select>
+                            <label className="admin-label">Description / Agenda</label>
+                            <textarea 
+                                className="admin-input h-24" 
+                                placeholder="WHAT SHOULD ATTENDEES EXPECT?" 
+                                value={formData.description}
+                                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                            />
                         </div>
                     </div>
                 </Modal>
 
-                {/* Delete Confirmation Modal */}
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
                     title="Cancel Event"
-                    description={`Are you sure you want to cancel and remove ${selectedEvent?.title}?`}
+                    description={`PERMANENTLY REMOVE "${selectedEvent?.title}" FROM THE CALENDAR?`}
                     type="danger"
-                    confirmText="Cancel Event"
-                    onConfirm={() => setIsDeleteOpen(false)}
+                    confirmText="Remove Irreversibly"
+                    onConfirm={handleDelete}
                 />
-
-                {/* 2D Metrics Footer */}
-                <div className="flex gap-4 p-2 bg-gray-50 border border-gray-200">
-                    <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Events:</span>
-                        <span className="text-sm font-bold text-gray-900">{events.length}</span>
-                    </div>
-                    <div className="flex items-center gap-2 ml-4">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Upcoming:</span>
-                        <span className="text-sm font-bold text-black bg-gray-200 px-1.5">2</span>
-                    </div>
-                </div>
             </div>
         </DashboardLayout>
     )
