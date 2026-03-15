@@ -37,33 +37,33 @@ export function Modal({
     const typeConfig = {
         info: {
             icon: Info,
-            color: 'text-blue-600',
-            bg: 'bg-blue-50',
-            btn: 'bg-blue-600 hover:bg-blue-700'
+            color: 'text-foreground',
+            bg: 'bg-muted',
+            btn: 'bg-foreground text-background hover:bg-foreground/90'
         },
         success: {
             icon: CheckCircle2,
-            color: 'text-emerald-600',
+            color: 'text-emerald-700',
             bg: 'bg-emerald-50',
-            btn: 'bg-emerald-600 hover:bg-emerald-700'
+            btn: 'bg-emerald-600 hover:bg-emerald-700 text-white'
         },
         error: {
             icon: AlertCircle,
-            color: 'text-red-600',
+            color: 'text-red-700',
             bg: 'bg-red-50',
-            btn: 'bg-red-600 hover:bg-red-700'
+            btn: 'bg-red-600 hover:bg-red-700 text-white'
         },
         warning: {
             icon: AlertTriangle,
-            color: 'text-amber-600',
+            color: 'text-amber-700',
             bg: 'bg-amber-50',
-            btn: 'bg-amber-600 hover:bg-amber-700'
+            btn: 'bg-amber-600 hover:bg-amber-700 text-white'
         },
         danger: {
             icon: AlertCircle,
-            color: 'text-red-600',
+            color: 'text-red-700',
             bg: 'bg-red-50',
-            btn: 'bg-red-500 hover:bg-red-600'
+            btn: 'bg-red-600 hover:bg-red-700 text-white'
         }
     }
 
@@ -72,31 +72,31 @@ export function Modal({
 
     return createPortal(
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-            {/* Backdrop - Soft Blur */}
+            {/* Backdrop - Flat Darker */}
             <div
-                className="fixed inset-0 bg-black/20 backdrop-blur-[2px] animate-in fade-in duration-300"
+                className="fixed inset-0 bg-black/40 animate-in fade-in duration-300"
                 onClick={onClose}
             />
 
-            {/* Modal Content - Clean Modern Styling */}
-            <div className={cn("relative bg-white rounded-xl shadow-lg w-full overflow-hidden animate-in zoom-in-95 fade-in duration-200 ring-1 ring-gray-200", maxWidth)}>
-                <div className="p-5">
-                    <div className="flex items-start justify-between mb-4">
-                        <div className={cn("w-9 h-9 rounded-full flex items-center justify-center shrink-0", config.bg, config.color)}>
-                            <Icon size={18} />
+            {/* Modal Content - 2D Elegant Style */}
+            <div className={cn("relative bg-white border-2 border-foreground w-full overflow-hidden animate-in zoom-in-100 fade-in duration-150 shadow-none", maxWidth)}>
+                <div className="p-6">
+                    <div className="flex items-start justify-between mb-6">
+                        <div className={cn("w-10 h-10 flex items-center justify-center shrink-0 border border-current", config.color, config.bg)}>
+                            <Icon size={20} />
                         </div>
                         <button
                             onClick={onClose}
-                            className="p-1.5 rounded-md hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-600"
+                            className="p-1 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
                         >
-                            <X size={16} />
+                            <X size={20} />
                         </button>
                     </div>
 
-                    <div className="space-y-1.5">
-                        <h3 className="text-base font-semibold text-gray-900 leading-none">{title}</h3>
+                    <div className="space-y-1">
+                        <h3 className="text-lg font-bold uppercase tracking-widest leading-none">{title}</h3>
                         {description && (
-                            <p className="text-xs text-gray-500 leading-relaxed">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground opacity-70 leading-relaxed pt-1">
                                 {description}
                             </p>
                         )}
@@ -104,20 +104,20 @@ export function Modal({
 
                     {/* Children Content */}
                     {children && (
-                        <div className="mt-4">
+                        <div className="mt-6">
                             {children}
                         </div>
                     )}
 
                     {/* Footer / Actions */}
-                    <div className="mt-6 flex items-center gap-2">
+                    <div className="mt-8 flex items-center gap-2">
                         {footer ? footer : (
                             <>
                                 {showCancel && (
                                     <button
                                         onClick={onClose}
                                         disabled={isLoading}
-                                        className="flex-1 px-3 py-2 bg-white border border-gray-200 text-gray-600 rounded-md text-xs font-medium hover:bg-gray-50 hover:text-gray-900 transition-all disabled:opacity-50"
+                                        className="flex-1 px-4 py-2 border border-border text-foreground hover:bg-muted transition-all disabled:opacity-50 text-[11px] font-bold uppercase tracking-widest"
                                     >
                                         {cancelText}
                                     </button>
@@ -126,12 +126,12 @@ export function Modal({
                                     onClick={onConfirm}
                                     disabled={isLoading}
                                     className={cn(
-                                        "flex-1 px-3 py-2 text-white rounded-md text-xs font-medium transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-sm",
+                                        "flex-1 px-4 py-2 transition-all disabled:opacity-50 flex items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-widest",
                                         config.btn
                                     )}
                                 >
                                     {isLoading ? (
-                                        <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                        <div className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                                     ) : confirmText}
                                 </button>
                             </>
