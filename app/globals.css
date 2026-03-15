@@ -177,6 +177,16 @@
   @apply bg-foreground/20;
 }
 
+/* Hide scrollbar for filter sections */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Custom 2D elements */
 .border-b-thin {
     border-bottom: 1px solid var(--border);

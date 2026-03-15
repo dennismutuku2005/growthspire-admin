@@ -8,12 +8,27 @@ import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { toast } from "sonner"
 
+interface Startup {
+    id: string | number;
+    name: string;
+    founder: string;
+    sector?: string;
+    category?: string;
+    stage: string;
+    status: string;
+    description: string;
+    website?: string;
+    website_url?: string;
+    logo?: string;
+    logo_url?: string;
+}
+
 export default function StartupsPage() {
-    const [startups, setStartups] = useState([])
+    const [startups, setStartups] = useState<Startup[]>([])
     const [loading, setLoading] = useState(true)
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-    const [selectedStartup, setSelectedStartup] = useState(null)
+    const [selectedStartup, setSelectedStartup] = useState<Startup | null>(null)
     const [searchQuery, setSearchQuery] = useState("")
     const [isEdit, setIsEdit] = useState(false)
 
@@ -49,7 +64,7 @@ export default function StartupsPage() {
 
     const handleSubmit = async () => {
         const action = isEdit ? "update_startup" : "create_startup"
-        const body = isEdit ? { action, id: selectedStartup.id, ...formData } : { action, ...formData }
+        const body = isEdit ? { action, id: selectedStartup?.id, ...formData } : { action, ...formData }
         
         try {
             const res = await fetch("http://localhost/growthspire/backend/startups.php", {
@@ -76,7 +91,7 @@ export default function StartupsPage() {
             const res = await fetch("http://localhost/growthspire/backend/startups.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ action: "delete_startup", id: selectedStartup.id })
+                body: JSON.stringify({ action: "delete_startup", id: selectedStartup?.id })
             })
             const data = await res.json()
             if (data.success) {
@@ -89,7 +104,7 @@ export default function StartupsPage() {
         }
     }
 
-    const openEdit = (startup) => {
+    const openEdit = (startup: Startup) => {
         setSelectedStartup(startup)
         setIsEdit(true)
         setFormData({
@@ -119,7 +134,7 @@ export default function StartupsPage() {
         })
     }
 
-    const filteredStartups = startups.filter(s => 
+    const filteredStartups = startups.filter((s: Startup) => 
         s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
         s.founder?.toLowerCase().includes(searchQuery.toLowerCase())
     )
@@ -175,7 +190,7 @@ export default function StartupsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {filteredStartups.length > 0 ? filteredStartups.map((startup) => (
+                                {filteredStartups.length > 0 ? filteredStartups.map((startup: Startup) => (
                                     <tr key={startup.id} className="group">
                                         <td>
                                             <div className="flex items-center gap-3">
@@ -237,7 +252,7 @@ export default function StartupsPage() {
                                         </td>
                                     </tr>
                                 )) : (
-                                    <tr><td colSpan="5" className="text-center py-20 text-muted-foreground font-bold uppercase text-[11px]">No portfolio startups discovered</td></tr>
+                                    <tr><td colSpan={5} className="text-center py-20 text-muted-foreground font-bold uppercase text-[11px]">No portfolio startups discovered</td></tr>
                                 )}
                             </tbody>
                         </table>

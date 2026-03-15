@@ -5,27 +5,44 @@ import { createPortal } from 'react-dom'
 import { X, AlertCircle, CheckCircle2, Info, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
+interface ModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    title: string;
+    description?: string;
+    type?: 'info' | 'success' | 'error' | 'warning' | 'danger';
+    confirmText?: string;
+    cancelText?: string;
+    onConfirm?: () => void | Promise<void>;
+    isLoading?: boolean;
+    showCancel?: boolean;
+    icon?: React.ElementType;
+    children?: React.ReactNode;
+    footer?: React.ReactNode;
+    maxWidth?: string;
+}
+
 export function Modal({
     isOpen,
     onClose,
     title,
-    description,
-    type = 'info', // 'info' | 'success' | 'error' | 'warning' | 'danger'
+    description = '',
+    type = 'info',
     confirmText = 'Confirm',
     cancelText = 'Cancel',
     onConfirm,
     isLoading = false,
     showCancel = true,
-    icon: CustomIcon = null,
-    children,
+    icon: CustomIcon,
+    children = null,
     footer = null,
     maxWidth = 'max-w-md'
-}) {
+}: ModalProps) {
     const [mounted, setMounted] = React.useState(false)
 
     useEffect(() => {
         setMounted(true)
-        const handleEsc = (e) => {
+        const handleEsc = (e: KeyboardEvent) => {
             if (e.key === 'Escape') onClose()
         }
         if (isOpen) window.addEventListener('keydown', handleEsc)
