@@ -2,253 +2,361 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { Plus, Search, Filter, Rocket, Edit2, Trash2 } from "lucide-react"
-import { Input } from "@/components/ui/input"
+import { Rocket, CheckCircle, Clock, Search, Filter, Edit2, Trash2, Plus, Loader2, Globe, User } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
-import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 
 export default function StartupsPage() {
-    const [isAddOpen, setIsAddOpen] = useState(false)
-    const [isEditOpen, setIsEditOpen] = useState(false)
+    const [startups, setStartups] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
     const [selectedStartup, setSelectedStartup] = useState(null)
+    const [searchQuery, setSearchQuery] = useState("")
+    const [isEdit, setIsEdit] = useState(false)
 
-    const startups = [
-        {
-            id: 1,
-            name: "TechNova",
-            founder: "Sarah Johnson",
+    const [formData, setFormData] = useState({
+        name: "",
+        founder: "",
+        category: "",
+        stage: "Seed",
+        status: "Active",
+        description: "",
+        website_url: "",
+        logo_url: ""
+    })
+
+    useEffect(() => {
+        fetchStartups()
+    }, [])
+
+    const fetchStartups = async () => {
+        setLoading(true)
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/startups.php?action=get_startups")
+            const data = await res.json()
+            if (data.success) {
+                setStartups(data.data)
+            }
+        } catch (err) {
+            toast.error("Failed to fetch startups")
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const handleSubmit = async () => {
+        const action = isEdit ? "update_startup" : "create_startup"
+        const body = isEdit ? { action, id: selectedStartup.id, ...formData } : { action, ...formData }
+        
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/startups.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            })
+            const data = await res.json()
+            if (data.success) {
+                toast.success(isEdit ? "Profile updated" : "Startup onboarded")
+                setIsFormOpen(false)
+                fetchStartups()
+                resetForm()
+            } else {
+                toast.error(data.message)
+            }
+        } catch (err) {
+            toast.error("An error occurred")
+        }
+    }
+
+    const handleDelete = async () => {
+        try {
+            const res = await fetch("http://localhost/growthspire/backend/startups.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "delete_startup", id: selectedStartup.id })
+            })
+            const data = await res.json()
+            if (data.success) {
+                toast.success("Startup removed")
+                setIsDeleteOpen(false)
+                fetchStartups()
+            }
+        } catch (err) {
+            toast.error("Failed to delete")
+        }
+    }
+
+    const openEdit = (startup) => {
+        setSelectedStartup(startup)
+        setIsEdit(true)
+        setFormData({
+            name: startup.name,
+            founder: startup.founder,
+            category: startup.sector || startup.category || "",
+            stage: startup.stage || "Seed",
+            status: startup.status || "Active",
+            description: startup.description || "",
+            website_url: startup.website || startup.website_url || "",
+            logo_url: startup.logo || startup.logo_url || ""
+        })
+        setIsFormOpen(true)
+    }
+
+    const resetForm = () => {
+        setIsEdit(false)
+        setFormData({
+            name: "",
+            founder: "",
+            category: "",
             stage: "Seed",
-            sector: "Fintech",
             status: "Active",
-            joined: "2024-01-15",
-        },
-        {
-            id: 2,
-            name: "GreenLeaf",
-            founder: "David Chen",
-            stage: "Series A",
-            sector: "AgriTech",
-            status: "Accelerated",
-            joined: "2023-11-20",
-        },
-        {
-            id: 3,
-            name: "HealthConnect",
-            founder: "Dr. Emily Smith",
-            stage: "Pre-Seed",
-            sector: "HealthTech",
-            status: "Pending",
-            joined: "2024-02-01",
-        },
-        {
-            id: 4,
-            name: "EduSphere",
-            founder: "James Wilson",
-            stage: "Idea",
-            sector: "EdTech",
-            status: "Active",
-            joined: "2024-02-10",
-        },
-    ]
-
-    const handleEdit = (startup) => {
-        setSelectedStartup(startup)
-        setIsEditOpen(true)
+            description: "",
+            website_url: "",
+            logo_url: ""
+        })
     }
 
-    const handleDelete = (startup) => {
-        setSelectedStartup(startup)
-        setIsDeleteOpen(true)
-    }
+    const filteredStartups = startups.filter(s => 
+        s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        s.founder?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
     return (
         <DashboardLayout>
-            <div className="space-y-4 animate-in fade-in duration-500">
-                {/* 2D Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+            <div className="space-y-8 animate-in fade-in duration-500 pb-10">
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
                     <div>
-                        <h1 className="text-lg font-bold tracking-tight text-gray-900 flex items-center gap-2 uppercase">
-                            <Rocket size={18} className="text-black" />
-                            Startup Ecosystem
+                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
+                            <Rocket size={20} className="text-primary" />
+                            Startup Registry
                         </h1>
-                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mt-0.5">
-                            MANAGE AND TRACK THE GROWTH OF YOUR PORTFOLIO
+                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
+                            Central database for GrowthSpire portfolio companies
                         </p>
                     </div>
                     <Button
-                        onClick={() => setIsAddOpen(true)}
-                        size="sm"
-                        className="bg-black text-white hover:bg-black/90 rounded-none h-8 text-[11px] font-bold uppercase tracking-wide"
+                        onClick={() => { resetForm(); setIsFormOpen(true); }}
+                        className="admin-button-primary"
                     >
-                        <Plus className="mr-1.5 h-3.5 w-3.5" /> Add New Startup
+                        <Plus size={16} /> <span>Add Startup</span>
                     </Button>
                 </div>
 
-                {/* 2D Filter Bar */}
-                <div className="flex flex-col md:flex-row gap-2 bg-gray-50 border border-t-2 border-t-black p-2">
+                {/* Filter Bar */}
+                <div className="flex gap-2 bg-muted/30 border border-border p-2">
                     <div className="relative flex-1">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                        <Input
-                            placeholder="Search by company name, founder or sector..."
-                            className="pl-8 h-8 rounded-none border-gray-200 bg-white text-[12px] focus-visible:ring-0 focus-visible:border-gray-400"
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <input
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="SEARCH BY NAME, FOUNDER OR SECTOR..."
+                            className="w-full bg-white h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none focus:border-foreground border border-border/50"
                         />
                     </div>
-                    <Button variant="outline" className="h-8 rounded-none border-gray-200 bg-white text-[11px] font-bold uppercase tracking-wider px-4">
-                        <Filter className="mr-1.5 h-3.5 w-3.5 text-gray-400" /> Filter
-                    </Button>
                 </div>
 
-                {/* 2D Table Layout */}
-                <div className="border border-gray-200 bg-white overflow-hidden">
-                    <table className="w-full text-left">
-                        <thead>
-                            <tr className="bg-gray-50 border-b border-gray-200">
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">COMPANY NAME</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">FOUNDER</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">SECTOR</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">STAGE</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">STATUS</th>
-                                <th className="py-2.5 px-3 text-right text-[10px] font-bold text-gray-400 uppercase">JOINED</th>
-                                <th className="py-2.5 px-3 text-right text-[10px] font-bold text-gray-400 uppercase">ACTIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {startups.map((startup) => (
-                                <tr key={startup.id} className="group border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
-                                    <td className="py-2.5 px-3">
-                                        <span className="text-[13px] font-bold text-gray-900 group-hover:text-black uppercase">
-                                            {startup.name}
-                                        </span>
-                                    </td>
-                                    <td className="py-2.5 px-3 text-[12px] font-bold text-gray-600 uppercase">
-                                        {startup.founder}
-                                    </td>
-                                    <td className="py-2.5 px-3">
-                                        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-tight">
-                                            {startup.sector}
-                                        </span>
-                                    </td>
-                                    <td className="py-2.5 px-3">
-                                        <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 bg-gray-100 text-gray-600 border border-gray-200">
-                                            {startup.stage}
-                                        </span>
-                                    </td>
-                                    <td className="py-2.5 px-3">
-                                        <span className={cn(
-                                            "text-[10px] font-bold uppercase px-1.5 py-0.5 border",
-                                            startup.status === "Active" ? "bg-emerald-50 text-emerald-600 border-emerald-100" :
-                                                startup.status === "Accelerated" ? "bg-blue-50 text-blue-600 border-blue-100" :
-                                                    "bg-amber-50 text-amber-600 border-amber-100"
-                                        )}>
-                                            {startup.status}
-                                        </span>
-                                    </td>
-                                    <td className="py-2.5 px-3 text-right text-[11px] font-bold text-gray-400 uppercase tracking-tighter">
-                                        {startup.joined}
-                                    </td>
-                                    <td className="py-2.5 px-3 text-right">
-                                        <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button
-                                                onClick={() => handleEdit(startup)}
-                                                variant="ghost" className="h-7 px-2 rounded-none text-gray-400 hover:text-black text-[10px] font-bold uppercase"
-                                            >
-                                                <Edit2 size={12} className="mr-1" /> Edit
-                                            </Button>
-                                            <Button
-                                                onClick={() => handleDelete(startup)}
-                                                variant="ghost" className="h-7 px-2 rounded-none text-gray-400 hover:text-red-600 text-[10px] font-bold uppercase"
-                                            >
-                                                <Trash2 size={12} className="mr-1" /> Delete
-                                            </Button>
-                                        </div>
-                                    </td>
+                {/* Table Layout */}
+                <div className="admin-table-container">
+                    {loading ? (
+                        <div className="p-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                    ) : (
+                        <table className="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Founder</th>
+                                    <th>Sector/Stage</th>
+                                    <th>Status</th>
+                                    <th className="text-right">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {filteredStartups.length > 0 ? filteredStartups.map((startup) => (
+                                    <tr key={startup.id} className="group">
+                                        <td>
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-8 w-8 bg-muted border border-border flex items-center justify-center shrink-0">
+                                                    {startup.logo ? (
+                                                        <img src={startup.logo} alt="" className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" />
+                                                    ) : (
+                                                        <Rocket size={14} className="text-muted-foreground/40" />
+                                                    )}
+                                                </div>
+                                                <div>
+                                                    <span className="text-[13px] font-bold text-foreground block uppercase leading-tight">
+                                                        {startup.name}
+                                                    </span>
+                                                    {startup.website && (
+                                                       <a href={startup.website} target="_blank" className="text-[9px] font-bold text-primary uppercase tracking-tighter flex items-center gap-0.5 hover:underline">
+                                                           {new URL(startup.website).hostname} <Globe size={8} />
+                                                       </a>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="text-[11px] font-bold text-muted-foreground uppercase">
+                                            <div className="flex items-center gap-1.5 font-bold">
+                                                <User size={12} className="opacity-40" />
+                                                {startup.founder}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span className="text-[11px] font-bold text-muted-foreground uppercase opacity-80">
+                                                {startup.sector}
+                                            </span>
+                                            <p className="text-[10px] text-muted-foreground/40 font-bold uppercase tracking-widest">{startup.stage}</p>
+                                        </td>
+                                        <td>
+                                            <span className={cn(
+                                                "text-[9px] font-black uppercase px-2 py-0.5 border flex items-center gap-1 w-fit tracking-tighter",
+                                                startup.status === 'Active' ? "bg-emerald-50 text-emerald-700 border-emerald-100" : 
+                                                startup.status === 'Accelerated' ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-muted text-muted-foreground border-border"
+                                            )}>
+                                                {startup.status}
+                                            </span>
+                                        </td>
+                                        <td className="text-right">
+                                            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() => openEdit(startup)}
+                                                    className="h-8 w-8 flex items-center justify-center border border-border hover:border-foreground transition-all"
+                                                >
+                                                    <Edit2 size={14} />
+                                                </button>
+                                                <button
+                                                    onClick={() => { setSelectedStartup(startup); setIsDeleteOpen(true); }}
+                                                    className="h-8 w-8 flex items-center justify-center border border-border hover:border-destructive hover:text-destructive transition-all"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr><td colSpan="5" className="text-center py-20 text-muted-foreground font-bold uppercase text-[11px]">No portfolio startups discovered</td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
 
-                {/* Add Startup Modal */}
+                {/* Form Modal */}
                 <Modal
-                    isOpen={isAddOpen}
-                    onClose={() => setIsAddOpen(false)}
-                    title="Add New Startup"
-                    description="Enter startup details to add to portfolio."
-                    type="info"
-                    confirmText="Add Startup"
-                    onConfirm={() => setIsAddOpen(false)}
+                    isOpen={isFormOpen}
+                    onClose={() => setIsFormOpen(false)}
+                    title={isEdit ? "Update Registry" : "Onboard Startup"}
+                    description={isEdit ? `MODIFYING PROFILE FOR ${formData.name.toUpperCase()}` : "DETERMINE THE CORE DETAILS FOR A NEW ECOSYSTEM MEMBER"}
+                    confirmText={isEdit ? "Update Record" : "Confirm Onboarding"}
+                    onConfirm={handleSubmit}
+                    maxWidth="max-w-2xl"
                 >
-                    <div className="space-y-4 pt-2">
-                        <div className="space-y-1">
-                            <Label className="text-[10px] font-bold uppercase text-gray-400">Company Name</Label>
-                            <Input className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase" placeholder="E.G. TECHNOVA" />
+                    <div className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <label className="admin-label">Startup Name</label>
+                                <input 
+                                    className="admin-input" 
+                                    placeholder="E.G. TECHNOVA" 
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="admin-label">Founder</label>
+                                <input 
+                                    className="admin-input" 
+                                    placeholder="JOHN DOE" 
+                                    value={formData.founder}
+                                    onChange={(e) => setFormData({...formData, founder: e.target.value})}
+                                />
+                            </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="space-y-1">
-                                <Label className="text-[10px] font-bold uppercase text-gray-400">Founder Name</Label>
-                                <Input className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase" placeholder="JOHN DOE" />
+                                <label className="admin-label">Sector</label>
+                                <input 
+                                    className="admin-input" 
+                                    placeholder="FINTECH" 
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({...formData, category: e.target.value})}
+                                />
                             </div>
                             <div className="space-y-1">
-                                <Label className="text-[10px] font-bold uppercase text-gray-400">Sector</Label>
-                                <Input className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase" placeholder="FINTECH" />
+                                <label className="admin-label">Stage</label>
+                                <select 
+                                    className="admin-input"
+                                    value={formData.stage}
+                                    onChange={(e) => setFormData({...formData, stage: e.target.value})}
+                                >
+                                    <option>Idea</option>
+                                    <option>Pre-Seed</option>
+                                    <option>Seed</option>
+                                    <option>Series A</option>
+                                    <option>Series B</option>
+                                </select>
                             </div>
+                            <div className="space-y-1">
+                                <label className="admin-label">Status</label>
+                                <select 
+                                    className="admin-input"
+                                    value={formData.status}
+                                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                                >
+                                    <option>Active</option>
+                                    <option>Accelerated</option>
+                                    <option>Pending</option>
+                                    <option>Exit</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <label className="admin-label">Website URL</label>
+                                <input 
+                                    className="admin-input" 
+                                    placeholder="HTTPS://..." 
+                                    value={formData.website_url}
+                                    onChange={(e) => setFormData({...formData, website_url: e.target.value})}
+                                />
+                            </div>
+                            <div className="space-y-1">
+                                <label className="admin-label">Logo URL</label>
+                                <input 
+                                    className="admin-input" 
+                                    placeholder="HTTPS://IMAGE.URL/LOGO.PNG" 
+                                    value={formData.logo_url}
+                                    onChange={(e) => setFormData({...formData, logo_url: e.target.value})}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="admin-label">Mission / One-Liner</label>
+                            <textarea 
+                                className="admin-input h-20" 
+                                placeholder="THE CORE VALUE PROPOSITION..." 
+                                value={formData.description}
+                                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                            />
                         </div>
                     </div>
                 </Modal>
 
-                {/* Edit Startup Modal */}
-                <Modal
-                    isOpen={isEditOpen}
-                    onClose={() => setIsEditOpen(false)}
-                    title="Edit Startup Profile"
-                    description={`Updating details for ${selectedStartup?.name}`}
-                    type="info"
-                    confirmText="Save Changes"
-                    onConfirm={() => setIsEditOpen(false)}
-                >
-                    <div className="space-y-4 pt-2">
-                        <div className="space-y-1">
-                            <Label className="text-[10px] font-bold uppercase text-gray-400">Stage</Label>
-                            <Input
-                                defaultValue={selectedStartup?.stage}
-                                className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase"
-                            />
-                        </div>
-                        <div className="space-y-1">
-                            <Label className="text-[10px] font-bold uppercase text-gray-400">Status</Label>
-                            <Input
-                                defaultValue={selectedStartup?.status}
-                                className="rounded-none border-gray-200 h-9 text-[12px] font-bold uppercase"
-                            />
-                        </div>
-                    </div>
-                </Modal>
-
-                {/* Delete Confirmation Modal */}
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
-                    title="Confirm Removal"
-                    description={`Are you sure you want to remove ${selectedStartup?.name} from the ecosystem? This action is irreversible.`}
+                    title="Expunge Record"
+                    description={`PERMANENTLY REMOVE "${selectedStartup?.name}" FROM THE SYSTEM REPOSITORY?`}
                     type="danger"
-                    confirmText="Remove Startup"
-                    onConfirm={() => setIsDeleteOpen(false)}
+                    confirmText="Remove Irreversibly"
+                    onConfirm={handleDelete}
                 />
-
-                {/* 2D Metrics Footer */}
-                <div className="flex gap-4">
-                    <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Startups:</span>
-                        <span className="text-sm font-bold text-gray-900">{startups.length}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active:</span>
-                        <span className="text-sm font-bold text-emerald-600">2</span>
-                    </div>
-                </div>
             </div>
         </DashboardLayout>
     )
