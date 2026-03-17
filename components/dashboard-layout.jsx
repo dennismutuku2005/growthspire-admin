@@ -92,7 +92,7 @@ export function DashboardLayout({ children }) {
           <div className="flex items-center gap-4">
             <button
                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-               className="p-2 border border-border hover:bg-muted transition-colors"
+               className="p-2 border border-border rounded-lg hover:bg-muted transition-colors"
             >
               <Menu className="h-4 w-4 text-foreground" />
             </button>
@@ -107,10 +107,10 @@ export function DashboardLayout({ children }) {
             {/* Profile Dropdown */}
             <div className="relative profile-dropdown">
               <button
-                className="flex items-center gap-3 py-1 px-2 border border-transparent hover:border-border transition-all"
+                className="flex items-center gap-3 py-1 px-2 border border-transparent hover:bg-muted rounded-lg transition-all"
                 onClick={() => setIsProfileOpen(!isProfileOpen)}
               >
-                <div className="h-7 w-7 bg-foreground flex items-center justify-center text-background text-[10px] font-bold">
+                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-[10px] font-bold shadow-sm">
                     {getInitials(username)}
                 </div>
                 <span className="hidden sm:inline text-[11px] font-bold uppercase tracking-wider">{username}</span>
@@ -118,7 +118,7 @@ export function DashboardLayout({ children }) {
               </button>
 
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-background border-2 border-foreground shadow-none z-50 animate-in fade-in zoom-in-95 duration-100">
+                <div className="absolute right-0 mt-2 w-56 bg-white border border-border rounded-xl shadow-lg z-50 animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
                   <div className="p-4 border-b border-border bg-muted/20">
                     <p className="text-[11px] font-black uppercase tracking-widest">{username}</p>
                     <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">Session Role: {userRole}</p>

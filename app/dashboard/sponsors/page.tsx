@@ -2,18 +2,26 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { Building, Shield, Search, Filter, Edit2, Trash2, Plus, Loader2, Globe, Heart } from "lucide-react"
+import { Building, Shield, Search, Filter, Edit2, Trash2, Plus, Loader2, Globe, Heart, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { toast } from "sonner"
 
+interface Sponsor {
+    id: string | number;
+    name: string;
+    logo_url: string;
+    website_url: string;
+    is_active: number;
+}
+
 export default function SponsorsPage() {
-    const [sponsors, setSponsors] = useState([])
+    const [sponsors, setSponsors] = useState<Sponsor[]>([])
     const [loading, setLoading] = useState(true)
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-    const [selectedSponsor, setSelectedSponsor] = useState(null)
+    const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null)
     const [searchQuery, setSearchQuery] = useState("")
     const [isEdit, setIsEdit] = useState(false)
 
@@ -44,8 +52,9 @@ export default function SponsorsPage() {
     }
 
     const handleSubmit = async () => {
+        if (isEdit && !selectedSponsor) return;
         const action = isEdit ? "update_sponsor" : "create_sponsor"
-        const body = isEdit ? { action, id: selectedSponsor.id, ...formData } : { action, ...formData }
+        const body = isEdit ? { action, id: selectedSponsor!.id, ...formData } : { action, ...formData }
         
         try {
             const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
@@ -68,6 +77,7 @@ export default function SponsorsPage() {
     }
 
     const handleDelete = async () => {
+        if (!selectedSponsor) return;
         try {
             const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
                 method: "POST",
@@ -85,7 +95,7 @@ export default function SponsorsPage() {
         }
     }
 
-    const openEdit = (sponsor) => {
+    const openEdit = (sponsor: Sponsor) => {
         setSelectedSponsor(sponsor)
         setIsEdit(true)
         setFormData({
@@ -117,11 +127,11 @@ export default function SponsorsPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
                     <div>
-                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
+                        <h1 className="text-[18px] font-semibold text-foreground flex items-center gap-3">
                             <Heart size={20} className="text-primary" />
                             Partner Network
                         </h1>
-                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
+                        <p className="text-[13px] text-muted-foreground mt-1">
                             Manage relationships with organizations supporting GrowthSpire
                         </p>
                     </div>
@@ -140,8 +150,8 @@ export default function SponsorsPage() {
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="FIND PARTNERS BY NAME..."
-                            className="w-full bg-white h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none focus:border-foreground border border-border/50"
+                            placeholder="Search partners by name..."
+                            className="w-full bg-white h-10 pl-10 pr-4 text-sm outline-none focus:border-foreground border border-border/50 rounded-lg"
                         />
                     </div>
                 </div>
@@ -161,11 +171,11 @@ export default function SponsorsPage() {
                                     )}
                                 </div>
                                 <div className="p-4 flex-1 flex flex-col">
-                                    <h3 className="text-[12px] font-bold uppercase tracking-widest leading-tight mb-1 group-hover:text-primary transition-colors">
+                                    <h3 className="text-base font-semibold leading-tight mb-1 group-hover:text-primary transition-colors">
                                         {sponsor.name}
                                     </h3>
                                     {sponsor.website_url && (
-                                       <a href={sponsor.website_url} target="_blank" className="text-[10px] font-bold text-muted-foreground uppercase opacity-60 flex items-center gap-1 hover:underline">
+                                       <a href={sponsor.website_url} target="_blank" className="text-xs text-muted-foreground flex items-center gap-1 hover:text-primary transition-colors">
                                            Visit Hub <ExternalLink size={10} />
                                        </a>
                                     )}
@@ -173,7 +183,7 @@ export default function SponsorsPage() {
                                     <div className="flex gap-2 pt-6 border-t border-border mt-auto">
                                         <button 
                                             onClick={() => openEdit(sponsor)}
-                                            className="flex-1 py-1.5 border border-border text-[10px] font-bold uppercase tracking-widest hover:border-foreground transition-all"
+                                            className="flex-1 py-1.5 border border-border text-xs font-medium hover:border-foreground transition-all rounded-md"
                                         >
                                             Edit
                                         </button>
@@ -188,7 +198,7 @@ export default function SponsorsPage() {
                             </div>
                         ))
                     ) : (
-                        <div className="col-span-full py-20 text-center text-muted-foreground font-bold uppercase text-[11px] border border-dashed border-border opacity-50">No partner records found.</div>
+                        <div className="col-span-full py-20 text-center text-muted-foreground text-sm border border-dashed border-border opacity-50 rounded-xl">No partner records found.</div>
                     )}
                 </div>
 
@@ -197,7 +207,7 @@ export default function SponsorsPage() {
                     isOpen={isFormOpen}
                     onClose={() => setIsFormOpen(false)}
                     title={isEdit ? "Update Partnership" : "Register Partner"}
-                    description={isEdit ? `MODIFYING METADATA FOR ${formData.name.toUpperCase()}` : "DETERMINE THE CORE DATA FOR A NEW ECOSYSTEM SPONSOR"}
+                    description={isEdit ? `Modifying metadata for ${formData.name}` : "Determine the core data for a new ecosystem sponsor"}
                     confirmText={isEdit ? "Update Profile" : "Confirm Partner"}
                     onConfirm={handleSubmit}
                     maxWidth="max-w-md"
@@ -207,7 +217,7 @@ export default function SponsorsPage() {
                             <label className="admin-label">Partner Name</label>
                             <input 
                                 className="admin-input" 
-                                placeholder="E.G. SAFARICOM" 
+                                placeholder="e.g. Safaricom" 
                                 value={formData.name}
                                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                             />
@@ -217,7 +227,7 @@ export default function SponsorsPage() {
                             <label className="admin-label">Logo URL</label>
                             <input 
                                 className="admin-input" 
-                                placeholder="HTTPS://IMAGE.URL/LOGO.PNG" 
+                                placeholder="https://image.url/logo.png" 
                                 value={formData.logo_url}
                                 onChange={(e) => setFormData({...formData, logo_url: e.target.value})}
                             />
@@ -227,7 +237,7 @@ export default function SponsorsPage() {
                             <label className="admin-label">Website URL</label>
                             <input 
                                 className="admin-input" 
-                                placeholder="HTTPS://WEBSITE.COM" 
+                                placeholder="https://website.com" 
                                 value={formData.website_url}
                                 onChange={(e) => setFormData({...formData, website_url: e.target.value})}
                             />
@@ -236,12 +246,12 @@ export default function SponsorsPage() {
                         <div className="space-y-1">
                             <label className="admin-label">Status</label>
                             <select 
-                                className="admin-input font-bold"
+                                className="admin-input"
                                 value={formData.is_active}
                                 onChange={(e) => setFormData({...formData, is_active: parseInt(e.target.value)})}
                             >
-                                <option value={1}>ACTIVE PARTNER</option>
-                                <option value={0}>INACTIVE / PAST</option>
+                                <option value={1}>Active Partner</option>
+                                <option value={0}>Inactive / Past</option>
                             </select>
                         </div>
                     </div>
@@ -251,7 +261,7 @@ export default function SponsorsPage() {
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
                     title="Dissolve Partnership"
-                    description={`REMOVE "${selectedSponsor?.name}" FROM THE PARTNER DIRECTORY?`}
+                    description={`Remove "${selectedSponsor?.name}" from the partner directory?`}
                     type="danger"
                     confirmText="Remove Irreversibly"
                     onConfirm={handleDelete}

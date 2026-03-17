@@ -18,14 +18,14 @@ export default function BlogCategoriesPage() {
         <DashboardLayout>
             <div className="space-y-4 animate-in fade-in duration-500">
                 {/* 2D Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-4">
                     <div>
-                        <h1 className="text-lg font-semibold tracking-tight text-gray-900 uppercase flex items-center gap-2">
-                            <Tag size={18} className="text-pace-purple" />
+                        <h1 className="text-xl font-semibold tracking-tight text-foreground flex items-center gap-2">
+                            <Tag size={20} className="text-primary" />
                             Content Taxonomy
                         </h1>
-                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mt-0.5">
-                            MANAGE BLOG CATEGORIES, TAGS AND CONTENT THEMES
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Manage blog categories, tags and content themes
                         </p>
                     </div>
                 </div>
@@ -33,41 +33,41 @@ export default function BlogCategoriesPage() {
                 <div className="grid gap-4 md:grid-cols-3">
                     {/* Category List Table */}
                     <div className="md:col-span-2 space-y-2">
-                        <div className="flex flex-col md:flex-row gap-2 bg-gray-50 border border-t-2 border-t-pace-purple p-2">
+                        <div className="flex flex-col md:flex-row gap-2 bg-card border border-border p-4 rounded-xl shadow-sm">
                             <div className="relative flex-1">
-                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     placeholder="Filter categories..."
-                                    className="pl-8 h-8 rounded-none border-gray-200 bg-white text-[12px] focus-visible:ring-0 focus-visible:border-gray-400"
+                                    className="pl-9 h-10 rounded-lg border-border bg-background focus:ring-primary focus:border-primary text-sm"
                                 />
                             </div>
                         </div>
 
-                        <div className="border border-gray-200 bg-white overflow-hidden">
+                        <div className="border border-border bg-card overflow-hidden shadow-sm rounded-xl">
                             <table className="w-full text-left">
                                 <thead>
-                                    <tr className="bg-gray-50 border-b border-gray-200">
-                                        <th>CATEGORY NAME</th>
-                                        <th className="text-right">POST COUNT</th>
-                                        <th className="text-right">ACTIONS</th>
+                                    <tr className="bg-muted/30 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                        <th className="py-3 px-4">Category Name</th>
+                                        <th className="py-3 px-4 text-right">Post Count</th>
+                                        <th className="py-3 px-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {categories.map((cat) => (
-                                        <tr key={cat.id} className="group border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
-                                            <td className="py-2 px-3">
-                                                <span className="text-[13px] font-bold text-gray-900 group-hover:text-pace-purple tracking-tight">
+                                        <tr key={cat.id} className="group border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                                            <td className="py-3 px-4">
+                                                <span className="text-sm font-semibold text-foreground group-hover:text-primary">
                                                     {cat.name}
                                                 </span>
                                             </td>
-                                            <td className="py-2 px-3 text-right">
-                                                <span className="text-[11px] font-bold text-gray-400 bg-gray-50 px-2 py-0.5 border border-gray-100">
-                                                    {cat.count} POSTS
+                                            <td className="py-3 px-4 text-right">
+                                                <span className="text-xs font-medium text-muted-foreground bg-muted px-2.5 py-1 rounded-md border border-border">
+                                                    {cat.count} Posts
                                                 </span>
                                             </td>
-                                            <td className="py-2 px-3 text-right">
-                                                <Button variant="ghost" className="h-6 w-6 p-0 rounded-none text-gray-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <Trash2 size={12} />
+                                            <td className="py-3 px-4 text-right">
+                                                <Button variant="ghost" className="h-8 w-8 p-0 rounded-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Trash2 size={16} />
                                                 </Button>
                                             </td>
                                         </tr>
@@ -78,23 +78,23 @@ export default function BlogCategoriesPage() {
                     </div>
 
                     {/* Add Category Sidebar */}
-                    <div className="bg-white border border-gray-200 p-4 h-fit border-t-2 border-t-gray-900">
-                        <h3 className="text-[12px] font-bold text-gray-900 uppercase tracking-widest mb-4">Add Category</h3>
-                        <div className="space-y-3">
-                            <div>
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-tight block mb-1">Name</label>
-                                <Input placeholder="e.g. Scaling Tech" className="h-8 rounded-none border-gray-200 text-[12px] focus-visible:ring-0" />
+                    <div className="bg-card border border-border p-6 h-fit rounded-xl shadow-sm">
+                        <h3 className="text-sm font-semibold text-foreground tracking-tight mb-4">Add Category</h3>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium text-muted-foreground block">Name</label>
+                                <Input placeholder="e.g. Scaling Tech" className="h-10 rounded-lg border-border text-sm focus-visible:ring-primary focus-visible:border-primary" />
                             </div>
-                            <Button className="w-full bg-pace-purple text-white hover:bg-pace-purple/90 rounded-none h-8 text-[11px] font-bold uppercase tracking-wide">
-                                <Plus className="mr-1.5 h-3.5 w-3.5" /> Save Category
+                            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90 h-10 rounded-lg text-sm font-medium">
+                                <Plus className="mr-2 h-4 w-4" /> Save Category
                             </Button>
                         </div>
                     </div>
                 </div>
 
                 {/* 2D Footer Info */}
-                <div className="flex items-center gap-2 p-2 bg-gray-50 border border-gray-200 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] italic">
-                    <Tag size={12} />
+                <div className="flex items-center gap-2 p-3 bg-muted/30 border border-border text-xs font-semibold text-muted-foreground rounded-xl shadow-sm">
+                    <Tag size={14} className="text-muted-foreground" />
                     Taxonomy synchronization complete
                 </div>
             </div>

@@ -80,33 +80,52 @@ export default function LoginPage() {
     setIsLoading(true)
     setShowLoadingScreen(true)
 
-    // Accept any credentials - create dummy user data
-    setTimeout(() => {
-      const userData = {
-        success: true,
-        message: "Login successful",
-        user: {
-          id: Math.floor(Math.random() * 1000) + 1,
-          name: identifier === "admin" ? "Admin User" : 
-                identifier === "1234567890" ? "Mobile User" : 
-                `User ${identifier}`,
+    try {
+      const res = await fetch("http://localhost/growthspire/backend/users.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "login",
           username: identifier,
-          role: identifier === "admin" ? "admin" : "user",
-          email: `${identifier}@example.com`,
-          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(identifier)}&background=oklch(0.68%200.22%20285)&color=fff`
-        },
-        token: `dummy_jwt_token_${Date.now()}`
-      }
+          password: password
+        })
+      });
 
-      if (rememberMe) {
-        Cookies.set("user_data", JSON.stringify(userData), { expires: 7 })
+      const data = await res.json();
+
+      if (data.success) {
+        const userData = {
+          success: true,
+          message: "Login successful",
+          user: {
+            id: data.data.id,
+            name: data.data.full_name,
+            username: data.data.username || data.data.email.split('@')[0],
+            role: data.data.role,
+            email: data.data.email,
+            avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(data.data.full_name)}&background=000&color=fff`
+          },
+          token: `dummy_jwt_token_${Date.now()}`
+        };
+
+        if (rememberMe) {
+          Cookies.set("user_data", JSON.stringify(userData), { expires: 7 });
+        } else {
+          Cookies.set("user_data", JSON.stringify(userData), { expires: 1 });
+        }
+
+        showToast("✅ Login successful!", "success");
+        setTimeout(() => router.push("/dashboard"), 2000);
       } else {
-        Cookies.set("user_data", JSON.stringify(userData), { expires: 1 })
+        showToast(data.message || "Invalid credentials", "error");
+        setIsLoading(false);
+        setShowLoadingScreen(false);
       }
-
-      showToast("✅ Login successful!", "success")
-      setTimeout(() => router.push("/dashboard"), 2000)
-    }, 1500)
+    } catch (err) {
+      showToast("Server connection failed", "error");
+      setIsLoading(false);
+      setShowLoadingScreen(false);
+    }
   }
 
   const handleKeyPress = (e) => {
@@ -161,12 +180,12 @@ export default function LoginPage() {
                   {/* Username or Mobile */}
                   <div className="space-y-2">
                     <Label htmlFor="identifier" className="text-sm font-medium text-card-foreground">
-                      Username or Mobile
+                      Username
                     </Label>
                     <Input
                       id="identifier"
                       type="text"
-                      placeholder="Enter any username or mobile"
+                      placeholder="Enter your username"
                       value={identifier}
                       onChange={(e) => setIdentifier(e.target.value)}
                       onKeyPress={handleKeyPress}
@@ -183,7 +202,7 @@ export default function LoginPage() {
                       <Input
                         id="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Enter any password"
+                        placeholder="Enter your password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         onKeyPress={handleKeyPress}

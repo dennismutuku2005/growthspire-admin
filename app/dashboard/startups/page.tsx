@@ -136,7 +136,8 @@ export default function StartupsPage() {
 
     const filteredStartups = startups.filter((s: Startup) => 
         s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        s.founder?.toLowerCase().includes(searchQuery.toLowerCase())
+        s.founder?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        s.sector?.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
     return (
@@ -145,11 +146,11 @@ export default function StartupsPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
                     <div>
-                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
+                        <h1 className="text-xl font-semibold text-foreground flex items-center gap-3">
                             <Rocket size={20} className="text-primary" />
                             Startup Registry
                         </h1>
-                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
+                        <p className="text-sm text-muted-foreground mt-1">
                             Central database for GrowthSpire portfolio companies
                         </p>
                     </div>
@@ -168,8 +169,8 @@ export default function StartupsPage() {
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="SEARCH BY NAME, FOUNDER OR SECTOR..."
-                            className="w-full bg-white h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none focus:border-foreground border border-border/50"
+                            placeholder="Search by name, founder or sector..."
+                            className="w-full bg-white h-10 pl-10 pr-4 text-sm outline-none focus:border-foreground border border-border/50 rounded-lg"
                         />
                     </div>
                 </div>
@@ -202,32 +203,32 @@ export default function StartupsPage() {
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <span className="text-[13px] font-bold text-foreground block uppercase leading-tight">
+                                                    <span className="text-sm font-semibold text-foreground block leading-tight">
                                                         {startup.name}
                                                     </span>
                                                     {startup.website && (
-                                                       <a href={startup.website} target="_blank" className="text-[9px] font-bold text-primary uppercase tracking-tighter flex items-center gap-0.5 hover:underline">
-                                                           {new URL(startup.website).hostname} <Globe size={8} />
+                                                       <a href={startup.website} target="_blank" className="text-xs font-medium text-primary flex items-center gap-1 hover:underline mt-0.5">
+                                                           {new URL(startup.website).hostname} <Globe size={10} />
                                                        </a>
                                                     )}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="text-[11px] font-bold text-muted-foreground uppercase">
-                                            <div className="flex items-center gap-1.5 font-bold">
-                                                <User size={12} className="opacity-40" />
+                                        <td className="text-sm text-muted-foreground">
+                                            <div className="flex items-center gap-1.5 font-medium">
+                                                <User size={14} className="opacity-40" />
                                                 {startup.founder}
                                             </div>
                                         </td>
                                         <td>
-                                            <span className="text-[11px] font-bold text-muted-foreground uppercase opacity-80">
+                                            <span className="text-sm font-medium text-muted-foreground block">
                                                 {startup.sector}
                                             </span>
-                                            <p className="text-[10px] text-muted-foreground/40 font-bold uppercase tracking-widest">{startup.stage}</p>
+                                            <p className="text-xs text-muted-foreground mt-0.5">{startup.stage}</p>
                                         </td>
                                         <td>
                                             <span className={cn(
-                                                "text-[9px] font-black uppercase px-2 py-0.5 border flex items-center gap-1 w-fit tracking-tighter",
+                                                "text-xs font-semibold px-2.5 py-1 border rounded-md flex items-center gap-1 w-fit",
                                                 startup.status === 'Active' ? "bg-emerald-50 text-emerald-700 border-emerald-100" : 
                                                 startup.status === 'Accelerated' ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-muted text-muted-foreground border-border"
                                             )}>
@@ -252,7 +253,7 @@ export default function StartupsPage() {
                                         </td>
                                     </tr>
                                 )) : (
-                                    <tr><td colSpan={5} className="text-center py-20 text-muted-foreground font-bold uppercase text-[11px]">No portfolio startups discovered</td></tr>
+                                    <tr><td colSpan={5} className="text-center py-20 text-muted-foreground text-sm">No portfolio startups discovered</td></tr>
                                 )}
                             </tbody>
                         </table>
@@ -264,7 +265,7 @@ export default function StartupsPage() {
                     isOpen={isFormOpen}
                     onClose={() => setIsFormOpen(false)}
                     title={isEdit ? "Update Registry" : "Onboard Startup"}
-                    description={isEdit ? `MODIFYING PROFILE FOR ${formData.name.toUpperCase()}` : "DETERMINE THE CORE DETAILS FOR A NEW ECOSYSTEM MEMBER"}
+                    description={isEdit ? `Modifying profile for ${formData.name}` : "Determine the core details for a new ecosystem member"}
                     confirmText={isEdit ? "Update Record" : "Confirm Onboarding"}
                     onConfirm={handleSubmit}
                     maxWidth="max-w-2xl"
@@ -275,7 +276,7 @@ export default function StartupsPage() {
                                 <label className="admin-label">Startup Name</label>
                                 <input 
                                     className="admin-input" 
-                                    placeholder="E.G. TECHNOVA" 
+                                    placeholder="e.g. InnovateKE" 
                                     value={formData.name}
                                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                                 />
@@ -284,7 +285,7 @@ export default function StartupsPage() {
                                 <label className="admin-label">Founder</label>
                                 <input 
                                     className="admin-input" 
-                                    placeholder="JOHN DOE" 
+                                    placeholder="John Doe" 
                                     value={formData.founder}
                                     onChange={(e) => setFormData({...formData, founder: e.target.value})}
                                 />
@@ -296,7 +297,7 @@ export default function StartupsPage() {
                                 <label className="admin-label">Sector</label>
                                 <input 
                                     className="admin-input" 
-                                    placeholder="FINTECH" 
+                                    placeholder="Fintech" 
                                     value={formData.category}
                                     onChange={(e) => setFormData({...formData, category: e.target.value})}
                                 />
@@ -335,7 +336,7 @@ export default function StartupsPage() {
                                 <label className="admin-label">Website URL</label>
                                 <input 
                                     className="admin-input" 
-                                    placeholder="HTTPS://..." 
+                                    placeholder="https://..." 
                                     value={formData.website_url}
                                     onChange={(e) => setFormData({...formData, website_url: e.target.value})}
                                 />
@@ -344,7 +345,7 @@ export default function StartupsPage() {
                                 <label className="admin-label">Logo URL</label>
                                 <input 
                                     className="admin-input" 
-                                    placeholder="HTTPS://IMAGE.URL/LOGO.PNG" 
+                                    placeholder="https://image.url/logo.png" 
                                     value={formData.logo_url}
                                     onChange={(e) => setFormData({...formData, logo_url: e.target.value})}
                                 />
@@ -355,7 +356,7 @@ export default function StartupsPage() {
                             <label className="admin-label">Mission / One-Liner</label>
                             <textarea 
                                 className="admin-input h-20" 
-                                placeholder="THE CORE VALUE PROPOSITION..." 
+                                placeholder="The core value proposition..." 
                                 value={formData.description}
                                 onChange={(e) => setFormData({...formData, description: e.target.value})}
                             />
@@ -367,9 +368,9 @@ export default function StartupsPage() {
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
                     title="Expunge Record"
-                    description={`PERMANENTLY REMOVE "${selectedStartup?.name}" FROM THE SYSTEM REPOSITORY?`}
+                    description={`Permanently remove "${selectedStartup?.name}" from the system repository?`}
                     type="danger"
-                    confirmText="Remove Irreversibly"
+                    confirmText="Remove Startup"
                     onConfirm={handleDelete}
                 />
             </div>

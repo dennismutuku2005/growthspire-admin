@@ -11,12 +11,12 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
 export default function BlogsPage() {
-    const [blogs, setBlogs] = useState([])
+    const [blogs, setBlogs] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [isAddOpen, setIsAddOpen] = useState(false)
     const [isEditOpen, setIsEditOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-    const [selectedBlog, setSelectedBlog] = useState(null)
+    const [selectedBlog, setSelectedBlog] = useState<any>(null)
     const [searchQuery, setSearchQuery] = useState("")
 
     // Form inputs state
@@ -109,7 +109,7 @@ export default function BlogsPage() {
         }
     }
 
-    const openEdit = (blog) => {
+    const openEdit = (blog: any) => {
         setSelectedBlog(blog)
         setFormData({
             title: blog.title,
@@ -148,109 +148,111 @@ export default function BlogsPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
                     <div>
-                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
+                        <h1 className="text-xl font-semibold tracking-tight text-foreground flex items-center gap-3">
                             <PenTool size={20} className="text-primary" />
                             Content Management
                         </h1>
-                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
+                        <p className="text-sm text-muted-foreground mt-1">
                             Create and manage articles for the GrowthSpire ecosystem
                         </p>
                     </div>
                     <Button
                         onClick={() => { resetForm(); setIsAddOpen(true); }}
-                        className="admin-button-primary"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-4 rounded-lg shadow-sm"
                     >
-                        <Plus size={16} /> <span>Write New</span>
+                        <Plus size={16} className="mr-2" /> <span>Write New</span>
                     </Button>
                 </div>
 
                 {/* Filter Bar */}
-                <div className="flex gap-2 bg-muted/30 border border-border p-2">
+                <div className="flex gap-2 bg-card border border-border p-4 rounded-xl shadow-sm">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <input
+                        <Input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="SEARCH BY TITLE OR TAGS..."
-                            className="w-full bg-white h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none focus:border-foreground border border-border/50"
+                            placeholder="Search by title or tags..."
+                            className="w-full bg-background h-10 pl-9 pr-4 text-sm rounded-lg focus-visible:ring-primary focus-visible:border-primary border border-border"
                         />
                     </div>
                 </div>
 
                 {/* Table Layout */}
-                <div className="admin-table-container">
+                <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden mt-6">
                     {loading ? (
                         <div className="p-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
                     ) : (
-                        <table className="admin-table">
+                        <table className="w-full text-left">
                             <thead>
-                                <tr>
-                                    <th>Article</th>
-                                    <th>Details</th>
-                                    <th>Status</th>
-                                    <th>Date</th>
-                                    <th className="text-right">Actions</th>
+                                <tr className="bg-muted/30 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                    <th className="py-3 px-6">Article</th>
+                                    <th className="py-3 px-6">Details</th>
+                                    <th className="py-3 px-6">Status</th>
+                                    <th className="py-3 px-6">Date</th>
+                                    <th className="py-3 px-6 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-border">
                                 {filteredBlogs.length > 0 ? filteredBlogs.map((blog) => (
-                                    <tr key={blog.id} className="group">
-                                        <td>
+                                    <tr key={blog.id} className="group hover:bg-muted/20 transition-colors">
+                                        <td className="py-4 px-6">
                                             <div className="flex items-center gap-3">
-                                                <div className="h-10 w-16 bg-muted border border-border flex items-center justify-center shrink-0 overflow-hidden">
+                                                <div className="h-10 w-16 bg-muted border border-border flex items-center justify-center shrink-0 overflow-hidden rounded-md">
                                                     {blog.image_url ? (
-                                                        <img src={blog.image_url} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                                                        <img src={blog.image_url} alt="" className="w-full h-full object-cover transition-all" />
                                                     ) : (
                                                         <ImageIcon size={18} className="text-muted-foreground/40" />
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <span className="text-[13px] font-bold text-foreground block uppercase leading-tight">
+                                                    <span className="text-sm font-semibold text-foreground block leading-tight">
                                                         {blog.title}
                                                     </span>
-                                                    <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-60 tracking-tighter">
+                                                    <span className="text-xs text-muted-foreground">
                                                         By {blog.author_name}
                                                     </span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
-                                            <span className="text-[11px] font-bold text-muted-foreground hover:text-primary cursor-default uppercase">
+                                        <td className="py-4 px-6">
+                                            <span className="text-sm text-foreground">
                                                 {blog.category}
                                             </span>
-                                            <p className="text-[10px] text-muted-foreground/60">{blog.read_time}</p>
+                                            <p className="text-xs text-muted-foreground mt-0.5">{blog.read_time}</p>
                                         </td>
-                                        <td>
+                                        <td className="py-4 px-6">
                                             <span className={cn(
-                                                "text-[9px] font-black uppercase px-2 py-0.5 border flex items-center gap-1 w-fit tracking-tighter",
+                                                "text-xs font-medium px-2.5 py-1 rounded-md inline-block border flex items-center gap-1 w-fit",
                                                 blog.image_url ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-muted text-muted-foreground border-border"
                                             )}>
-                                                {blog.image_url ? <CheckCircle size={10} /> : <Clock size={10} />}
-                                                {blog.image_url ? "LIVE" : "DRAFT"}
+                                                {blog.image_url ? <CheckCircle size={14} /> : <Clock size={14} />}
+                                                {blog.image_url ? "Live" : "Draft"}
                                             </span>
                                         </td>
-                                        <td className="text-[11px] font-bold text-muted-foreground whitespace-nowrap">
+                                        <td className="py-4 px-6 text-sm text-muted-foreground whitespace-nowrap">
                                             {new Date(blog.created_at).toLocaleDateString()}
                                         </td>
-                                        <td className="text-right">
-                                            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
+                                        <td className="py-4 px-6 text-right">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <Button
+                                                    variant="ghost" size="sm"
                                                     onClick={() => openEdit(blog)}
-                                                    className="h-8 w-8 flex items-center justify-center border border-border hover:border-foreground transition-all"
+                                                    className="h-8 w-8 p-0 rounded-full hover:bg-muted text-muted-foreground"
                                                 >
-                                                    <Edit2 size={14} />
-                                                </button>
-                                                <button
+                                                    <Edit2 size={16} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost" size="sm"
                                                     onClick={() => { setSelectedBlog(blog); setIsDeleteOpen(true); }}
-                                                    className="h-8 w-8 flex items-center justify-center border border-border hover:border-destructive hover:text-destructive transition-all"
+                                                    className="h-8 w-8 p-0 rounded-full hover:bg-destructive/10 hover:text-destructive text-muted-foreground"
                                                 >
-                                                    <Trash2 size={14} />
-                                                </button>
+                                                    <Trash2 size={16} />
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
                                 )) : (
-                                    <tr><td colSpan="5" className="text-center py-20 text-muted-foreground font-bold uppercase text-[11px]">No matching articles found</td></tr>
+                                    <tr><td colSpan={5} className="py-20 text-center text-sm text-muted-foreground">No matching articles found.</td></tr>
                                 )}
                             </tbody>
                         </table>
@@ -262,26 +264,26 @@ export default function BlogsPage() {
                     isOpen={isAddOpen || isEditOpen}
                     onClose={() => { setIsAddOpen(false); setIsEditOpen(false); }}
                     title={isEditOpen ? "Update Article" : "Write Article"}
-                    description={isEditOpen ? `EDITING METADATA AND CONTENT FOR "${formData.title}"` : "DRAFT A NEW EDUCATIONAL PIECE FOR THE STARTUP COMMUNITY"}
+                    description={isEditOpen ? `Editing metadata and content for "${formData.title}"` : "Draft a new educational piece for the startup community"}
                     confirmText={isEditOpen ? "Save Changes" : "Publish Now"}
                     onConfirm={isEditOpen ? handleUpdateBlog : handleCreateBlog}
                     maxWidth="max-w-2xl"
                 >
-                    <div className="space-y-6">
+                    <div className="space-y-6 pt-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <label className="admin-label">Article Title</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="THE FUTURE OF FINTECH..." 
+                            <div className="space-y-2">
+                                <Label>Article Title</Label>
+                                <Input 
+                                    placeholder="e.g. The Future of Fintech" 
                                     value={formData.title}
                                     onChange={(e) => setFormData({...formData, title: e.target.value})}
+                                    className="rounded-lg border-border"
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <label className="admin-label">Category</label>
+                            <div className="space-y-2">
+                                <Label>Category</Label>
                                 <select 
-                                    className="admin-input"
+                                    className="w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                                     value={formData.category}
                                     onChange={(e) => setFormData({...formData, category: e.target.value})}
                                 >
@@ -296,41 +298,41 @@ export default function BlogsPage() {
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <label className="admin-label">Author Name</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="JANE DOE" 
+                            <div className="space-y-2">
+                                <Label>Author Name</Label>
+                                <Input 
+                                    placeholder="e.g. Jane Doe" 
                                     value={formData.author_name}
                                     onChange={(e) => setFormData({...formData, author_name: e.target.value})}
+                                    className="rounded-lg border-border"
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <label className="admin-label">Image URL</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="HTTPS://IMAGE.URL/POST.JPG" 
+                            <div className="space-y-2">
+                                <Label>Image URL</Label>
+                                <Input 
+                                    placeholder="https://image.url/post.jpg" 
                                     value={formData.image_url}
                                     onChange={(e) => setFormData({...formData, image_url: e.target.value})}
+                                    className="rounded-lg border-border"
                                 />
                             </div>
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="admin-label">Excerpt / Short Description</label>
+                        <div className="space-y-2">
+                            <Label>Excerpt / Short Description</Label>
                             <textarea 
-                                className="admin-input h-20" 
-                                placeholder="BRIEF SUMMARY FOR THE FEED CLIP..." 
+                                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-20 resize-y" 
+                                placeholder="Brief summary for the preview..." 
                                 value={formData.excerpt}
                                 onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
                             />
                         </div>
 
-                        <div className="space-y-1">
-                            <label className="admin-label">Full Article Content (Markdown/Text)</label>
+                        <div className="space-y-2">
+                            <Label>Full Article Content (Markdown/Text)</Label>
                             <textarea 
-                                className="admin-input h-40 font-mono" 
-                                placeholder="WRITE YOUR MASTERPIECE HERE..." 
+                                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-40 resize-y" 
+                                placeholder="Write your masterpiece here..." 
                                 value={formData.content}
                                 onChange={(e) => setFormData({...formData, content: e.target.value})}
                             />
@@ -342,7 +344,7 @@ export default function BlogsPage() {
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
                     title="Remove Article"
-                    description={`ARE YOU ABSOLUTELY SURE YOU WANT TO DELETE "${selectedBlog?.title}"? THIS IS IRREVERSIBLE.`}
+                    description={`Are you absolutely sure you want to delete "${selectedBlog?.title}"? This is irreversible.`}
                     type="danger"
                     confirmText="Delete Irreversibly"
                     onConfirm={handleDeleteBlog}

@@ -39,9 +39,14 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
         { id: 'dashboard', name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
         { id: 'applications', name: 'Applications', href: '/dashboard/applications', icon: FileText },
         { id: 'startups', name: 'Startups', href: '/dashboard/startups', icon: Rocket },
-        { id: 'events', name: 'Events', href: '/dashboard/events', icon: Calendar },
+        { id: 'events', name: 'Events', href: '/dashboard/events', icon: Calendar, children: [
+            { name: 'All Events', href: '/dashboard/events' },
+            { name: 'Upcoming', href: '/dashboard/events/upcoming' },
+            { name: 'Past', href: '/dashboard/events/past' },
+        ]},
         { id: 'sponsors', name: 'Sponsors', href: '/dashboard/sponsors', icon: Building },
         { id: 'blogs', name: 'Blogs', href: '/dashboard/blogs', icon: MessageSquare },
+        { id: 'settings', name: 'Settings', href: '/dashboard/settings', icon: Settings },
     ]
 
     const sidebarClass = isMobile
@@ -143,16 +148,16 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                                         )}
                                     </div>
                                 ) : (
-                                    <Link
+                                        <Link
                                         href={createHref(item.href)}
                                         className={cn(
                                             "flex items-center gap-3 px-3 py-2 transition-all group relative text-[11px] font-bold uppercase tracking-widest",
                                             isActive
-                                                ? "bg-foreground text-background"
-                                                : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                                                ? "bg-primary text-primary-foreground rounded-lg shadow-sm"
+                                                : "text-muted-foreground hover:bg-muted/30 hover:text-foreground rounded-lg"
                                         )}
                                     >
-                                        <item.icon size={16} className={cn("shrink-0", isActive ? "text-background" : "text-muted-foreground group-hover:text-foreground")} />
+                                        <item.icon size={16} className={cn("shrink-0", isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground")} />
                                         {showText && (
                                             <div className="flex-1 flex items-center justify-between whitespace-nowrap overflow-hidden">
                                                 <span>{item.name}</span>

@@ -2,7 +2,7 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { Calendar, CheckCircle, Clock, Search, Filter, Eye, ChevronRight, MapPin, Edit2, Trash2, Plus, Loader2, Image as ImageIcon, ExternalLink } from "lucide-react"
+import { Calendar, CheckCircle, Clock, Search, Filter, Eye, ChevronRight, MapPin, Edit2, Trash2, Plus, Image as ImageIcon, ExternalLink } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
@@ -10,11 +10,11 @@ import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 
 export default function EventsPage() {
-    const [events, setEvents] = useState([])
+    const [events, setEvents] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [isFormOpen, setIsFormOpen] = useState(false)
     const [isDeleteOpen, setIsDeleteOpen] = useState(false)
-    const [selectedEvent, setSelectedEvent] = useState(null)
+    const [selectedEvent, setSelectedEvent] = useState<any>(null)
     const [searchQuery, setSearchQuery] = useState("")
     const [isEdit, setIsEdit] = useState(false)
 
@@ -92,7 +92,7 @@ export default function EventsPage() {
         }
     }
 
-    const openEdit = (event) => {
+    const openEdit = (event: any) => {
         setSelectedEvent(event)
         setIsEdit(true)
         setFormData({
@@ -126,9 +126,9 @@ export default function EventsPage() {
         })
     }
 
-    const filteredEvents = events.filter(e => 
+    const filteredEvents = (events as any[]).filter((e: any) => 
         e.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        e.location?.toLowerCase().includes(searchQuery.toLowerCase())
+        (e.location?.toLowerCase() || "").includes(searchQuery.toLowerCase())
     )
 
     return (
@@ -137,11 +137,11 @@ export default function EventsPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
                     <div>
-                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
+                        <h1 className="text-xl font-semibold text-foreground flex items-center gap-3">
                             <Calendar size={20} className="text-primary" />
                             Event Command
                         </h1>
-                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
+                        <p className="text-sm text-muted-foreground mt-1">
                             Orchestrate meetups, demo days and networking events
                         </p>
                     </div>
@@ -160,8 +160,8 @@ export default function EventsPage() {
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="FIND EVENTS BY TITLE OR LOCATION..."
-                            className="w-full bg-white h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none focus:border-foreground border border-border/50"
+                            placeholder="Search events by title or location..."
+                            className="w-full bg-white h-10 pl-10 pr-4 text-sm outline-none focus:border-foreground border border-border/50 rounded-lg"
                         />
                     </div>
                 </div>
@@ -169,9 +169,23 @@ export default function EventsPage() {
                 {/* Grid Layout for Events */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {loading ? (
-                        <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                        Array.from({ length: 6 }).map((_, i) => (
+                            <div key={i} className="admin-card flex flex-col h-full bg-card animate-pulse">
+                                <div className="h-40 bg-muted border-b border-border" />
+                                <div className="p-5 flex-1 flex flex-col gap-3">
+                                    <div className="h-3 w-24 bg-muted rounded" />
+                                    <div className="h-4 w-3/4 bg-muted rounded" />
+                                    <div className="h-3 w-full bg-muted rounded" />
+                                    <div className="h-3 w-5/6 bg-muted rounded" />
+                                    <div className="mt-auto flex gap-2 pt-4 border-t border-border">
+                                        <div className="flex-1 h-9 bg-muted rounded" />
+                                        <div className="w-9 h-9 bg-muted rounded" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))
                     ) : filteredEvents.length > 0 ? (
-                        filteredEvents.map((event) => (
+                        (filteredEvents as any[]).map((event: any) => (
                             <div key={event.id} className="admin-card group hover:border-foreground transition-all flex flex-col h-full bg-card">
                                 <div className="h-40 bg-muted border-b border-border flex items-center justify-center overflow-hidden relative">
                                     {event.image_url ? (
@@ -180,32 +194,32 @@ export default function EventsPage() {
                                         <ImageIcon size={24} className="text-muted-foreground/30" />
                                     )}
                                     <div className="absolute top-3 left-3">
-                                        <span className="bg-foreground text-background text-[9px] font-bold py-1 px-2 uppercase tracking-widest border border-foreground">
+                                        <span className="bg-primary text-primary-foreground text-xs font-semibold py-1 px-3 rounded-full border border-primary">
                                             {event.event_type}
                                         </span>
                                     </div>
                                 </div>
                                 <div className="p-5 flex-1 flex flex-col">
-                                    <div className="flex items-center gap-2 mb-2 text-[10px] font-bold text-primary uppercase tracking-wider">
+                                    <div className="flex items-center gap-2 mb-2 text-xs font-medium text-primary">
                                         <Clock size={12} />
                                         {new Date(event.event_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                         <span>•</span>
                                         {event.start_time}
                                     </div>
-                                    <h3 className="text-sm font-bold uppercase tracking-widest leading-tight mb-2 group-hover:text-primary transition-colors">
+                                    <h3 className="text-lg font-semibold leading-tight mb-2 group-hover:text-primary transition-colors">
                                         {event.title}
                                     </h3>
-                                    <p className="text-[11px] text-muted-foreground line-clamp-2 mb-4 leading-relaxed font-medium">
+                                    <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
                                         {event.description || "No detailed description provided for this session."}
                                     </p>
-                                    <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase mt-auto pb-4">
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-auto pb-4">
                                         <MapPin size={12} className="text-muted-foreground/60" />
                                         {event.location}
                                     </div>
                                     <div className="flex gap-2 pt-4 border-t border-border mt-auto">
                                         <button 
                                             onClick={() => openEdit(event)}
-                                            className="flex-1 py-2 border border-border text-[10px] font-bold uppercase tracking-widest hover:border-foreground transition-all"
+                                            className="flex-1 py-2 border border-border text-xs font-medium hover:border-foreground transition-all rounded-md"
                                         >
                                             Edit
                                         </button>
@@ -220,7 +234,7 @@ export default function EventsPage() {
                             </div>
                         ))
                     ) : (
-                        <div className="col-span-full py-20 text-center text-muted-foreground font-bold uppercase text-[11px] border border-dashed border-border">No events scheduled.</div>
+                        <div className="col-span-full py-20 text-center text-muted-foreground text-sm border border-dashed border-border rounded-xl">No events scheduled.</div>
                     )}
                 </div>
 
@@ -229,7 +243,7 @@ export default function EventsPage() {
                     isOpen={isFormOpen}
                     onClose={() => setIsFormOpen(false)}
                     title={isEdit ? "Revise Event" : "Brief New Event"}
-                    description={isEdit ? `MODIFYING PARAMETERS FOR ${formData.title.toUpperCase()}` : "DETERMINE THE LOGISTICS FOR AN UPCOMING GROWTHSPIRE GATHERING"}
+                    description={isEdit ? `Modifying parameters for ${formData.title}` : "Determine the logistics for an upcoming GrowthSpire gathering"}
                     confirmText={isEdit ? "Save Changes" : "Confirm Schedule"}
                     onConfirm={handleSubmit}
                     maxWidth="max-w-2xl"
@@ -327,7 +341,7 @@ export default function EventsPage() {
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
                     title="Cancel Event"
-                    description={`PERMANENTLY REMOVE "${selectedEvent?.title}" FROM THE CALENDAR?`}
+                    description={`Permanently remove "${selectedEvent?.title}" from the calendar?`}
                     type="danger"
                     confirmText="Remove Irreversibly"
                     onConfirm={handleDelete}

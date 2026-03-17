@@ -40,102 +40,102 @@ export default function SponsorshipFundingPage() {
                 {/* 2D Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-200 pb-4">
                     <div>
-                        <h1 className="text-lg font-bold tracking-tight text-gray-900 uppercase flex items-center gap-2">
-                            <DollarSign size={18} className="text-black" />
+                        <h1 className="text-xl font-semibold tracking-tight text-foreground flex items-center gap-2">
+                            <DollarSign size={20} className="text-primary" />
                             Funding Ledger
                         </h1>
-                        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-wider mt-0.5">
-                            TRACK FINANCIAL CONTRIBUTIONS, DISBURSEMENTS AND GRANT COMPLIANCE
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Track financial contributions, disbursements and grant compliance
                         </p>
                     </div>
-                    <Button size="sm" className="bg-black text-white hover:bg-black/90 rounded-none h-8 text-[11px] font-bold uppercase tracking-wide px-4">
+                    <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-md h-9 text-sm font-medium px-4">
                         Process Disbursement
                     </Button>
                 </div>
 
                 {/* 2D Summary Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div className="bg-white border border-gray-200 p-4 border-l-4 border-l-emerald-500">
+                    <div className="bg-card border border-border p-6 rounded-xl shadow-sm border-l-4 border-l-emerald-500">
                         <div className="flex justify-between items-start">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Raised (YTD)</p>
-                            <ArrowUpRight size={14} className="text-emerald-500" />
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Total Raised (YTD)</p>
+                            <ArrowUpRight size={16} className="text-emerald-500" />
                         </div>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">$1,750,000</p>
-                        <div className="mt-3 bg-gray-50 h-1.5 w-full">
+                        <p className="text-2xl font-bold text-foreground mt-1">$1,750,000</p>
+                        <div className="mt-4 bg-muted h-1.5 w-full rounded-full overflow-hidden">
                             <div className="bg-emerald-500 h-full w-[70%]" />
                         </div>
-                        <p className="text-[10px] text-gray-500 font-bold mt-2 uppercase tracking-tight">TARGET: $2.5M (70% ACHIEVED)</p>
+                        <p className="text-xs text-muted-foreground font-medium mt-2">Target: $2.5M (70% Achieved)</p>
                     </div>
-                    <div className="bg-white border border-gray-200 p-4 border-l-4 border-l-amber-500">
+                    <div className="bg-card border border-border p-6 rounded-xl shadow-sm border-l-4 border-l-amber-500">
                         <div className="flex justify-between items-start">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Upcoming Disbursements</p>
-                            <PieChart size={14} className="text-amber-500" />
+                            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">Upcoming Disbursements</p>
+                            <PieChart size={16} className="text-amber-500" />
                         </div>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">$200,000</p>
-                        <p className="text-[10px] text-amber-600 font-bold mt-5 uppercase tracking-tight bg-amber-50 px-2 py-0.5 w-fit">SCHEDULED FOR APRIL 1ST</p>
+                        <p className="text-2xl font-bold text-foreground mt-1">$200,000</p>
+                        <p className="text-xs text-amber-700 font-medium mt-5 bg-amber-50/50 border border-amber-100 px-2 py-1 rounded-md w-fit">Scheduled for April 1st</p>
                     </div>
                 </div>
 
                 {/* 2D Filter Bar */}
-                <div className="flex flex-col md:flex-row gap-2 bg-gray-50 border border-t-2 border-t-black p-2">
+                <div className="flex flex-col md:flex-row gap-2">
                     <div className="relative flex-1">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search by source or transaction type..."
-                            className="pl-8 h-8 rounded-none border-gray-200 bg-white text-[12px] focus-visible:ring-0 focus-visible:border-gray-400"
+                            className="pl-9 h-10 border-border bg-background text-sm rounded-lg focus-visible:ring-primary focus-visible:border-primary"
                         />
                     </div>
-                    <Button variant="outline" className="h-8 rounded-none border-gray-200 bg-white text-[11px] font-bold uppercase tracking-wider px-4">
-                        <Filter className="mr-1.5 h-3.5 w-3.5 text-gray-400" /> Filter
+                    <Button variant="outline" className="h-10 border-border bg-background text-sm font-medium px-4 rounded-lg">
+                        <Filter className="mr-1.5 h-4 w-4 text-muted-foreground" /> Filter
                     </Button>
                 </div>
 
                 {/* 2D Table Layout */}
-                <div className="border border-gray-200 bg-white overflow-hidden">
+                <div className="border border-border bg-card overflow-hidden rounded-xl shadow-sm">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-200">
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">FUNDING SOURCE</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">AMOUNT</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">DATE</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">METHOD</th>
-                                <th className="py-2.5 px-3 text-[10px] font-bold text-gray-400 uppercase">STATUS</th>
-                                <th className="py-2.5 px-3 text-right text-[10px] font-bold text-gray-400 uppercase">ACTIONS</th>
+                            <tr className="bg-muted/30 border-b border-border">
+                                <th className="py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Funding Source</th>
+                                <th className="py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Amount</th>
+                                <th className="py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Date</th>
+                                <th className="py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Method</th>
+                                <th className="py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</th>
+                                <th className="py-3 px-4 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {transactions.map((t) => (
-                                <tr key={t.id} className="group border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
-                                    <td className="py-2.5 px-3">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-2 w-2 rounded-full bg-black" />
-                                            <span className="text-[13px] font-bold text-gray-900 group-hover:text-black uppercase">
+                                <tr key={t.id} className="group border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
+                                    <td className="py-3 px-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-2 w-2 rounded-full bg-primary" />
+                                            <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                                                 {t.source}
                                             </span>
                                         </div>
                                     </td>
-                                    <td className="py-2.5 px-3">
-                                        <span className="text-[13px] font-bold text-emerald-600 tracking-tight">
+                                    <td className="py-3 px-4">
+                                        <span className="text-sm font-semibold text-emerald-600">
                                             {t.amount}
                                         </span>
                                     </td>
-                                    <td className="py-2.5 px-3 text-[11px] font-bold text-gray-400 uppercase">
+                                    <td className="py-3 px-4 text-sm text-muted-foreground">
                                         {t.date}
                                     </td>
-                                    <td className="py-2.5 px-3 text-[11px] font-bold text-gray-500 uppercase tracking-tight">
+                                    <td className="py-3 px-4 text-sm text-muted-foreground">
                                         {t.type}
                                     </td>
-                                    <td className="py-2.5 px-3">
+                                    <td className="py-3 px-4">
                                         <span className={cn(
-                                            "text-[10px] font-bold uppercase px-1.5 py-0.5 border",
-                                            t.status === 'Received' ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"
+                                            "text-xs font-medium px-2.5 py-1 rounded-md border",
+                                            t.status === 'Received' ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-amber-50 text-amber-700 border-amber-100"
                                         )}>
                                             {t.status}
                                         </span>
                                     </td>
-                                    <td className="py-2.5 px-3 text-right">
-                                        <Button variant="ghost" className="h-6 w-6 p-0 rounded-none text-gray-300 hover:text-black">
-                                            <MoreHorizontal size={14} />
+                                    <td className="py-3 px-4 text-right">
+                                        <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground">
+                                            <MoreHorizontal size={16} />
                                         </Button>
                                     </td>
                                 </tr>
@@ -145,10 +145,10 @@ export default function SponsorshipFundingPage() {
                 </div>
 
                 {/* 2D Footer Stats */}
-                <div className="bg-gray-950 p-3 flex items-center justify-between">
-                    <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-[0.2em]">GrowthSpire Treasury Verified</p>
+                <div className="bg-primary p-4 flex items-center justify-between rounded-xl shadow-sm">
+                    <p className="text-xs font-semibold text-primary-foreground uppercase tracking-widest opacity-90">GrowthSpire Treasury Verified</p>
                     <div className="flex items-center gap-4">
-                        <p className="text-[10px] font-bold text-white uppercase tracking-widest opacity-60">Total Vetted: $4.2M</p>
+                        <p className="text-sm font-medium text-primary-foreground">Total Vetted: $4.2M</p>
                     </div>
                 </div>
             </div>

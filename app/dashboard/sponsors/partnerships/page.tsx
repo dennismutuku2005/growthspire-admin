@@ -73,41 +73,41 @@ export default function PartnershipsPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-gray-100 pb-4">
                     <div>
-                        <h1 className="text-2xl font-semibold tracking-tight text-gray-900 flex items-center gap-2">
-                            <Handshake className="text-blue-600" size={24} />
+                        <h1 className="text-xl font-semibold tracking-tight text-foreground flex items-center gap-2">
+                            <Handshake className="text-primary" size={20} />
                             Strategic Partnerships
                         </h1>
-                        <p className="text-sm text-gray-500 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                             Manage partnership agreements, MoUs and ecosystem deliverables.
                         </p>
                     </div>
                     <Button
                         onClick={() => setIsAddOpen(true)}
-                        className="bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-sm"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg shadow-sm h-10 px-4"
                     >
                         <Plus className="mr-2 h-4 w-4" /> New Agreement
                     </Button>
                 </div>
 
                 {/* Filter Bar */}
-                <div className="flex flex-col md:flex-row gap-3 bg-white p-4 border border-gray-100 rounded-xl shadow-sm">
+                <div className="flex flex-col md:flex-row gap-3 bg-card p-4 border border-border rounded-xl shadow-sm">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Filter by partner or partnership type..."
-                            className="pl-9 h-10 rounded-lg border-gray-200 bg-white focus:ring-blue-500 focus:border-blue-500"
+                            className="pl-9 h-10 rounded-lg border-border bg-background focus:ring-primary focus:border-primary text-sm"
                         />
                     </div>
-                    <Button variant="outline" className="h-10 rounded-lg border-gray-200 text-gray-600 hover:text-gray-900">
-                        <Filter className="mr-2 h-4 w-4 text-gray-400" /> Filter
+                    <Button variant="outline" className="h-10 rounded-lg border-border text-foreground hover:text-foreground/80 px-4">
+                        <Filter className="mr-2 h-4 w-4 text-muted-foreground" /> Filter
                     </Button>
                 </div>
 
                 {/* Table Layout */}
-                <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+                <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden">
                     <table className="w-full text-left">
                         <thead>
-                            <tr className="bg-gray-50 border-b border-gray-100 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <tr className="bg-muted/30 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                 <th className="py-3 px-6">Partner Organization</th>
                                 <th className="py-3 px-6">Type</th>
                                 <th className="py-3 px-6">Key Benefits</th>
@@ -118,33 +118,33 @@ export default function PartnershipsPage() {
                         </thead>
                         <tbody>
                             {partnerships.map((p) => (
-                                <tr key={p.id} className="hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+                                <tr key={p.id} className="hover:bg-muted/20 transition-colors border-b border-border last:border-0">
                                     <td className="py-4 px-6">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                                            <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
                                                 <Handshake size={14} />
                                             </div>
-                                            <span className="text-sm font-medium text-gray-900">
+                                            <span className="text-sm font-semibold text-foreground">
                                                 {p.partner}
                                             </span>
                                         </div>
                                     </td>
                                     <td className="py-4 px-6">
-                                        <span className="text-sm text-gray-600">
+                                        <span className="text-sm text-muted-foreground">
                                             {p.type}
                                         </span>
                                     </td>
-                                    <td className="py-4 px-6 text-sm text-gray-600">
+                                    <td className="py-4 px-6 text-sm text-muted-foreground">
                                         {p.benefits}
                                     </td>
-                                    <td className="py-4 px-6 text-sm text-gray-500">
+                                    <td className="py-4 px-6 text-sm text-muted-foreground">
                                         {p.agreementDate}
                                     </td>
                                     <td className="py-4 px-6">
                                         <span className={cn(
-                                            "text-xs font-medium px-2.5 py-0.5 rounded-full inline-block",
-                                            p.status === "Active" ? "bg-emerald-50 text-emerald-700" :
-                                                "bg-amber-50 text-amber-700"
+                                            "text-xs font-medium px-2.5 py-1 rounded-md inline-block border",
+                                            p.status === "Active" ? "bg-emerald-50 text-emerald-700 border-emerald-100" :
+                                                "bg-amber-50 text-amber-700 border-amber-100"
                                         )}>
                                             {p.status}
                                         </span>
@@ -152,8 +152,8 @@ export default function PartnershipsPage() {
                                     <td className="py-4 px-6 text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-gray-100">
-                                                    <MoreHorizontal className="h-4 w-4 text-gray-500" />
+                                                <Button variant="ghost" className="h-8 w-8 p-0 rounded-full hover:bg-muted text-muted-foreground">
+                                                    <MoreHorizontal className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-[160px]">
@@ -185,19 +185,19 @@ export default function PartnershipsPage() {
                     confirmText="Create Agreement"
                     onConfirm={() => setIsAddOpen(false)}
                 >
-                    <div className="space-y-4 pt-4">
+                <div className="space-y-4 pt-4">
                         <div className="space-y-2">
                             <Label>Organization Name</Label>
-                            <Input className="rounded-lg border-gray-200" placeholder="e.g. Microsoft for Startups" />
+                            <Input className="rounded-lg border-border" placeholder="e.g. Microsoft for Startups" />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Partnership Type</Label>
-                                <Input className="rounded-lg border-gray-200" placeholder="Strategic" />
+                                <Input className="rounded-lg border-border" placeholder="Strategic" />
                             </div>
                             <div className="space-y-2">
                                 <Label>Agreement Date</Label>
-                                <Input type="date" className="rounded-lg border-gray-200" />
+                                <Input type="date" className="rounded-lg border-border" />
                             </div>
                         </div>
                     </div>
@@ -218,12 +218,12 @@ export default function PartnershipsPage() {
                             <Label>Partner Organization</Label>
                             <Input
                                 defaultValue={selectedPartner?.partner}
-                                className="rounded-lg border-gray-200"
+                                className="rounded-lg border-border"
                             />
                         </div>
                         <div className="space-y-2">
                             <Label>Status</Label>
-                            <select className="w-full h-10 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <select className="w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
                                 <option>Active</option>
                                 <option>Pending Renewal</option>
                                 <option>Terminated</option>
@@ -245,12 +245,12 @@ export default function PartnershipsPage() {
                 />
 
                 {/* Top Banner Style Callout */}
-                <div className="p-4 bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl text-white flex items-center justify-between shadow-md">
+                <div className="p-5 bg-gradient-to-r from-primary to-primary/80 rounded-xl text-primary-foreground flex items-center justify-between shadow-sm border border-border/10">
                     <div>
                         <p className="text-sm font-medium opacity-90">Total Value Generated via MoUs</p>
-                        <p className="text-2xl font-bold mt-1">$1.2M <span className="text-sm font-normal opacity-70">This Year</span></p>
+                        <p className="text-2xl font-bold mt-1">$1.2M <span className="text-sm font-medium opacity-80">This Year</span></p>
                     </div>
-                    <div className="px-3 py-1 bg-white/10 rounded-full text-xs font-medium backdrop-blur-sm border border-white/20">
+                    <div className="px-3 py-1.5 bg-white/10 rounded-full text-xs font-semibold backdrop-blur-sm border border-white/20">
                         Top Performer
                     </div>
                 </div>
