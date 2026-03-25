@@ -8,6 +8,20 @@ import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion"
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+}
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+}
 
 interface Startup {
     id: string | number;
@@ -143,240 +157,201 @@ export default function StartupsPage() {
 
     return (
         <DashboardLayout>
-            <div className="space-y-8 animate-in fade-in duration-500 pb-10">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+            <motion.div 
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-8 pb-10"
+            >
+                {/* Header Section */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6 font-sans">
                     <div>
                         <h1 className="text-xl font-semibold text-foreground flex items-center gap-3">
                             <Rocket size={20} className="text-primary" />
-                            Startup Registry
+                            Startup Ecosystem
                         </h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Central database for GrowthSpire portfolio companies
+                        <p className="text-sm text-muted-foreground mt-1 font-medium opacity-70">
+                            Monitor and manage your portfolio of curated startups
                         </p>
                     </div>
-                    <Button
+                    <Button 
                         onClick={() => { resetForm(); setIsFormOpen(true); }}
-                        className="admin-button-primary"
+                        className="admin-button-primary h-10 px-6"
                     >
-                        <Plus size={16} /> <span>Add Startup</span>
+                        <Plus size={16} />
+                        <span>Onboard Startup</span>
                     </Button>
-                </div>
+                </motion.div>
 
-                {/* Filter Bar */}
-                <div className="flex gap-2 bg-muted/30 border border-border p-2">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                {/* Filters Row */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="OPERATIONAL SEARCH: NAME, FOUNDER, SECTOR..."
-                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-black tracking-widest uppercase outline-none focus:border-primary border border-border/50 rounded-lg"
+                            placeholder="OPERATIONAL SEARCH..."
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Table Layout */}
-                <div className="admin-table-container">
-                    {loading ? (
-                        <div className="space-y-4">
-                            {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
-                        </div>
-                    ) : (
-                        <table className="admin-table">
-                            <thead>
-                                <tr>
-                                    <th>Company</th>
-                                    <th>Founder</th>
-                                    <th>Sector/Stage</th>
-                                    <th>Status</th>
-                                    <th className="text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredStartups.length > 0 ? filteredStartups.map((startup: Startup) => (
-                                    <tr key={startup.id} className="group">
+                {/* Main Table */}
+                <motion.div variants={itemVariants} className="admin-table-container">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Identification</th>
+                                <th>Category / Sector</th>
+                                <th>Execution Stage</th>
+                                <th>Status</th>
+                                <th className="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <tr key={i}>
+                                        <td colSpan={5} className="p-0">
+                                            <Skeleton className="h-16 w-full" />
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : filteredStartups.length > 0 ? (
+                                filteredStartups.map((startup) => (
+                                    <tr key={startup.id} className="group transition-all">
                                         <td>
                                             <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 bg-muted border border-border flex items-center justify-center shrink-0">
-                                                    {startup.logo ? (
-                                                        <img src={startup.logo} alt="" className="w-full h-full object-contain grayscale group-hover:grayscale-0 transition-all" />
-                                                    ) : (
-                                                        <Rocket size={14} className="text-muted-foreground/40" />
-                                                    )}
+                                                <div className="h-9 w-9 rounded-lg bg-primary/5 flex items-center justify-center border border-primary/10">
+                                                    <Rocket size={16} className="text-primary" />
                                                 </div>
                                                 <div>
-                                                    <span className="text-sm font-semibold text-foreground block leading-tight">
-                                                        {startup.name}
-                                                    </span>
-                                                    {startup.website && (
-                                                       <a href={startup.website} target="_blank" className="text-xs font-medium text-primary flex items-center gap-1 hover:underline mt-0.5">
-                                                           {new URL(startup.website).hostname} <Globe size={10} />
-                                                       </a>
-                                                    )}
+                                                    <div className="font-bold text-foreground text-sm group-hover:text-primary transition-colors">{startup.name}</div>
+                                                    <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{startup.founder}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="text-sm text-muted-foreground">
-                                            <div className="flex items-center gap-1.5 font-medium">
-                                                <User size={14} className="opacity-40" />
-                                                {startup.founder}
-                                            </div>
-                                        </td>
+                                        <td className="text-xs font-semibold text-muted-foreground uppercase">{startup.sector || startup.category || 'N/A'}</td>
                                         <td>
-                                            <span className="text-sm font-medium text-muted-foreground block">
-                                                {startup.sector}
+                                            <span className="text-[10px] font-bold px-2 py-0.5 bg-muted rounded border border-border">
+                                                {startup.stage}
                                             </span>
-                                            <p className="text-xs text-muted-foreground mt-0.5">{startup.stage}</p>
                                         </td>
                                         <td>
                                             <span className={cn(
-                                                "text-[9px] font-black px-2 py-0.5 border uppercase tracking-tighter flex items-center gap-1 w-fit",
-                                                startup.status === 'Active' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : 
-                                                startup.status === 'Accelerated' ? "bg-blue-500/10 text-blue-600 border-blue-500/20" : "bg-muted text-muted-foreground border-border"
+                                                "text-[10px] font-bold px-2 py-1 rounded-full border",
+                                                startup.status === 'Active' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
                                             )}>
-                                                {startup.status}
+                                                {startup.status.toUpperCase()}
                                             </span>
                                         </td>
                                         <td className="text-right">
-                                            <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <button
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-primary/5"
                                                     onClick={() => openEdit(startup)}
-                                                    className="h-8 w-8 flex items-center justify-center border border-border hover:border-foreground transition-all"
                                                 >
                                                     <Edit2 size={14} />
-                                                </button>
-                                                <button
+                                                </Button>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
                                                     onClick={() => { setSelectedStartup(startup); setIsDeleteOpen(true); }}
-                                                    className="h-8 w-8 flex items-center justify-center border border-border hover:border-destructive hover:text-destructive transition-all"
                                                 >
                                                     <Trash2 size={14} />
-                                                </button>
+                                                </Button>
                                             </div>
                                         </td>
                                     </tr>
-                                )) : (
-                                    <tr><td colSpan={5} className="text-center py-20 text-muted-foreground text-sm">No portfolio startups discovered</td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-20 text-muted-foreground italic text-sm">
+                                        No startup portfolio entities discovered
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </motion.div>
 
-                {/* Form Modal */}
+                {/* Creation/Edit Form */}
                 <Modal
                     isOpen={isFormOpen}
                     onClose={() => setIsFormOpen(false)}
-                    title={isEdit ? "Update Registry" : "Onboard Startup"}
-                    description={isEdit ? `Modifying profile for ${formData.name}` : "Determine the core details for a new ecosystem member"}
-                    confirmText={isEdit ? "Update Record" : "Confirm Onboarding"}
-                    onConfirm={handleSubmit}
-                    maxWidth="max-w-2xl"
+                    title={isEdit ? "Edit Profile" : "Onboard New Startup"}
+                    description={isEdit ? "Update existing startup information" : "Add a new vetted startup to the ecosystem"}
+                    footer={
+                        <div className="flex gap-3 w-full">
+                            <Button variant="outline" className="flex-1 font-bold text-[10px] uppercase tracking-widest h-10" onClick={() => setIsFormOpen(false)}>Cancel</Button>
+                            <Button className="flex-1 admin-button-primary h-10" onClick={handleSubmit}>
+                                {isEdit ? "Update Record" : "Finalize Entry"}
+                            </Button>
+                        </div>
+                    }
                 >
-                    <div className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <label className="admin-label">Startup Name</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="e.g. InnovateKE" 
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="admin-label">Founder</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="John Doe" 
-                                    value={formData.founder}
-                                    onChange={(e) => setFormData({...formData, founder: e.target.value})}
-                                />
+                    <div className="grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar p-1">
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="admin-label">Startup Name</label>
+                            <input className="admin-input" placeholder="e.g. Acme AI" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Primary Founder</label>
+                            <div className="relative">
+                                <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground opacity-40" />
+                                <input className="admin-input pl-10" placeholder="Full Name" value={formData.founder} onChange={e => setFormData({ ...formData, founder: e.target.value })} />
                             </div>
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="space-y-1">
-                                <label className="admin-label">Sector</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="Fintech" 
-                                    value={formData.category}
-                                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="admin-label">Stage</label>
-                                <select 
-                                    className="admin-input"
-                                    value={formData.stage}
-                                    onChange={(e) => setFormData({...formData, stage: e.target.value})}
-                                >
-                                    <option>Idea</option>
-                                    <option>Pre-Seed</option>
-                                    <option>Seed</option>
-                                    <option>Series A</option>
-                                    <option>Series B</option>
-                                </select>
-                            </div>
-                            <div className="space-y-1">
-                                <label className="admin-label">Status</label>
-                                <select 
-                                    className="admin-input"
-                                    value={formData.status}
-                                    onChange={(e) => setFormData({...formData, status: e.target.value})}
-                                >
-                                    <option>Active</option>
-                                    <option>Accelerated</option>
-                                    <option>Pending</option>
-                                    <option>Exit</option>
-                                </select>
-                            </div>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Category / Sector</label>
+                            <input className="admin-input" placeholder="e.g. Fintech" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} />
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <label className="admin-label">Website URL</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="https://..." 
-                                    value={formData.website_url}
-                                    onChange={(e) => setFormData({...formData, website_url: e.target.value})}
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="admin-label">Logo URL</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="https://image.url/logo.png" 
-                                    value={formData.logo_url}
-                                    onChange={(e) => setFormData({...formData, logo_url: e.target.value})}
-                                />
-                            </div>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Execution Stage</label>
+                            <select className="admin-input" value={formData.stage} onChange={e => setFormData({ ...formData, stage: e.target.value })}>
+                                <option value="Ideation">Ideation</option>
+                                <option value="MVP">MVP</option>
+                                <option value="Pre-seed">Pre-seed</option>
+                                <option value="Seed">Seed</option>
+                                <option value="Series A+">Series A+</option>
+                            </select>
                         </div>
-
-                        <div className="space-y-1">
-                            <label className="admin-label">Mission / One-Liner</label>
-                            <textarea 
-                                className="admin-input h-20" 
-                                placeholder="The core value proposition..." 
-                                value={formData.description}
-                                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                            />
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Platform Status</label>
+                            <select className="admin-input" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
+                                <option value="Active">Active</option>
+                                <option value="Stealth">Stealth</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="admin-label">Strategic Narrative (Description)</label>
+                            <textarea className="admin-input min-h-[100px] resize-none py-3" placeholder="Core mission and value proposition..." value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} />
+                        </div>
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="admin-label">Digital Presence (URL)</label>
+                            <div className="relative">
+                                <Globe size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground opacity-40" />
+                                <input className="admin-input pl-10" placeholder="https://..." value={formData.website_url} onChange={e => setFormData({ ...formData, website_url: e.target.value })} />
+                            </div>
                         </div>
                     </div>
                 </Modal>
 
+                {/* Delete Confirmation */}
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
-                    title="DELETE STARTUP"
-                    description={`Permanently remove "${selectedStartup?.name}" from the system repository?`}
+                    title="DELETE RECORDS"
+                    description={`Permanently remove ${selectedStartup?.name} from the active portfolio?`}
                     type="danger"
                     confirmText="Delete Record"
                     onConfirm={handleDelete}
                 />
-            </div>
+            </motion.div>
         </DashboardLayout>
     )
 }
