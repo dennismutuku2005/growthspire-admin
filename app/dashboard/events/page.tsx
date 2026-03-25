@@ -8,6 +8,7 @@ import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function EventsPage() {
     const [events, setEvents] = useState<any[]>([])
@@ -161,7 +162,7 @@ export default function EventsPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search events by title or location..."
-                            className="w-full bg-white h-10 pl-10 pr-4 text-sm outline-none focus:border-foreground border border-border/50 rounded-lg"
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-black uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
                 </div>
