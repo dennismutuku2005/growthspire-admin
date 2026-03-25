@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { toast } from "sonner"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ApplicationsPage() {
     const [apps, setApps] = useState<any[]>([])
@@ -82,11 +83,11 @@ export default function ApplicationsPage() {
     })
 
     const statusMap: Record<string, any> = {
-        pending: { label: "PENDING", color: "bg-amber-50 text-amber-700 border-amber-100", icon: Clock },
-        under_review: { label: "REVIEWING", color: "bg-blue-50 text-blue-700 border-blue-100", icon: Search },
-        interview: { label: "INTERVIEW", color: "bg-purple-50 text-purple-700 border-purple-100", icon: User },
-        accepted: { label: "ACCEPTED", color: "bg-emerald-50 text-emerald-700 border-emerald-100", icon: CheckCircle },
-        rejected: { label: "REJECTED", color: "bg-red-50 text-red-700 border-red-100", icon: XCircle },
+        pending: { label: "PENDING", color: "bg-amber-500/10 text-amber-600 border-amber-500/20", icon: Clock },
+        under_review: { label: "REVIEWING", color: "bg-blue-500/10 text-blue-600 border-blue-500/20", icon: Search },
+        interview: { label: "INTERVIEW", color: "bg-purple-500/10 text-purple-600 border-purple-500/20", icon: User },
+        accepted: { label: "ACCEPTED", color: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20", icon: CheckCircle },
+        rejected: { label: "REJECTED", color: "bg-red-500/10 text-red-600 border-red-500/20", icon: XCircle },
     }
 
     return (
@@ -97,10 +98,10 @@ export default function ApplicationsPage() {
                     <div>
                         <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
                             <Inbox size={20} className="text-primary" />
-                            Submissions Inbox
+                            Applications Inbox
                         </h1>
                         <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
-                            Monitor and process incoming cohort applications & partner inquiries
+                            Manage startup applications and partner inquiries
                         </p>
                     </div>
                 </div>
@@ -114,7 +115,7 @@ export default function ApplicationsPage() {
                                 onClick={() => setActiveTab(tab)}
                                 className={cn(
                                     "px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all",
-                                    activeTab === tab ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
+                                    activeTab === tab ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 {tab.replace('_', ' ')}
@@ -127,7 +128,7 @@ export default function ApplicationsPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="OPERATIONAL SEARCH: NAME, COMPANY, EMAIL..."
-                            className="w-full bg-white h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none border border-border/50 focus:border-foreground transition-colors"
+                            className="w-full bg-card h-10 pl-10 pr-4 text-[11px] font-bold tracking-widest uppercase outline-none border border-border focus:border-primary transition-colors"
                         />
                     </div>
                 </div>
@@ -135,7 +136,17 @@ export default function ApplicationsPage() {
                 {/* Table Layout */}
                 <div className="admin-table-container">
                     {loading ? (
-                        <div className="p-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                        <div className="border border-border rounded-xl">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <div key={i} className="p-4 border-b border-border flex justify-between gap-4">
+                                    <Skeleton className="h-6 w-48" />
+                                    <Skeleton className="h-6 w-32" />
+                                    <Skeleton className="h-6 w-24" />
+                                    <Skeleton className="h-6 w-20" />
+                                    <Skeleton className="h-6 w-10" />
+                                </div>
+                            ))}
+                        </div>
                     ) : (
                         <table className="admin-table">
                             <thead>
@@ -206,9 +217,9 @@ export default function ApplicationsPage() {
                 <Modal
                     isOpen={isDetailOpen}
                     onClose={() => setIsDetailOpen(false)}
-                    title="Submission Dossier"
-                    description={`ANALYSING RECORD: ${selectedApp?.full_name.toUpperCase()}`}
-                    confirmText="Update Record"
+                    title="Application Details"
+                    description={`REVIEWING: ${selectedApp?.full_name.toUpperCase()}`}
+                    confirmText="Save Details"
                     onConfirm={() => setIsDetailOpen(false)}
                     maxWidth="max-w-4xl"
                 >
@@ -240,7 +251,7 @@ export default function ApplicationsPage() {
                                 <div className="space-y-8">
                                     <div className="space-y-4">
                                         <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                                            <User size={14} /> Personnel Data
+                                            <User size={14} /> Contact Information
                                         </h3>
                                         <div className="grid gap-4 border-l-2 border-border pl-4">
                                             <div>
@@ -260,7 +271,7 @@ export default function ApplicationsPage() {
 
                                     <div className="space-y-4">
                                         <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                                            <Building size={14} /> Enterprise Profile
+                                            <Building size={14} /> Startup Profile
                                         </h3>
                                         <div className="grid gap-4 border-l-2 border-border pl-4">
                                             <div>
@@ -284,7 +295,7 @@ export default function ApplicationsPage() {
                                 <div className="space-y-8">
                                     <div className="space-y-4">
                                         <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                                            <MessageSquare size={14} /> Strategic Intent
+                                            <MessageSquare size={14} /> Application Message
                                         </h3>
                                         <div className="bg-muted/30 border border-border p-4 min-h-[120px] relative">
                                             <div className="absolute top-0 left-0 w-1 h-full bg-primary/20"></div>
@@ -296,7 +307,7 @@ export default function ApplicationsPage() {
 
                                     <div className="space-y-4">
                                         <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                                            Operational Controls
+                                            Quick Actions
                                         </h3>
                                         <div className="flex flex-wrap gap-2">
                                             <button 
@@ -322,7 +333,7 @@ export default function ApplicationsPage() {
                                             onClick={() => { setIsDetailOpen(false); setIsDeleteOpen(true); }}
                                             className="w-full border-t border-border pt-4 flex items-center justify-center gap-2 text-[9px] font-bold uppercase text-muted-foreground hover:text-destructive transition-colors"
                                         >
-                                            <Trash2 size={12} /> Expunge Data Record
+                                            <Trash2 size={12} /> Delete Application Record
                                         </button>
                                     </div>
                                 </div>
@@ -334,10 +345,10 @@ export default function ApplicationsPage() {
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
-                    title="TERMINATE RECORD"
-                    description={`SYSTEM WARNING: IRREVERSIBLY REMOVE ALL DATA TRACES FOR "${selectedApp?.full_name.toUpperCase()}"?`}
+                    title="DELETE RECORD"
+                    description={`WARNING: This will permanently delete the application for "${selectedApp?.full_name.toUpperCase()}".`}
                     type="danger"
-                    confirmText="Proceed with Deletion"
+                    confirmText="Delete Permanently"
                     onConfirm={deleteApp}
                 >
                     <div />
