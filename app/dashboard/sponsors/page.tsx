@@ -8,6 +8,20 @@ import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion"
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+}
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+}
 
 interface Sponsor {
     id: string | number;
@@ -103,7 +117,7 @@ export default function SponsorsPage() {
             name: sponsor.name,
             logo_url: sponsor.logo_url || "",
             website_url: sponsor.website_url || "",
-            is_active: sponsor.is_active || 1
+            is_active: sponsor.is_active
         })
         setIsFormOpen(true)
     }
@@ -124,151 +138,183 @@ export default function SponsorsPage() {
 
     return (
         <DashboardLayout>
-            <div className="space-y-8 animate-in fade-in duration-500 pb-10">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+            <motion.div 
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-8 pb-10"
+            >
+                {/* Header Row */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6 font-sans">
                     <div>
-                        <h1 className="text-[18px] font-semibold text-foreground flex items-center gap-3">
-                            <Heart size={20} className="text-primary" />
-                            Partner Network
+                        <h1 className="text-xl font-semibold text-foreground flex items-center gap-3">
+                            <Building size={20} className="text-primary" />
+                            Sponsorship Network
                         </h1>
-                        <p className="text-[13px] text-muted-foreground mt-1">
-                            Manage relationships with organizations supporting GrowthSpire
+                        <p className="text-sm text-muted-foreground mt-1 font-medium opacity-70">
+                            Coordinate and manage corporate partnerships
                         </p>
                     </div>
-                    <Button
+                    <Button 
                         onClick={() => { resetForm(); setIsFormOpen(true); }}
-                        className="admin-button-primary"
+                        className="admin-button-primary h-10 px-6"
                     >
-                        <Plus size={16} /> <span>Add Partner</span>
+                        <Plus size={16} />
+                        <span>Add Partner</span>
                     </Button>
-                </div>
+                </motion.div>
 
-                {/* Filter Bar */}
-                <div className="flex gap-2 bg-muted/30 border border-border p-2">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                {/* Filters Row */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search partners by name..."
-                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-black uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
+                            placeholder="OPERATIONAL SEARCH..."
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Grid Layout for Sponsors */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {loading ? (
-                        Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-64 w-full rounded-xl" />)
-                    ) : filteredSponsors.length > 0 ? (
-                        filteredSponsors.map((sponsor) => (
-                            <div key={sponsor.id} className="admin-card group hover:border-foreground transition-all flex flex-col h-full bg-card">
-                                <div className="h-32 bg-muted border-b border-border flex items-center justify-center p-6 shrink-0 relative overflow-hidden">
-                                    <div className="absolute inset-0 bg-primary/5"></div>
-                                    {sponsor.logo_url ? (
-                                        <img src={sponsor.logo_url} alt="" className="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300 relative z-10" />
-                                    ) : (
-                                        <Building size={32} className="text-muted-foreground/20" />
-                                    )}
-                                </div>
-                                <div className="p-4 flex-1 flex flex-col">
-                                    <h3 className="text-base font-semibold leading-tight mb-1 group-hover:text-primary transition-colors">
-                                        {sponsor.name}
-                                    </h3>
-                                    {sponsor.website_url && (
-                                       <a href={sponsor.website_url} target="_blank" className="text-xs text-muted-foreground flex items-center gap-1 hover:text-primary transition-colors">
-                                           Visit Hub <ExternalLink size={10} />
-                                       </a>
-                                    )}
-                                    
-                                    <div className="flex gap-2 pt-6 border-t border-border mt-auto">
-                                        <button 
-                                            onClick={() => openEdit(sponsor)}
-                                            className="flex-1 py-1.5 border border-border text-xs font-medium hover:border-foreground transition-all rounded-md"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button 
-                                            onClick={() => { setSelectedSponsor(sponsor); setIsDeleteOpen(true); }}
-                                            className="px-2 py-1.5 border border-border text-muted-foreground hover:text-destructive hover:border-destructive transition-all"
-                                        >
-                                            <Trash2 size={12} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="col-span-full py-20 text-center text-muted-foreground text-sm border border-dashed border-border opacity-50 rounded-xl">No partner records found.</div>
-                    )}
-                </div>
+                {/* Portfolio Content */}
+                <motion.div variants={itemVariants} className="admin-table-container">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Partner Entity</th>
+                                <th>Digital Assets</th>
+                                <th>Status</th>
+                                <th className="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                Array.from({ length: 4 }).map((_, i) => (
+                                    <tr key={i}>
+                                        <td colSpan={4} className="p-0"><Skeleton className="h-16 w-full" /></td>
+                                    </tr>
+                                ))
+                            ) : filteredSponsors.length > 0 ? (
+                                filteredSponsors.map((sponsor) => (
+                                    <tr key={sponsor.id} className="group">
+                                        <td>
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-10 w-10 rounded bg-muted/50 p-1 flex items-center justify-center border border-border overflow-hidden">
+                                                    {sponsor.logo_url ? (
+                                                        <img src={sponsor.logo_url} alt={sponsor.name} className="h-8 w-auto object-contain" />
+                                                    ) : (
+                                                        <Building size={16} className="text-muted-foreground opacity-30" />
+                                                    )}
+                                                </div>
+                                                <div className="font-bold text-foreground text-sm group-hover:text-primary transition-colors">{sponsor.name}</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {sponsor.website_url ? (
+                                                <a href={sponsor.website_url} target="_blank" className="flex items-center gap-1.5 text-xs text-blue-500 hover:underline">
+                                                    <Globe size={12} />
+                                                    {new URL(sponsor.website_url).hostname}
+                                                    <ExternalLink size={10} />
+                                                </a>
+                                            ) : (
+                                                <span className="text-[10px] text-muted-foreground italic">No URL linked</span>
+                                            )}
+                                        </td>
+                                        <td>
+                                            <span className={cn(
+                                                "text-[10px] font-bold px-2 py-1 rounded-full border",
+                                                sponsor.is_active ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
+                                            )}>
+                                                {sponsor.is_active ? "ACTIVE" : "INACTIVE"}
+                                            </span>
+                                        </td>
+                                        <td className="text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                                                    onClick={() => openEdit(sponsor)}
+                                                >
+                                                    <Edit2 size={14} />
+                                                </Button>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                                                    onClick={() => { setSelectedSponsor(sponsor); setIsDeleteOpen(true); }}
+                                                >
+                                                    <Trash2 size={14} />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={4} className="text-center py-20 text-muted-foreground italic text-sm">No partners found in core network</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </motion.div>
 
-                {/* Form Modal */}
+                {/* Partner Form */}
                 <Modal
                     isOpen={isFormOpen}
                     onClose={() => setIsFormOpen(false)}
-                    title={isEdit ? "Update Partnership" : "Register Partner"}
-                    description={isEdit ? `Modifying metadata for ${formData.name}` : "Determine the core data for a new ecosystem sponsor"}
-                    confirmText={isEdit ? "Update Profile" : "Confirm Partner"}
-                    onConfirm={handleSubmit}
-                    maxWidth="max-w-md"
+                    title={isEdit ? "Edit Partner" : "Onboard Partner"}
+                    description={isEdit ? "Update existing partnership records" : "Add a new strategic partner to the system"}
+                    footer={
+                        <div className="flex gap-3 w-full">
+                            <Button variant="outline" className="flex-1 font-bold text-[10px] uppercase tracking-widest h-10" onClick={() => setIsFormOpen(false)}>Cancel</Button>
+                            <Button className="flex-1 admin-button-primary h-10" onClick={handleSubmit}>
+                                {isEdit ? "Finalize Updates" : "Confirm Onboarding"}
+                            </Button>
+                        </div>
+                    }
                 >
-                    <div className="space-y-6">
-                        <div className="space-y-1">
+                    <div className="space-y-5 p-1">
+                        <div className="space-y-1.5">
                             <label className="admin-label">Partner Name</label>
-                            <input 
-                                className="admin-input" 
-                                placeholder="e.g. Safaricom" 
-                                value={formData.name}
-                                onChange={(e) => setFormData({...formData, name: e.target.value})}
-                            />
+                            <input className="admin-input" placeholder="e.g. Google Cloud" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                         </div>
-
-                        <div className="space-y-1">
-                            <label className="admin-label">Logo URL</label>
-                            <input 
-                                className="admin-input" 
-                                placeholder="https://image.url/logo.png" 
-                                value={formData.logo_url}
-                                onChange={(e) => setFormData({...formData, logo_url: e.target.value})}
-                            />
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Corporate Website URL</label>
+                            <div className="relative">
+                                <Globe size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground opacity-40" />
+                                <input className="admin-input pl-10" placeholder="https://company.com" value={formData.website_url} onChange={e => setFormData({ ...formData, website_url: e.target.value })} />
+                            </div>
                         </div>
-
-                        <div className="space-y-1">
-                            <label className="admin-label">Website URL</label>
-                            <input 
-                                className="admin-input" 
-                                placeholder="https://website.com" 
-                                value={formData.website_url}
-                                onChange={(e) => setFormData({...formData, website_url: e.target.value})}
-                            />
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Asset URL (Logo)</label>
+                            <input className="admin-input tabular-nums" placeholder="https://cdn..." value={formData.logo_url} onChange={e => setFormData({ ...formData, logo_url: e.target.value })} />
                         </div>
-
-                        <div className="space-y-1">
-                            <label className="admin-label">Status</label>
-                            <select 
-                                className="admin-input"
-                                value={formData.is_active}
-                                onChange={(e) => setFormData({...formData, is_active: parseInt(e.target.value)})}
-                            >
-                                <option value={1}>Active Partner</option>
-                                <option value={0}>Inactive / Past</option>
-                            </select>
+                        <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-lg border border-border">
+                            <input 
+                                type="checkbox" 
+                                id="is_active" 
+                                className="h-4 w-4 rounded border-border bg-card text-primary" 
+                                checked={formData.is_active === 1}
+                                onChange={e => setFormData({ ...formData, is_active: e.target.checked ? 1 : 0 })}
+                            />
+                            <label htmlFor="is_active" className="text-xs font-bold uppercase tracking-wider cursor-pointer">Partner Active Status</label>
                         </div>
                     </div>
                 </Modal>
 
+                {/* Delete Confirmation */}
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
-                    title="Dissolve Partnership"
-                    description={`Remove "${selectedSponsor?.name}" from the partner directory?`}
+                    title="DELETE PARTNER"
+                    description={`Permanently remove ${selectedSponsor?.name}? This cannot be undone.`}
                     type="danger"
-                    confirmText="Remove Irreversibly"
+                    confirmText="Delete Record"
                     onConfirm={handleDelete}
                 />
-            </div>
+            </motion.div>
         </DashboardLayout>
     )
 }
