@@ -60,27 +60,27 @@ export function Modal({
         },
         success: {
             icon: CheckCircle2,
-            color: 'text-emerald-700',
-            bg: 'bg-emerald-50',
+            color: 'text-emerald-500',
+            bg: 'bg-emerald-500/10',
             btn: 'bg-emerald-600 hover:bg-emerald-700 text-white'
         },
         error: {
             icon: AlertCircle,
-            color: 'text-red-700',
-            bg: 'bg-red-50',
-            btn: 'bg-red-600 hover:bg-red-700 text-white'
+            color: 'text-destructive',
+            bg: 'bg-destructive/10',
+            btn: 'bg-destructive hover:bg-destructive/90 text-white'
         },
         warning: {
             icon: AlertTriangle,
-            color: 'text-amber-700',
-            bg: 'bg-amber-50',
+            color: 'text-amber-500',
+            bg: 'bg-amber-500/10',
             btn: 'bg-amber-600 hover:bg-amber-700 text-white'
         },
         danger: {
             icon: AlertCircle,
-            color: 'text-red-700',
-            bg: 'bg-red-50',
-            btn: 'bg-red-600 hover:bg-red-700 text-white'
+            color: 'text-destructive',
+            bg: 'bg-destructive/10',
+            btn: 'bg-destructive hover:bg-destructive/90 text-white'
         }
     }
 
@@ -91,15 +91,15 @@ export function Modal({
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
             {/* Backdrop - Flat Darker */}
             <div
-                className="fixed inset-0 bg-black/40 animate-in fade-in duration-300"
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300"
                 onClick={onClose}
             />
 
             {/* Modal Content - Elegant Style */}
-            <div className={cn("relative bg-white border border-border rounded-xl w-full flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-100 fade-in duration-150 shadow-xl", maxWidth)}>
+            <div className={cn("relative bg-card border border-border rounded-xl w-full flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 fade-in duration-150 shadow-2xl", maxWidth)}>
                 <div className="p-6 overflow-y-auto">
                     <div className="flex items-start justify-between mb-6 shrink-0">
-                        <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-current", config.color, config.bg)}>
+                        <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-border", config.color, config.bg)}>
                             <Icon size={20} />
                         </div>
                         <button
