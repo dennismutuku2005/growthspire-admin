@@ -8,6 +8,20 @@ import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion"
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+}
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+}
 
 export default function ApplicationsPage() {
     const [apps, setApps] = useState<any[]>([])
@@ -64,7 +78,7 @@ export default function ApplicationsPage() {
             })
             const data = await res.json()
             if (data.success) {
-                toast.success("Record expunged")
+                toast.success("Record deleted")
                 setIsDeleteOpen(false)
                 fetchApps()
             }
