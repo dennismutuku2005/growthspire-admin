@@ -3,6 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Bright, modern color scheme matching the user side */
 :root {
   --background: oklch(0.98 0.005 240);
   --foreground: oklch(0.2 0.01 240);
@@ -23,8 +24,12 @@
   --border: oklch(0.9 0.005 240);
   --input: oklch(0.92 0.005 240);
   --ring: oklch(0.68 0.22 285);
+  --chart-1: oklch(0.65 0.24 260);
+  --chart-2: oklch(0.7 0.22 180);
+  --chart-3: oklch(0.68 0.2 320);
+  --chart-4: oklch(0.72 0.18 40);
+  --chart-5: oklch(0.65 0.2 200);
   --radius: 0.75rem;
-
   --sidebar: oklch(0.99 0.003 240);
   --sidebar-foreground: oklch(0.25 0.02 240);
   --sidebar-primary: oklch(0.68 0.22 285);
@@ -33,11 +38,9 @@
   --sidebar-accent-foreground: oklch(0.3 0.02 260);
   --sidebar-border: oklch(0.93 0.005 240);
   --sidebar-ring: oklch(0.75 0.15 260);
-
-  --pace-purple: #4B1D8F;
-  --pace-purple-light: #F4F0FF;
 }
 
+/* Making dark mode much lighter - matching the user-side logic */
 .dark {
   --background: oklch(0.12 0.015 240);
   --foreground: oklch(0.98 0.005 240);
@@ -58,7 +61,11 @@
   --border: oklch(0.22 0.02 240);
   --input: oklch(0.2 0.02 240);
   --ring: oklch(0.7 0.18 285);
-  
+  --chart-1: oklch(0.6 0.18 240);
+  --chart-2: oklch(0.65 0.16 200);
+  --chart-3: oklch(0.62 0.15 280);
+  --chart-4: oklch(0.68 0.14 160);
+  --chart-5: oklch(0.6 0.16 220);
   --sidebar: oklch(0.14 0.015 240);
   --sidebar-foreground: oklch(0.95 0.01 240);
   --sidebar-primary: oklch(0.7 0.18 285);
@@ -70,8 +77,8 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-rubik), system-ui, sans-serif;
-  --font-mono: "Geist Mono", monospace;
+  --font-sans: var(--font-rubik), "Inter", "Inter Fallback", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -91,11 +98,15 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -104,32 +115,30 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-
-  --color-pace-purple: var(--pace-purple);
-  --color-pace-purple-light: var(--pace-purple-light);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground antialiased;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 }
 
 /* Elegant Component Styling */
 @layer components {
   .admin-card {
-    @apply bg-card border border-border rounded-xl transition-all duration-200 overflow-hidden shadow-sm;
-  }
-  
-  .admin-card:hover {
-    @apply border-primary/20 shadow-md;
+    @apply bg-card border border-border rounded-xl transition-all duration-300 overflow-hidden shadow-sm hover:shadow-md hover:border-primary/20;
   }
   
   .admin-button-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg font-medium transition-colors inline-flex items-center justify-center gap-2 text-sm shadow-sm;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-lg font-medium transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm shadow-sm active:scale-95;
   }
   
   .admin-table-container {
@@ -141,7 +150,7 @@
   }
   
   .admin-table th {
-    @apply py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider bg-muted/30 border-b border-border;
+    @apply py-3 px-4 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider bg-muted/30 border-b border-border;
   }
   
   .admin-table td {
@@ -157,11 +166,20 @@
   }
 
   .admin-input {
-    @apply w-full bg-background border border-input rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all;
+    @apply w-full bg-background border border-input rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all duration-200;
   }
   
   .admin-label {
-    @apply text-xs font-semibold text-foreground mb-1 block;
+    @apply text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block;
+  }
+
+  /* Glassmorphism */
+  .glass {
+    @apply bg-card/60 backdrop-blur-md border border-white/10 dark:border-white/5;
+  }
+
+  .glass-dark {
+    @apply bg-black/40 backdrop-blur-xl border border-white/5;
   }
 }
 
