@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
@@ -18,8 +18,24 @@ import Cookies from "js-cookie"
 export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname }) {
     const [openMenus, setOpenMenus] = useState([])
     const [showLogoutModal, setShowLogoutModal] = useState(false)
+    const [stats, setStats] = useState(null)
     const searchParams = useSearchParams()
     const router = useRouter()
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const response = await fetch("http://localhost/growthspire/backend/dashboard_stats.php");
+                const result = await response.json();
+                if (result.success) {
+                    setStats(result.stats);
+                }
+            } catch (error) {
+                console.error("Sidebar stats error:", error);
+            }
+        };
+        fetchStats();
+    }, []);
 
     // Helper to persist query params
     const createHref = (href) => {
@@ -37,14 +53,14 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
 
     const navigation = [
         { id: 'dashboard', name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-        { id: 'applications', name: 'Applications', href: '/dashboard/applications', icon: FileText },
-        { id: 'startups', name: 'Startups', href: '/dashboard/startups', icon: Rocket },
+        { id: 'applications', name: 'Applications', href: '/dashboard/applications', icon: FileText, badge: stats?.applications },
+        { id: 'startups', name: 'Startups', href: '/dashboard/startups', icon: Rocket, badge: stats?.startups },
         { id: 'events', name: 'Events', href: '/dashboard/events', icon: Calendar, children: [
             { name: 'All Events', href: '/dashboard/events' },
             { name: 'Upcoming', href: '/dashboard/events/upcoming' },
             { name: 'Past', href: '/dashboard/events/past' },
         ]},
-        { id: 'sponsors', name: 'Sponsors', href: '/dashboard/sponsors', icon: Building },
+        { id: 'sponsors', name: 'Sponsors', href: '/dashboard/sponsors', icon: Building, badge: stats?.sponsors },
         { id: 'blogs', name: 'Blogs', href: '/dashboard/blogs', icon: MessageSquare },
         { id: 'settings', name: 'Settings', href: '/dashboard/settings', icon: Settings },
     ]
@@ -134,7 +150,7 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                                                             key={child.name}
                                                             href={createHref(child.href)}
                                                             className={cn(
-                                                                "block px-2 py-2 text-xs font-medium transition-all",
+                                                                "block px-2 py-2 text-xs font-medium transition-all relative",
                                                                 isChildActive
                                                                     ? "text-primary border-r-2 border-primary"
                                                                     : "text-muted-foreground hover:text-foreground"
@@ -161,6 +177,14 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                                         {showText && (
                                             <div className="flex-1 flex items-center justify-between whitespace-nowrap overflow-hidden">
                                                 <span>{item.name}</span>
+                                                {item.badge > 0 && (
+                                                    <span className={cn(
+                                                        "text-[10px] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded-full font-bold",
+                                                        isActive ? "bg-white text-primary" : "bg-primary/10 text-primary border border-primary/20"
+                                                    )}>
+                                                        {item.badge}
+                                                    </span>
+                                                )}
                                             </div>
                                         )}
                                     </Link>
