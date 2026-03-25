@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { toast } from "sonner"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface Startup {
     id: string | number;
@@ -169,8 +170,8 @@ export default function StartupsPage() {
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search by name, founder or sector..."
-                            className="w-full bg-white h-10 pl-10 pr-4 text-sm outline-none focus:border-foreground border border-border/50 rounded-lg"
+                            placeholder="OPERATIONAL SEARCH: NAME, FOUNDER, SECTOR..."
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-black tracking-widest uppercase outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
                 </div>
@@ -178,7 +179,9 @@ export default function StartupsPage() {
                 {/* Table Layout */}
                 <div className="admin-table-container">
                     {loading ? (
-                        <div className="p-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                        <div className="space-y-4">
+                            {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-16 w-full rounded-lg" />)}
+                        </div>
                     ) : (
                         <table className="admin-table">
                             <thead>
@@ -228,9 +231,9 @@ export default function StartupsPage() {
                                         </td>
                                         <td>
                                             <span className={cn(
-                                                "text-xs font-semibold px-2.5 py-1 border rounded-md flex items-center gap-1 w-fit",
-                                                startup.status === 'Active' ? "bg-emerald-50 text-emerald-700 border-emerald-100" : 
-                                                startup.status === 'Accelerated' ? "bg-blue-50 text-blue-700 border-blue-100" : "bg-muted text-muted-foreground border-border"
+                                                "text-[9px] font-black px-2 py-0.5 border uppercase tracking-tighter flex items-center gap-1 w-fit",
+                                                startup.status === 'Active' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : 
+                                                startup.status === 'Accelerated' ? "bg-blue-500/10 text-blue-600 border-blue-500/20" : "bg-muted text-muted-foreground border-border"
                                             )}>
                                                 {startup.status}
                                             </span>
@@ -367,10 +370,10 @@ export default function StartupsPage() {
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
-                    title="Expunge Record"
+                    title="DELETE STARTUP"
                     description={`Permanently remove "${selectedStartup?.name}" from the system repository?`}
                     type="danger"
-                    confirmText="Remove Startup"
+                    confirmText="Delete Record"
                     onConfirm={handleDelete}
                 />
             </div>
