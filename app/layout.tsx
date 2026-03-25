@@ -28,15 +28,28 @@ export const metadata: Metadata = {
   },
 }
 
+import { ThemeProvider } from "@/components/theme-provider"
+import { Analytics } from "@vercel/analytics/next"
+import { Toaster } from "sonner"
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={`font-sans ${rubik.variable}`}>
-        <Suspense fallback={null}>{children}</Suspense>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${rubik.variable} ${rubik.className} font-sans antialiased text-foreground bg-background`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Suspense fallback={null}>{children}</Suspense>
+          <Analytics />
+          <Toaster position="top-center" theme="dark" richColors closeButton />
+        </ThemeProvider>
       </body>
     </html>
   )
