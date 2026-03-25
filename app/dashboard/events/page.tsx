@@ -9,6 +9,20 @@ import { Modal } from "@/components/Modal"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion"
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+}
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+}
 
 export default function EventsPage() {
     const [events, setEvents] = useState<any[]>([])
@@ -99,11 +113,11 @@ export default function EventsPage() {
         setFormData({
             title: event.title,
             description: event.description || "",
-            event_date: event.event_date,
+            event_date: event.event_date || "",
             start_time: event.start_time || "09:00",
             end_time: event.end_time || "17:00",
             location: event.location || "Nairobi, KE",
-            event_type: event.event_type,
+            event_type: event.event_type || "In-Person",
             image_url: event.image_url || "",
             registration_link: event.registration_link || "",
             featured: event.featured || 0
@@ -127,227 +141,189 @@ export default function EventsPage() {
         })
     }
 
-    const filteredEvents = (events as any[]).filter((e: any) => 
-        e.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        (e.location?.toLowerCase() || "").includes(searchQuery.toLowerCase())
+    const filteredEvents = events.filter(e => 
+        e.title.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
     return (
         <DashboardLayout>
-            <div className="space-y-8 animate-in fade-in duration-500 pb-10">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+            <motion.div 
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-8 pb-10"
+            >
+                {/* Header Page Title */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6 font-sans">
                     <div>
                         <h1 className="text-xl font-semibold text-foreground flex items-center gap-3">
                             <Calendar size={20} className="text-primary" />
-                            Event Command
+                            Events Calendar
                         </h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Orchestrate meetups, demo days and networking events
+                        <p className="text-sm text-muted-foreground mt-1 font-medium opacity-70">
+                            Coordinate workshops, demo days, and ecosystem networking
                         </p>
                     </div>
-                    <Button
+                    <Button 
                         onClick={() => { resetForm(); setIsFormOpen(true); }}
-                        className="admin-button-primary"
+                        className="admin-button-primary h-10 px-6"
                     >
-                        <Plus size={16} /> <span>Schedule Event</span>
+                        <Plus size={16} />
+                        <span>Schedule Event</span>
                     </Button>
-                </div>
+                </motion.div>
 
-                {/* Filter Bar */}
-                <div className="flex gap-2 bg-muted/30 border border-border p-2">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                {/* Filters & Search Row */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
                         <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search events by title or location..."
-                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-black uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
+                            placeholder="OPERATIONAL SEARCH..."
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Grid Layout for Events */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {loading ? (
-                        Array.from({ length: 6 }).map((_, i) => (
-                            <div key={i} className="admin-card flex flex-col h-full bg-card animate-pulse">
-                                <div className="h-40 bg-muted border-b border-border" />
-                                <div className="p-5 flex-1 flex flex-col gap-3">
-                                    <div className="h-3 w-24 bg-muted rounded" />
-                                    <div className="h-4 w-3/4 bg-muted rounded" />
-                                    <div className="h-3 w-full bg-muted rounded" />
-                                    <div className="h-3 w-5/6 bg-muted rounded" />
-                                    <div className="mt-auto flex gap-2 pt-4 border-t border-border">
-                                        <div className="flex-1 h-9 bg-muted rounded" />
-                                        <div className="w-9 h-9 bg-muted rounded" />
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    ) : filteredEvents.length > 0 ? (
-                        (filteredEvents as any[]).map((event: any) => (
-                            <div key={event.id} className="admin-card group hover:border-foreground transition-all flex flex-col h-full bg-card">
-                                <div className="h-40 bg-muted border-b border-border flex items-center justify-center overflow-hidden relative">
-                                    {event.image_url ? (
-                                        <img src={event.image_url} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
-                                    ) : (
-                                        <ImageIcon size={24} className="text-muted-foreground/30" />
-                                    )}
-                                    <div className="absolute top-3 left-3">
-                                        <span className="bg-primary text-primary-foreground text-xs font-semibold py-1 px-3 rounded-full border border-primary">
-                                            {event.event_type}
-                                        </span>
-                                    </div>
-                                </div>
-                                <div className="p-5 flex-1 flex flex-col">
-                                    <div className="flex items-center gap-2 mb-2 text-xs font-medium text-primary">
-                                        <Clock size={12} />
-                                        {new Date(event.event_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                                        <span>•</span>
-                                        {event.start_time}
-                                    </div>
-                                    <h3 className="text-lg font-semibold leading-tight mb-2 group-hover:text-primary transition-colors">
-                                        {event.title}
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                                        {event.description || "No detailed description provided for this session."}
-                                    </p>
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-auto pb-4">
-                                        <MapPin size={12} className="text-muted-foreground/60" />
-                                        {event.location}
-                                    </div>
-                                    <div className="flex gap-2 pt-4 border-t border-border mt-auto">
-                                        <button 
-                                            onClick={() => openEdit(event)}
-                                            className="flex-1 py-2 border border-border text-xs font-medium hover:border-foreground transition-all rounded-md"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button 
-                                            onClick={() => { setSelectedEvent(event); setIsDeleteOpen(true); }}
-                                            className="px-3 py-2 border border-border text-muted-foreground hover:text-destructive hover:border-destructive transition-all"
-                                        >
-                                            <Trash2 size={14} />
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="col-span-full py-20 text-center text-muted-foreground text-sm border border-dashed border-border rounded-xl">No events scheduled.</div>
-                    )}
-                </div>
+                {/* Events Portfolio Map */}
+                <motion.div variants={itemVariants} className="admin-table-container">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Identification</th>
+                                <th>Schedule</th>
+                                <th>Location</th>
+                                <th>Featured</th>
+                                <th className="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                Array.from({ length: 4 }).map((_, i) => (
+                                    <tr key={i}><td colSpan={5} className="p-0"><Skeleton className="h-16 w-full" /></td></tr>
+                                ))
+                            ) : filteredEvents.length > 0 ? (
+                                filteredEvents.map((event) => (
+                                    <tr key={event.id} className="group">
+                                        <td>
+                                            <div className="flex items-center gap-3 font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center border border-border shrink-0 overflow-hidden">
+                                                    {event.image_url ? (
+                                                        <img src={event.image_url} alt="" className="h-full w-full object-cover" />
+                                                    ) : <Calendar size={18} className="text-muted-foreground opacity-30" />}
+                                                </div>
+                                                <div className="truncate max-w-[200px]">{event.title}</div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{new Date(event.event_date).toLocaleDateString()}</div>
+                                            <div className="text-[10px] tabular-nums text-muted-foreground/60">{event.start_time} - {event.end_time}</div>
+                                        </td>
+                                        <td className="text-xs font-semibold text-muted-foreground opacity-80 uppercase tracking-wider">{event.location}</td>
+                                        <td className="text-center">
+                                            {event.featured ? <CheckCircle size={14} className="text-emerald-500 mx-auto" /> : <div className="h-1 w-4 bg-muted mx-auto rounded" />}
+                                        </td>
+                                        <td className="text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                                                    onClick={() => openEdit(event)}
+                                                >
+                                                    <Edit2 size={14} />
+                                                </Button>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                                                    onClick={() => { setSelectedEvent(event); setIsDeleteOpen(true); }}
+                                                >
+                                                    <Trash2 size={14} />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-24 text-muted-foreground italic text-sm">No events scheduled in core repository</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </motion.div>
 
-                {/* Form Modal */}
+                {/* Event Form Asset */}
                 <Modal
                     isOpen={isFormOpen}
                     onClose={() => setIsFormOpen(false)}
-                    title={isEdit ? "Revise Event" : "Brief New Event"}
-                    description={isEdit ? `Modifying parameters for ${formData.title}` : "Determine the logistics for an upcoming GrowthSpire gathering"}
-                    confirmText={isEdit ? "Save Changes" : "Confirm Schedule"}
-                    onConfirm={handleSubmit}
-                    maxWidth="max-w-2xl"
+                    title={isEdit ? "Edit Records" : "Schedule New Event"}
+                    description={isEdit ? "Refine scheduled parameters" : "Initialize a new ecosystem gathering"}
+                    footer={
+                        <div className="flex gap-3 w-full">
+                            <Button variant="outline" className="flex-1 font-bold text-[10px] uppercase tracking-widest h-10" onClick={() => setIsFormOpen(false)}>Cancel</Button>
+                            <Button className="flex-1 admin-button-primary h-10" onClick={handleSubmit}>
+                                {isEdit ? "Finalize Record" : "Confirm Schedule"}
+                            </Button>
+                        </div>
+                    }
                 >
-                    <div className="space-y-6">
-                        <div className="space-y-1">
-                            <label className="admin-label">Event Title</label>
-                            <input 
-                                className="admin-input" 
-                                placeholder="E.G. GROWTH SUMMIT 2024" 
-                                value={formData.title}
-                                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                            />
+                    <div className="grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar p-1">
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="admin-label">Strategic Narrative (Title)</label>
+                            <input className="admin-input" placeholder="e.g. GS Demo Day Q3" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} />
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <label className="admin-label">Date</label>
-                                <input 
-                                    type="date"
-                                    className="admin-input"
-                                    value={formData.event_date}
-                                    onChange={(e) => setFormData({...formData, event_date: e.target.value})}
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="admin-label">Event Type</label>
-                                <select 
-                                    className="admin-input"
-                                    value={formData.event_type}
-                                    onChange={(e) => setFormData({...formData, event_type: e.target.value})}
-                                >
-                                    <option value="In-Person">In-Person</option>
-                                    <option value="Online">Online Webinar</option>
-                                    <option value="Hybrid">Hybrid Session</option>
-                                </select>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Date (ISO)</label>
+                            <input type="date" className="admin-input" value={formData.event_date} onChange={e => setFormData({ ...formData, event_date: e.target.value })} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Location Type</label>
+                            <select className="admin-input" value={formData.event_type} onChange={e => setFormData({ ...formData, event_type: e.target.value })}>
+                                <option value="In-Person">In-Person</option>
+                                <option value="Virtual">Virtual</option>
+                                <option value="Hybrid">Hybrid</option>
+                            </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Commencement Time</label>
+                            <input type="time" className="admin-input" value={formData.start_time} onChange={e => setFormData({ ...formData, start_time: e.target.value })} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Conclusion Time</label>
+                            <input type="time" className="admin-input" value={formData.end_time} onChange={e => setFormData({ ...formData, end_time: e.target.value })} />
+                        </div>
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="admin-label">Physical Coordinates (Location)</label>
+                            <div className="relative">
+                                <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground opacity-40" />
+                                <input className="admin-input pl-10" placeholder="e.g. GS Headquarters, Nairobi" value={formData.location} onChange={e => setFormData({ ...formData, location: e.target.value })} />
                             </div>
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <label className="admin-label">Start Time</label>
-                                <input 
-                                    type="time"
-                                    className="admin-input" 
-                                    value={formData.start_time}
-                                    onChange={(e) => setFormData({...formData, start_time: e.target.value})}
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="admin-label">Location / Link</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="Nairobi Garage or Zoom Link" 
-                                    value={formData.location}
-                                    onChange={(e) => setFormData({...formData, location: e.target.value})}
-                                />
-                            </div>
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="admin-label">Digital Presence (Registration URL)</label>
+                            <input className="admin-input" placeholder="https://registry..." value={formData.registration_link} onChange={e => setFormData({ ...formData, registration_link: e.target.value })} />
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-1">
-                                <label className="admin-label">Banner Image URL</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="HTTPS://IMAGE.URL/BANNER.JPG" 
-                                    value={formData.image_url}
-                                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                                />
-                            </div>
-                            <div className="space-y-1">
-                                <label className="admin-label">Registration URL</label>
-                                <input 
-                                    className="admin-input" 
-                                    placeholder="HTTPS://EVENTBRITE.COM/..." 
-                                    value={formData.registration_link}
-                                    onChange={(e) => setFormData({...formData, registration_link: e.target.value})}
-                                />
-                            </div>
-                        </div>
-
-                        <div className="space-y-1">
-                            <label className="admin-label">Description / Agenda</label>
-                            <textarea 
-                                className="admin-input h-24" 
-                                placeholder="WHAT SHOULD ATTENDEES EXPECT?" 
-                                value={formData.description}
-                                onChange={(e) => setFormData({...formData, description: e.target.value})}
-                            />
+                        <div className="col-span-2 flex items-center gap-3 p-4 bg-muted/30 border border-border rounded-lg">
+                            <input type="checkbox" id="is_featured" checked={formData.featured === 1} onChange={e => setFormData({...formData, featured: e.target.checked ? 1 : 0})} />
+                            <label htmlFor="is_featured" className="text-xs font-bold uppercase tracking-wider cursor-pointer">Feature on platform overview</label>
                         </div>
                     </div>
                 </Modal>
 
+                {/* Delete Confirmation */}
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
-                    title="Cancel Event"
-                    description={`Permanently remove "${selectedEvent?.title}" from the calendar?`}
+                    title="DELETE EVENT"
+                    description={`Permanently remove ${selectedEvent?.title}?`}
                     type="danger"
-                    confirmText="Remove Irreversibly"
+                    confirmText="Delete Record"
                     onConfirm={handleDelete}
                 />
-            </div>
+            </motion.div>
         </DashboardLayout>
     )
 }
