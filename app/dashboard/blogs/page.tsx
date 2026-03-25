@@ -10,6 +10,20 @@ import { Modal } from "@/components/Modal"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion"
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+}
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+}
 
 export default function BlogsPage() {
     const [blogs, setBlogs] = useState<any[]>([])
@@ -101,28 +115,15 @@ export default function BlogsPage() {
             })
             const data = await res.json()
             if (data.success) {
-                toast.success("Blog deleted")
+                toast.success("Blog deleted successfully")
                 setIsDeleteOpen(false)
                 fetchBlogs()
+            } else {
+                toast.error(data.message)
             }
         } catch (err) {
-            toast.error("Failed to delete")
+            toast.error("An error occurred")
         }
-    }
-
-    const openEdit = (blog: any) => {
-        setSelectedBlog(blog)
-        setFormData({
-            title: blog.title,
-            category: blog.category,
-            author_name: blog.author_name,
-            image_url: blog.image_url || "",
-            excerpt: blog.excerpt || "",
-            content: blog.content || "",
-            read_time: blog.read_time || "5 min read",
-            featured: blog.featured || 0
-        })
-        setIsEditOpen(true)
     }
 
     const resetForm = () => {
@@ -138,231 +139,198 @@ export default function BlogsPage() {
         })
     }
 
+    const openEdit = (blog: any) => {
+        setSelectedBlog(blog)
+        setFormData({
+            title: blog.title,
+            category: blog.category,
+            author_name: blog.author_name,
+            image_url: blog.image_url,
+            excerpt: blog.excerpt,
+            content: blog.content,
+            read_time: blog.read_time,
+            featured: blog.featured
+        })
+        setIsEditOpen(true)
+    }
+
     const filteredBlogs = blogs.filter(b => 
-        b.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        b.category.toLowerCase().includes(searchQuery.toLowerCase())
+        b.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        b.author_name?.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
     return (
         <DashboardLayout>
-            <div className="space-y-8 animate-in fade-in duration-500 pb-10">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+            <motion.div 
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-8 pb-10"
+            >
+                {/* Header Content Overview */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6 font-sans">
                     <div>
-                        <h1 className="text-xl font-semibold tracking-tight text-foreground flex items-center gap-3">
+                        <h1 className="text-xl font-semibold text-foreground flex items-center gap-3">
                             <PenTool size={20} className="text-primary" />
-                            Content Management
+                            Content Matrix
                         </h1>
-                        <p className="text-sm text-muted-foreground mt-1">
-                            Create and manage articles for the GrowthSpire ecosystem
+                        <p className="text-sm text-muted-foreground mt-1 font-medium opacity-70">
+                            Coordinate ecosystem updates and thought leadership
                         </p>
                     </div>
-                    <Button
+                    <Button 
                         onClick={() => { resetForm(); setIsAddOpen(true); }}
-                        className="admin-button-primary"
+                        className="admin-button-primary h-10 px-6"
                     >
-                        <Plus size={16} /> <span>Write New</span>
+                        <Plus size={16} />
+                        <span>Create Post</span>
                     </Button>
-                </div>
+                </motion.div>
 
-                {/* Filter Bar */}
-                <div className="flex gap-2 bg-card border border-border p-4 rounded-xl shadow-sm">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
+                {/* Filters Search Matrix */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                        <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search by title or tags..."
-                            className="w-full bg-background h-10 pl-9 pr-4 text-sm rounded-lg focus-visible:ring-primary focus-visible:border-primary border border-border"
+                            placeholder="OPERATIONAL SEARCH..."
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Table Layout */}
-                <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden mt-6">
-                    {loading ? (
-                        <div className="space-y-4 p-4">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                                <div key={i} className="flex justify-between items-center gap-6">
-                                    <div className="flex items-center gap-3 flex-1">
-                                        <Skeleton className="h-10 w-16" />
-                                        <Skeleton className="h-4 w-48" />
-                                    </div>
-                                    <Skeleton className="h-4 w-24" />
-                                    <Skeleton className="h-4 w-16" />
-                                    <Skeleton className="h-8 w-16" />
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-muted/30 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                    <th className="py-3 px-6">Article</th>
-                                    <th className="py-3 px-6">Details</th>
-                                    <th className="py-3 px-6">Status</th>
-                                    <th className="py-3 px-6">Date</th>
-                                    <th className="py-3 px-6 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-border">
-                                {filteredBlogs.length > 0 ? filteredBlogs.map((blog) => (
-                                    <tr key={blog.id} className="group hover:bg-muted/20 transition-colors">
-                                        <td className="py-4 px-6">
+                {/* Narrative Table Repository */}
+                <motion.div variants={itemVariants} className="admin-table-container">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Strategic Narrative (Post)</th>
+                                <th>Authorship</th>
+                                <th>Metrics (Read Time)</th>
+                                <th>Status</th>
+                                <th className="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                Array.from({ length: 4 }).map((_, i) => (
+                                    <tr key={i}><td colSpan={5} className="p-0"><Skeleton className="h-16 w-full" /></td></tr>
+                                ))
+                            ) : filteredBlogs.length > 0 ? (
+                                filteredBlogs.map((blog) => (
+                                    <tr key={blog.id} className="group transition-all">
+                                        <td>
                                             <div className="flex items-center gap-3">
-                                                <div className="h-10 w-16 bg-muted border border-border flex items-center justify-center shrink-0 overflow-hidden rounded-md">
+                                                <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center border border-border shrink-0 overflow-hidden">
                                                     {blog.image_url ? (
-                                                        <img src={blog.image_url} alt="" className="w-full h-full object-cover transition-all" />
-                                                    ) : (
-                                                        <ImageIcon size={18} className="text-muted-foreground/40" />
-                                                    )}
+                                                        <img src={blog.image_url} alt="" className="h-full w-full object-cover" />
+                                                    ) : <FileText size={18} className="text-muted-foreground opacity-30" />}
                                                 </div>
-                                                <div>
-                                                    <span className="text-sm font-semibold text-foreground block leading-tight">
-                                                        {blog.title}
-                                                    </span>
-                                                    <span className="text-xs text-muted-foreground">
-                                                        By {blog.author_name}
-                                                    </span>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="font-bold text-sm text-foreground group-hover:text-primary transition-colors truncate">{blog.title}</div>
+                                                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{blog.category}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="py-4 px-6">
-                                            <span className="text-sm text-foreground">
-                                                {blog.category}
-                                            </span>
-                                            <p className="text-xs text-muted-foreground mt-0.5">{blog.read_time}</p>
+                                        <td className="text-xs font-semibold uppercase tracking-wider text-muted-foreground opacity-80">{blog.author_name}</td>
+                                        <td className="text-[11px] tabular-nums font-medium text-muted-foreground">{blog.read_time}</td>
+                                        <td>
+                                            {blog.featured ? <span className="text-[9px] font-bold px-2 py-0.5 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full">FEATURED</span> : <span className="text-[9px] font-bold px-2 py-0.5 bg-muted text-muted-foreground border border-border rounded-full">STANDARD</span>}
                                         </td>
-                                        <td className="py-4 px-6">
-                                            <span className={cn(
-                                                "text-[10px] font-bold px-2 py-0.5 uppercase tracking-tighter border flex items-center gap-1 w-fit",
-                                                blog.image_url ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
-                                            )}>
-                                                {blog.image_url ? <CheckCircle size={14} /> : <Clock size={14} />}
-                                                {blog.image_url ? "Published" : "Draft"}
-                                            </span>
-                                        </td>
-                                        <td className="py-4 px-6 text-sm text-muted-foreground whitespace-nowrap">
-                                            {new Date(blog.created_at).toLocaleDateString()}
-                                        </td>
-                                        <td className="py-4 px-6 text-right">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <Button
-                                                    variant="ghost" size="sm"
+                                        <td className="text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-primary/5"
                                                     onClick={() => openEdit(blog)}
-                                                    className="h-8 w-8 p-0 rounded-full hover:bg-muted text-muted-foreground"
                                                 >
-                                                    <Edit2 size={16} />
+                                                    <Edit2 size={14} />
                                                 </Button>
-                                                <Button
-                                                    variant="ghost" size="sm"
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
                                                     onClick={() => { setSelectedBlog(blog); setIsDeleteOpen(true); }}
-                                                    className="h-8 w-8 p-0 rounded-full hover:bg-destructive/10 hover:text-destructive text-muted-foreground"
                                                 >
-                                                    <Trash2 size={16} />
+                                                    <Trash2 size={14} />
                                                 </Button>
                                             </div>
                                         </td>
                                     </tr>
-                                )) : (
-                                    <tr><td colSpan={5} className="py-20 text-center text-sm text-muted-foreground">No matching articles found.</td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-24 text-muted-foreground italic text-sm italic">No blog repository entries found</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </motion.div>
 
-                {/* Form Modals */}
+                {/* Narrative Form Component */}
                 <Modal
                     isOpen={isAddOpen || isEditOpen}
                     onClose={() => { setIsAddOpen(false); setIsEditOpen(false); }}
-                    title={isEditOpen ? "Update Article" : "Write Article"}
-                    description={isEditOpen ? `Editing metadata and content for "${formData.title}"` : "Draft a new educational piece for the startup community"}
-                    confirmText={isEditOpen ? "Save Changes" : "Publish Now"}
-                    onConfirm={isEditOpen ? handleUpdateBlog : handleCreateBlog}
-                    maxWidth="max-w-2xl"
+                    title={isEditOpen ? "Refine Post" : "Draft New Narrative"}
+                    description={isEditOpen ? "Modify existing ecosystem thought leadership" : "Initialize a new post for the platform"}
+                    footer={
+                        <div className="flex gap-3 w-full">
+                            <Button variant="outline" className="flex-1 font-bold text-[10px] uppercase tracking-widest h-10" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>Cancel</Button>
+                            <Button className="flex-1 admin-button-primary h-10" onClick={isEditOpen ? handleUpdateBlog : handleCreateBlog}>
+                                {isEditOpen ? "Update Publication" : "Publish Entry"}
+                            </Button>
+                        </div>
+                    }
                 >
-                    <div className="space-y-6 pt-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label>Article Title</Label>
-                                <Input 
-                                    placeholder="e.g. The Future of Fintech" 
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({...formData, title: e.target.value})}
-                                    className="rounded-lg border-border"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Category</Label>
-                                <select 
-                                    className="w-full h-10 rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                                    value={formData.category}
-                                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                                >
-                                    <option value="">Select Category</option>
-                                    <option value="Fundraising">Fundraising</option>
-                                    <option value="Product">Product</option>
-                                    <option value="Growth">Growth</option>
-                                    <option value="Team">Team</option>
-                                    <option value="Strategy">Strategy</option>
-                                </select>
-                            </div>
+                    <div className="grid grid-cols-2 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar p-1">
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="admin-label">Post Title</label>
+                            <input className="admin-input" placeholder="e.g. Scaling Startup Operations in 2026" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} />
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label>Author Name</Label>
-                                <Input 
-                                    placeholder="e.g. Jane Doe" 
-                                    value={formData.author_name}
-                                    onChange={(e) => setFormData({...formData, author_name: e.target.value})}
-                                    className="rounded-lg border-border"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Image URL</Label>
-                                <Input 
-                                    placeholder="https://image.url/post.jpg" 
-                                    value={formData.image_url}
-                                    onChange={(e) => setFormData({...formData, image_url: e.target.value})}
-                                    className="rounded-lg border-border"
-                                />
-                            </div>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Core Category</label>
+                            <input className="admin-input" placeholder="e.g. Insights" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })} />
                         </div>
-
-                        <div className="space-y-2">
-                            <Label>Excerpt / Short Description</Label>
-                            <textarea 
-                                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-20 resize-y" 
-                                placeholder="Brief summary for the preview..." 
-                                value={formData.excerpt}
-                                onChange={(e) => setFormData({...formData, excerpt: e.target.value})}
-                            />
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Asset (Cover URL)</label>
+                            <input className="admin-input tabular-nums" placeholder="https://cdn..." value={formData.image_url} onChange={e => setFormData({ ...formData, image_url: e.target.value })} />
                         </div>
-
-                        <div className="space-y-2">
-                            <Label>Full Article Content (Markdown/Text)</Label>
-                            <textarea 
-                                className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent h-40 resize-y" 
-                                placeholder="Write your masterpiece here..." 
-                                value={formData.content}
-                                onChange={(e) => setFormData({...formData, content: e.target.value})}
-                            />
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Author Identity</label>
+                            <input className="admin-input" placeholder="e.g. GS Editorial" value={formData.author_name} onChange={e => setFormData({ ...formData, author_name: e.target.value })} />
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Consumption Time</label>
+                            <input className="admin-input" placeholder="e.g. 5 min read" value={formData.read_time} onChange={e => setFormData({ ...formData, read_time: e.target.value })} />
+                        </div>
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="admin-label">Strategic Overview (Excerpt)</label>
+                            <textarea className="admin-input h-20 resize-none py-3" placeholder="Brief summary for indexing..." value={formData.excerpt} onChange={e => setFormData({ ...formData, excerpt: e.target.value })} />
+                        </div>
+                        <div className="col-span-2 space-y-1.5">
+                            <label className="admin-label">Primary Narrative (Content)</label>
+                            <textarea className="admin-input h-48 resize-none py-3" placeholder="Full post content in markdown/HTML..." value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })} />
+                        </div>
+                        <div className="col-span-2 flex items-center gap-3 p-4 bg-muted/30 border border-border rounded-lg">
+                            <input type="checkbox" id="is_featured_blog" checked={formData.featured === 1} onChange={e => setFormData({...formData, featured: e.target.checked ? 1 : 0})} />
+                            <label htmlFor="is_featured_blog" className="text-xs font-bold uppercase tracking-wider cursor-pointer">Feature on platform overview</label>
                         </div>
                     </div>
                 </Modal>
 
+                {/* Delete Confirmation */}
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
-                    title="Remove Article"
-                    description={`Are you absolutely sure you want to delete "${selectedBlog?.title}"? This is irreversible.`}
+                    title="DELETE NARRATIVE"
+                    description={`Permanently remove "${selectedBlog?.title}"? This cannot be undone.`}
                     type="danger"
-                    confirmText="Delete Irreversibly"
+                    confirmText="Delete Record"
                     onConfirm={handleDeleteBlog}
                 />
-            </div>
+            </motion.div>
         </DashboardLayout>
     )
 }
