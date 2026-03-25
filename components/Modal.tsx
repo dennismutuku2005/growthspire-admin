@@ -96,7 +96,7 @@ export function Modal({
             />
 
             {/* Modal Content - Elegant Style */}
-            <div className={cn("relative bg-card border border-border rounded-xl w-full flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 fade-in duration-150 shadow-2xl", maxWidth)}>
+            <div className={cn("relative bg-neutral-50 dark:bg-[#0c0c0c] border border-border rounded-2xl w-full flex flex-col max-h-[90vh] overflow-hidden animate-in zoom-in-95 fade-in duration-150 shadow-2xl ring-1 ring-white/5", maxWidth)}>
                 <div className="p-6 overflow-y-auto">
                     <div className="flex items-start justify-between mb-6 shrink-0">
                         <div className={cn("w-10 h-10 rounded-full flex items-center justify-center shrink-0 border border-border", config.color, config.bg)}>
