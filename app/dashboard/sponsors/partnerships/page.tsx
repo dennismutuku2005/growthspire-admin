@@ -2,7 +2,7 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { Handshake, Download, ExternalLink, Search, Filter, Plus, Edit2, Trash2, MoreHorizontal, Loader2 } from "lucide-react"
+import { Handshake, Download, ExternalLink, Search, Filter, Plus, Edit2, Trash2, MoreHorizontal, Loader2, Calendar } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -16,6 +16,20 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion"
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+}
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+}
 
 export default function PartnershipsPage() {
     interface Partner {
@@ -71,7 +85,7 @@ export default function PartnershipsPage() {
             })
             const data = await res.json()
             if (data.success) {
-                toast.success("Partnership created")
+                toast.success("Partnership onboarded")
                 setIsAddOpen(false)
                 fetchPartnerships()
                 setFormData({ partner_name: "", partnership_type: "", agreement_date: "", status: "Active", benefits: "" })
@@ -91,7 +105,7 @@ export default function PartnershipsPage() {
             })
             const data = await res.json()
             if (data.success) {
-                toast.success("Partnership deleted successfully")
+                toast.success("Partnership record removed")
                 setIsDeleteOpen(false)
                 fetchPartnerships()
             }
@@ -100,174 +114,181 @@ export default function PartnershipsPage() {
         }
     }
 
-    const filteredPartnerships = partnerships.filter(p => 
-        p.partner_name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        p.partnership_type.toLowerCase().includes(searchQuery.toLowerCase())
+    const filteredPartners = partnerships.filter(p => 
+        p.partner_name.toLowerCase().includes(searchQuery.toLowerCase())
     )
 
     return (
         <DashboardLayout>
-            <div className="space-y-6 animate-in fade-in duration-500 pb-10">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+            <motion.div 
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-8 pb-10"
+            >
+                {/* Header Title Grid */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6 font-sans">
                     <div>
-                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
-                            <Handshake className="text-primary" size={20} />
-                            Partnerships & MoUs
+                        <h1 className="text-xl font-semibold text-foreground flex items-center gap-3">
+                            <Handshake size={20} className="text-primary" />
+                            Administrative Partnerships
                         </h1>
-                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
-                            Formalize and monitor ecosystem strategic collaborations
+                        <p className="text-sm text-muted-foreground mt-1 font-medium opacity-70">
+                            Coordinate strategic alliances and verified ecosystem benefits
                         </p>
                     </div>
-                    <Button
+                    <Button 
                         onClick={() => setIsAddOpen(true)}
-                        className="admin-button-primary"
+                        className="admin-button-primary h-10 px-6"
                     >
-                        <Plus size={16} /> <span>New Agreement</span>
+                        <Plus size={16} />
+                        <span>Initialize Partnership</span>
                     </Button>
-                </div>
+                </motion.div>
 
-                {/* Filter Bar */}
-                <div className="flex flex-col md:flex-row gap-3 bg-card p-4 border border-border rounded-xl">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
+                {/* Filters Row Component */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                        <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="SEARCH PARTNERSHIPS..."
-                            className="bg-card pl-9 h-10 rounded-lg border-border focus:ring-primary focus:border-primary text-sm uppercase font-bold tracking-widest text-[11px]"
+                            placeholder="OPERATIONAL SEARCH..."
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Table Layout */}
-                <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-                    {loading ? (
-                        <div className="p-4 space-y-4">
-                            {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-12 w-full" />)}
-                        </div>
-                    ) : (
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-muted/30 border-b border-border text-xs font-black text-muted-foreground uppercase tracking-wider">
-                                    <th className="py-4 px-6">Partner Organization</th>
-                                    <th className="py-4 px-6">Type</th>
-                                    <th className="py-4 px-6">Key Benefits</th>
-                                    <th className="py-4 px-6">Date</th>
-                                    <th className="py-4 px-6">Status</th>
-                                    <th className="py-4 px-6 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredPartnerships.length > 0 ? filteredPartnerships.map((p) => (
-                                    <tr key={p.id} className="hover:bg-muted/20 transition-colors border-b border-border last:border-0 group">
-                                        <td className="py-4 px-6">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/20">
-                                                    <Handshake size={14} />
+                {/* Alliances Table Asset */}
+                <motion.div variants={itemVariants} className="admin-table-container">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Identification (Entity)</th>
+                                <th>Strategic Type</th>
+                                <th>Temporal Bound (Date)</th>
+                                <th>Status</th>
+                                <th className="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <tr key={i}><td colSpan={5} className="p-0"><Skeleton className="h-16 w-full" /></td></tr>
+                                ))
+                            ) : filteredPartners.length > 0 ? (
+                                filteredPartners.map((partner) => (
+                                    <tr key={partner.id} className="group">
+                                        <td>
+                                            <div className="flex items-center gap-3 font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                                                <div className="h-8 w-8 rounded bg-primary/5 flex items-center justify-center border border-primary/10">
+                                                    <Handshake size={14} className="text-primary" />
                                                 </div>
-                                                <span className="text-[12px] font-bold text-foreground uppercase tracking-tight">
-                                                    {p.partner_name}
-                                                </span>
+                                                {partner.partner_name}
                                             </div>
                                         </td>
-                                        <td className="py-4 px-6">
-                                            <span className="text-[11px] font-bold text-muted-foreground uppercase">
-                                                {p.partnership_type}
-                                            </span>
+                                        <td className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-70">{partner.partnership_type}</td>
+                                        <td>
+                                            <div className="text-[11px] font-medium text-foreground flex items-center gap-1.5 opacity-80">
+                                                <Calendar size={12} className="text-muted-foreground" />
+                                                {new Date(partner.agreement_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </div>
                                         </td>
-                                        <td className="py-4 px-6 text-[11px] font-medium text-muted-foreground">
-                                            {p.benefits || "N/A"}
-                                        </td>
-                                        <td className="py-4 px-6 text-[11px] font-bold text-muted-foreground uppercase">
-                                            {p.agreement_date}
-                                        </td>
-                                        <td className="py-4 px-6">
+                                        <td>
                                             <span className={cn(
-                                                "text-[9px] font-black px-2 py-0.5 border uppercase tracking-tighter",
-                                                p.status === "Active" ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" :
-                                                    "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                                                "text-[10px] font-bold px-2 py-1 rounded-full border",
+                                                partner.status === 'Active' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
                                             )}>
-                                                {p.status}
+                                                {partner.status.toUpperCase()}
                                             </span>
                                         </td>
-                                        <td className="py-4 px-6 text-right">
-                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <Button variant="ghost" className="h-8 w-8 p-0 hover:text-destructive" onClick={() => { setSelectedPartner(p); setIsDeleteOpen(true); }}>
+                                        <td className="text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-primary hover:bg-primary/5"
+                                                    onClick={() => { setSelectedPartner(partner); setIsEditOpen(true); }}
+                                                >
+                                                    <Edit2 size={14} />
+                                                </Button>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                                                    onClick={() => { setSelectedPartner(partner); setIsDeleteOpen(true); }}
+                                                >
                                                     <Trash2 size={14} />
                                                 </Button>
                                             </div>
                                         </td>
                                     </tr>
-                                )) : (
-                                    <tr><td colSpan={6} className="py-20 text-center text-[11px] font-bold text-muted-foreground uppercase opacity-40">No records discovered</td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={5} className="text-center py-24 text-muted-foreground italic text-sm">No active alliances in core repository</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </motion.div>
 
-                {/* Add Partner Modal */}
+                {/* Creation/Edit Form Asset */}
                 <Modal
-                    isOpen={isAddOpen}
-                    onClose={() => setIsAddOpen(false)}
-                    title="New Strategic Partner"
-                    description="Enter partnership details and agreement terms."
-                    confirmText="Create Agreement"
-                    onConfirm={handleCreate}
+                    isOpen={isAddOpen || isEditOpen}
+                    onClose={() => { setIsAddOpen(false); setIsEditOpen(false); }}
+                    title={isEditOpen ? "Update Alliance" : "Onboard Partnership"}
+                    description={isEditOpen ? "Update strategic partnership parameters" : "Initialize a new agreement with an ecosystem entity"}
+                    footer={
+                        <div className="flex gap-3 w-full">
+                            <Button variant="outline" className="flex-1 font-bold text-[10px] uppercase tracking-widest h-10" onClick={() => { setIsAddOpen(false); setIsEditOpen(false); }}>Cancel</Button>
+                            <Button className="flex-1 admin-button-primary h-10" onClick={handleCreate}>
+                                {isEditOpen ? "Finalize Entry" : "Onboard Alliance"}
+                            </Button>
+                        </div>
+                    }
                 >
-                <div className="space-y-6 pt-4">
-                        <div className="space-y-2">
-                            <Label className="text-[10px] uppercase font-black tracking-widest opacity-60">Organization Name</Label>
-                            <Input 
-                                value={formData.partner_name}
-                                onChange={(e) => setFormData({...formData, partner_name: e.target.value})}
-                                className="bg-card border-border uppercase font-bold text-[12px] h-12" 
-                                placeholder="E.G. MICROSOFT FOR STARTUPS" 
-                            />
+                    <div className="space-y-5 p-1">
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Partner Entity Name</label>
+                            <input className="admin-input" placeholder="e.g. AWS Startup Program" value={formData.partner_name} onChange={e => setFormData({ ...formData, partner_name: e.target.value })} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-[10px] uppercase font-black tracking-widest opacity-60">Partnership Type</Label>
-                                <Input 
-                                    value={formData.partnership_type}
-                                    onChange={(e) => setFormData({...formData, partnership_type: e.target.value})}
-                                    className="bg-card border-border uppercase font-bold text-[12px] h-12" 
-                                    placeholder="STRATEGIC" 
-                                />
+                            <div className="space-y-1.5">
+                                <label className="admin-label">Alliance Category</label>
+                                <input className="admin-input" placeholder="e.g. Technology" value={formData.partnership_type} onChange={e => setFormData({ ...formData, partnership_type: e.target.value })} />
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-[10px] uppercase font-black tracking-widest opacity-60">Agreement Date</Label>
-                                <Input 
-                                    type="date" 
-                                    value={formData.agreement_date}
-                                    onChange={(e) => setFormData({...formData, agreement_date: e.target.value})}
-                                    className="bg-card border-border uppercase font-bold text-[12px] h-12" 
-                                />
+                            <div className="space-y-1.5">
+                                <label className="admin-label">Temporal Bound (Date)</label>
+                                <input type="date" className="admin-input" value={formData.agreement_date} onChange={e => setFormData({ ...formData, agreement_date: e.target.value })} />
                             </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label className="text-[10px] uppercase font-black tracking-widest opacity-60">Key Benefits</Label>
-                            <Input 
-                                value={formData.benefits}
-                                onChange={(e) => setFormData({...formData, benefits: e.target.value})}
-                                className="bg-card border-border uppercase font-bold text-[12px] h-12" 
-                                placeholder="E.G. CLOUD CREDITS, MENTORSHIP" 
-                            />
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Strategic Status</label>
+                            <select className="admin-input" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
+                                <option value="Active">Active</option>
+                                <option value="Expired">Expired</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Ecosystem Benefits (Overview)</label>
+                            <textarea className="admin-input h-24 resize-none py-3" placeholder="Core value proposition of the partnership..." value={formData.benefits} onChange={e => setFormData({ ...formData, benefits: e.target.value })} />
                         </div>
                     </div>
                 </Modal>
 
+                {/* Delete Confirmation Asset */}
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
                     title="DELETE PARTNERSHIP"
-                    description={`Permanently remove ${selectedPartner?.partner_name} from the ecosystem database?`}
+                    description={`Permanently remove administrative records for ${selectedPartner?.partner_name}?`}
                     type="danger"
-                    confirmText="Delete Irreversibly"
+                    confirmText="Delete Record"
                     onConfirm={handleDelete}
                 />
-            </div>
+            </motion.div>
         </DashboardLayout>
     )
 }
