@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { toast } from "sonner"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface Sponsor {
     id: string | number;
@@ -151,7 +152,7 @@ export default function SponsorsPage() {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Search partners by name..."
-                            className="w-full bg-white h-10 pl-10 pr-4 text-sm outline-none focus:border-foreground border border-border/50 rounded-lg"
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-black uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
                 </div>
@@ -159,13 +160,14 @@ export default function SponsorsPage() {
                 {/* Grid Layout for Sponsors */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {loading ? (
-                        <div className="col-span-full py-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                        Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-64 w-full rounded-xl" />)
                     ) : filteredSponsors.length > 0 ? (
                         filteredSponsors.map((sponsor) => (
                             <div key={sponsor.id} className="admin-card group hover:border-foreground transition-all flex flex-col h-full bg-card">
-                                <div className="h-32 bg-muted border-b border-border flex items-center justify-center p-6 bg-white shrink-0">
+                                <div className="h-32 bg-muted border-b border-border flex items-center justify-center p-6 shrink-0 relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-primary/5"></div>
                                     {sponsor.logo_url ? (
-                                        <img src={sponsor.logo_url} alt="" className="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300" />
+                                        <img src={sponsor.logo_url} alt="" className="max-w-full max-h-full object-contain grayscale group-hover:grayscale-0 transition-all duration-300 relative z-10" />
                                     ) : (
                                         <Building size={32} className="text-muted-foreground/20" />
                                     )}
