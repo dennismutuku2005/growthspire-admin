@@ -9,6 +9,7 @@ import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function BlogsPage() {
     const [blogs, setBlogs] = useState<any[]>([])
@@ -158,9 +159,9 @@ export default function BlogsPage() {
                     </div>
                     <Button
                         onClick={() => { resetForm(); setIsAddOpen(true); }}
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-4 rounded-lg shadow-sm"
+                        className="admin-button-primary"
                     >
-                        <Plus size={16} className="mr-2" /> <span>Write New</span>
+                        <Plus size={16} /> <span>Write New</span>
                     </Button>
                 </div>
 
@@ -180,7 +181,19 @@ export default function BlogsPage() {
                 {/* Table Layout */}
                 <div className="bg-card border border-border rounded-xl shadow-sm overflow-hidden mt-6">
                     {loading ? (
-                        <div className="p-20 flex justify-center"><Loader2 className="animate-spin h-6 w-6 text-muted-foreground" /></div>
+                        <div className="space-y-4 p-4">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <div key={i} className="flex justify-between items-center gap-6">
+                                    <div className="flex items-center gap-3 flex-1">
+                                        <Skeleton className="h-10 w-16" />
+                                        <Skeleton className="h-4 w-48" />
+                                    </div>
+                                    <Skeleton className="h-4 w-24" />
+                                    <Skeleton className="h-4 w-16" />
+                                    <Skeleton className="h-8 w-16" />
+                                </div>
+                            ))}
+                        </div>
                     ) : (
                         <table className="w-full text-left">
                             <thead>
@@ -222,11 +235,11 @@ export default function BlogsPage() {
                                         </td>
                                         <td className="py-4 px-6">
                                             <span className={cn(
-                                                "text-xs font-medium px-2.5 py-1 rounded-md inline-block border flex items-center gap-1 w-fit",
-                                                blog.image_url ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-muted text-muted-foreground border-border"
+                                                "text-[10px] font-bold px-2 py-0.5 uppercase tracking-tighter border flex items-center gap-1 w-fit",
+                                                blog.image_url ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-muted text-muted-foreground border-border"
                                             )}>
                                                 {blog.image_url ? <CheckCircle size={14} /> : <Clock size={14} />}
-                                                {blog.image_url ? "Live" : "Draft"}
+                                                {blog.image_url ? "Published" : "Draft"}
                                             </span>
                                         </td>
                                         <td className="py-4 px-6 text-sm text-muted-foreground whitespace-nowrap">
