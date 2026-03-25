@@ -173,8 +173,8 @@ export default function UpcomingEventsPage() {
                         <input
                             value={searchQuery}
                             onChange={e => setSearchQuery(e.target.value)}
-                            placeholder="Search upcoming events by title or location..."
-                            className="w-full bg-white h-10 pl-10 pr-4 text-sm outline-none focus:border-foreground border border-border/50 rounded-lg"
+                            placeholder="SEARCH UPCOMING PIPELINE..."
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-black uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
                 </div>
