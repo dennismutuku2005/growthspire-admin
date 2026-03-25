@@ -2,7 +2,7 @@
 
 import { DashboardLayout } from "@/components/dashboard-layout"
 import { Button } from "@/components/ui/button"
-import { DollarSign, Search, Filter, MoreHorizontal, PieChart, ArrowUpRight, Plus, Trash2, Loader2 } from "lucide-react"
+import { DollarSign, Search, Filter, MoreHorizontal, PieChart, ArrowUpRight, Plus, Trash2, Loader2, Calendar, TrendingUp } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { useState, useEffect } from "react"
@@ -10,6 +10,20 @@ import { Modal } from "@/components/Modal"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion"
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+}
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+}
 
 export default function SponsorshipFundingPage() {
     const [funding, setFunding] = useState<any[]>([])
@@ -93,193 +107,184 @@ export default function SponsorshipFundingPage() {
 
     return (
         <DashboardLayout>
-            <div className="space-y-8 animate-in fade-in duration-500 pb-10">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+            <motion.div 
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-8 pb-10"
+            >
+                {/* Header Metrics Summary */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6 font-sans">
                     <div>
-                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
-                            <DollarSign className="text-primary" size={20} />
-                            Funding Ledger
+                        <h1 className="text-xl font-semibold text-foreground flex items-center gap-3">
+                            <DollarSign size={20} className="text-primary" />
+                            Funding Repository
                         </h1>
-                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
-                            Track financial contributions and grant compliance
+                        <p className="text-sm text-muted-foreground mt-1 font-medium opacity-70">
+                            Monitor and manage ecosystem sponsorship capital
                         </p>
                     </div>
-                    <Button onClick={() => setIsAddOpen(true)} className="admin-button-primary">
-                        <Plus size={16} /> <span>Add Record</span>
-                    </Button>
-                </div>
-
-                {/* Summary Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-card border border-border p-6 rounded-xl border-l-4 border-l-emerald-500">
-                        <div className="flex justify-between items-start">
-                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Total Capital Secured</p>
-                            <ArrowUpRight size={16} className="text-emerald-500" />
+                    <div className="flex items-center gap-3">
+                        <div className="px-4 py-2 bg-primary/5 border border-primary/20 rounded-lg text-right hidden md:block">
+                            <div className="text-[10px] font-bold uppercase tracking-widest text-primary opacity-60">Cumulative Funding</div>
+                            <div className="text-sm font-black tabular-nums text-primary">${totalFunding.toLocaleString()}</div>
                         </div>
-                        <p className="text-2xl font-black text-foreground mt-1">${totalFunding.toLocaleString()}</p>
+                        <Button 
+                            onClick={() => setIsAddOpen(true)}
+                            className="admin-button-primary h-10 px-6"
+                        >
+                            <Plus size={16} />
+                            <span>Log Inbound Capital</span>
+                        </Button>
                     </div>
-                    <div className="bg-card border border-border p-6 rounded-xl border-l-4 border-l-amber-500">
-                        <div className="flex justify-between items-start">
-                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Active Stakeholders</p>
-                            <PieChart size={16} className="text-amber-500" />
-                        </div>
-                        <p className="text-2xl font-black text-foreground mt-1">{new Set(funding.map(f => f.source_name)).size}</p>
-                    </div>
-                </div>
+                </motion.div>
 
-                {/* Search */}
-                <div className="bg-card p-4 border border-border rounded-xl">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
+                {/* Filters & Total Metric (Mobile) */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground opacity-50" />
+                        <input
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="SEARCH TRANSACTIONS..."
-                            className="bg-card pl-9 h-12 uppercase font-black text-[11px] tracking-widest"
+                            placeholder="OPERATIONAL SEARCH..."
+                            className="w-full bg-card h-12 pl-10 pr-4 text-[11px] font-bold uppercase tracking-widest outline-none focus:border-primary border border-border/50 rounded-lg"
                         />
                     </div>
-                </div>
+                    <div className="md:hidden w-full p-4 bg-primary/5 border border-primary/20 rounded-lg flex justify-between items-center">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-primary opacity-60">Total Portfolio Funding</span>
+                        <span className="text-sm font-black tabular-nums text-primary">${totalFunding.toLocaleString()}</span>
+                    </div>
+                </motion.div>
 
-                {/* Table */}
-                <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-                    {loading ? (
-                        <div className="p-4 space-y-4">
-                            {[1, 2, 3, 4, 5].map((i) => <Skeleton key={i} className="h-12 w-full" />)}
-                        </div>
-                    ) : (
-                        <table className="w-full text-left">
-                            <thead>
-                                <tr className="bg-muted/30 border-b border-border text-xs font-black text-muted-foreground uppercase tracking-wider">
-                                    <th className="py-4 px-6">Funding Source</th>
-                                    <th className="py-4 px-6">Amount</th>
-                                    <th className="py-4 px-6">Date</th>
-                                    <th className="py-4 px-6">Method</th>
-                                    <th className="py-4 px-6">Status</th>
-                                    <th className="py-4 px-6 text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredFunding.length > 0 ? filteredFunding.map((f) => (
-                                    <tr key={f.id} className="hover:bg-muted/20 transition-colors border-b border-border last:border-0 group">
-                                        <td className="py-4 px-6">
-                                            <span className="text-[12px] font-bold text-foreground uppercase tracking-tight">
-                                                {f.source_name}
-                                            </span>
+                {/* Capital Flow Table */}
+                <motion.div variants={itemVariants} className="admin-table-container">
+                    <table className="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Funding Entity</th>
+                                <th>Net Amount</th>
+                                <th>Temporal (Date)</th>
+                                <th>Methodology</th>
+                                <th>Status</th>
+                                <th className="text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                Array.from({ length: 5 }).map((_, i) => (
+                                    <tr key={i}><td colSpan={6} className="p-0"><Skeleton className="h-16 w-full" /></td></tr>
+                                ))
+                            ) : filteredFunding.length > 0 ? (
+                                filteredFunding.map((item) => (
+                                    <tr key={item.id} className="group">
+                                        <td>
+                                            <div className="flex items-center gap-3 font-bold text-sm text-foreground group-hover:text-primary transition-colors">
+                                                <div className="h-8 w-8 rounded bg-primary/5 flex items-center justify-center border border-primary/10">
+                                                    <TrendingUp size={14} className="text-primary" />
+                                                </div>
+                                                {item.source_name}
+                                            </div>
                                         </td>
-                                        <td className="py-4 px-6">
-                                            <span className="text-[12px] font-black text-emerald-600">
-                                                ${parseFloat(f.amount).toLocaleString()}
-                                            </span>
+                                        <td className="text-sm font-black tabular-nums text-foreground opacity-90">${parseFloat(item.amount).toLocaleString()}</td>
+                                        <td>
+                                            <div className="text-[11px] font-medium text-foreground flex items-center gap-1.5 opacity-80">
+                                                <Calendar size={12} className="text-muted-foreground" />
+                                                {new Date(item.funding_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                                            </div>
                                         </td>
-                                        <td className="py-4 px-6 text-[11px] font-bold text-muted-foreground uppercase">
-                                            {f.funding_date}
+                                        <td className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground opacity-70">{item.method}</td>
+                                        <td>
+                                                <span className={cn(
+                                                    "text-[10px] font-bold px-2 py-1 rounded-full border",
+                                                    item.status === 'Received' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"
+                                                )}>
+                                                    {item.status.toUpperCase()}
+                                                </span>
                                         </td>
-                                        <td className="py-4 px-6 text-[11px] font-bold text-muted-foreground uppercase">
-                                            {f.method}
-                                        </td>
-                                        <td className="py-4 px-6">
-                                            <span className={cn(
-                                                "text-[9px] font-black px-2 py-0.5 border uppercase tracking-tighter",
-                                                f.status === 'Received' ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"
-                                            )}>
-                                                {f.status}
-                                            </span>
-                                        </td>
-                                        <td className="py-4 px-6 text-right">
-                                            <Button variant="ghost" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 hover:text-destructive" onClick={() => { setSelectedFunding(f); setIsDeleteOpen(true); }}>
+                                        <td className="text-right">
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
+                                                onClick={() => { setSelectedFunding(item); setIsDeleteOpen(true); }}
+                                            >
                                                 <Trash2 size={14} />
                                             </Button>
                                         </td>
                                     </tr>
-                                )) : (
-                                    <tr><td colSpan={6} className="py-20 text-center text-[11px] font-bold text-muted-foreground uppercase opacity-40">No transactions recovered</td></tr>
-                                )}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={6} className="text-center py-24 text-muted-foreground italic text-sm">No inbound capital records discovered</td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </motion.div>
 
-                {/* Add Modal */}
+                {/* Capital Logging Modal */}
                 <Modal
                     isOpen={isAddOpen}
                     onClose={() => setIsAddOpen(false)}
-                    title="NEW FUNDING RECORD"
-                    description="Enter capital injection details for the treasury."
-                    confirmText="Save Record"
-                    onConfirm={handleCreate}
+                    title="Log Inbound Capital"
+                    description="Initialize a new records for sponsorship funding received"
+                    footer={
+                        <div className="flex gap-3 w-full">
+                            <Button variant="outline" className="flex-1 font-bold text-[10px] uppercase tracking-widest h-10" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+                            <Button className="flex-1 admin-button-primary h-10" onClick={handleCreate}>
+                                Confirm Record
+                            </Button>
+                        </div>
+                    }
                 >
-                    <div className="space-y-6 pt-4">
-                        <div className="space-y-2">
-                            <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Source Name</Label>
-                            <Input 
-                                value={formData.source_name}
-                                onChange={(e) => setFormData({...formData, source_name: e.target.value})}
-                                className="bg-card border-border uppercase font-bold text-[12px] h-12" 
-                                placeholder="E.G. GLOBAL TECH VENTURES" 
-                            />
+                    <div className="space-y-4 p-1">
+                        <div className="space-y-1.5">
+                            <label className="admin-label">Funding Primary Entity</label>
+                            <input className="admin-input" placeholder="e.g. Mastercard Foundation" value={formData.source_name} onChange={e => setFormData({ ...formData, source_name: e.target.value })} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Amount ($)</Label>
-                                <Input 
-                                    type="number"
-                                    value={formData.amount}
-                                    onChange={(e) => setFormData({...formData, amount: e.target.value})}
-                                    className="bg-card border-border uppercase font-bold text-[12px] h-12" 
-                                    placeholder="250000" 
-                                />
+                            <div className="space-y-1.5">
+                                <label className="admin-label">Net Amount (USD)</label>
+                                <input type="number" className="admin-input tabular-nums" placeholder="00.00" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} />
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Funding Date</Label>
-                                <Input 
-                                    type="date" 
-                                    value={formData.funding_date}
-                                    onChange={(e) => setFormData({...formData, funding_date: e.target.value})}
-                                    className="bg-card border-border h-12" 
-                                />
+                            <div className="space-y-1.5">
+                                <label className="admin-label">Temporal (Date)</label>
+                                <input type="date" className="admin-input tabular-nums" value={formData.funding_date} onChange={e => setFormData({ ...formData, funding_date: e.target.value })} />
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Method</Label>
-                                <select 
-                                    className="w-full h-12 rounded-md border border-border bg-card px-3 py-2 text-[12px] font-bold uppercase focus:outline-none focus:ring-2 focus:ring-primary"
-                                    value={formData.method}
-                                    onChange={(e) => setFormData({...formData, method: e.target.value})}
-                                >
-                                    <option>Wire Transfer</option>
-                                    <option>Check</option>
-                                    <option>Grant</option>
-                                    <option>Equity</option>
+                            <div className="space-y-1.5">
+                                <label className="admin-label">Transfer Methodology</label>
+                                <select className="admin-input" value={formData.method} onChange={e => setFormData({ ...formData, method: e.target.value })}>
+                                    <option value="Wire Transfer">Wire Transfer</option>
+                                    <option value="Credit Card">Credit Card</option>
+                                    <option value="Crypto">Crypto (USDT)</option>
+                                    <option value="In-Kind">In-Kind</option>
                                 </select>
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest opacity-60">Status</Label>
-                                <select 
-                                    className="w-full h-12 rounded-md border border-border bg-card px-3 py-2 text-[12px] font-bold uppercase focus:outline-none focus:ring-2 focus:ring-primary"
-                                    value={formData.status}
-                                    onChange={(e) => setFormData({...formData, status: e.target.value})}
-                                >
-                                    <option>Received</option>
-                                    <option>Pending</option>
-                                    <option>Canceled</option>
+                            <div className="space-y-1.5">
+                                <label className="admin-label">Transaction Status</label>
+                                <select className="admin-input" value={formData.status} onChange={e => setFormData({ ...formData, status: e.target.value })}>
+                                    <option value="Received">Received</option>
+                                    <option value="Pending">Pending</option>
+                                    <option value="Failed">Failed</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                 </Modal>
 
+                {/* Delete Confirmation Component */}
                 <Modal
                     isOpen={isDeleteOpen}
                     onClose={() => setIsDeleteOpen(false)}
-                    title="DELETE RECORD"
-                    description={`Permanently expunge the record from ${selectedFunding?.source_name}?`}
+                    title="DELETE CAPITAL RECORD"
+                    description={`Permanently remove administrative records for funding from ${selectedFunding?.source_name}?`}
                     type="danger"
                     confirmText="Delete Record"
                     onConfirm={handleDelete}
                 />
-            </div>
+            </motion.div>
         </DashboardLayout>
     )
 }
