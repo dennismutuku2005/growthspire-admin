@@ -9,6 +9,20 @@ import { Shield, User, Mail, Lock, Settings as SettingsIcon, Save, Loader2, Badg
 import Cookies from "js-cookie"
 import { toast } from "sonner"
 import { Skeleton } from "@/components/ui/skeleton"
+import { motion } from "framer-motion"
+
+const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+        opacity: 1,
+        transition: { staggerChildren: 0.1 }
+    }
+}
+
+const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+}
 
 export default function SettingsPage() {
     const [userData, setUserData] = useState<any>(null)
@@ -56,149 +70,124 @@ export default function SettingsPage() {
 
     return (
         <DashboardLayout>
-            <div className="space-y-8 animate-in fade-in duration-500 pb-20 mt-4">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+            <motion.div 
+                initial="hidden"
+                animate="visible"
+                variants={containerVariants}
+                className="space-y-8 pb-20 mt-4"
+            >
+                {/* Header Configuration */}
+                <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6 font-sans">
                     <div>
-                        <h1 className="text-[18px] font-bold tracking-widest text-foreground uppercase flex items-center gap-3">
+                        <h1 className="text-xl font-semibold text-foreground flex items-center gap-3">
                             <SettingsIcon size={20} className="text-primary" />
                             System Configuration
                         </h1>
-                        <p className="text-[11px] text-muted-foreground font-bold uppercase tracking-widest mt-1 opacity-60">
+                        <p className="text-sm text-muted-foreground mt-1 font-medium opacity-70">
                             Manage your administrative profile and portal settings
                         </p>
                     </div>
-                    <Button onClick={handleSave} disabled={saving} className="admin-button-primary">
+                    <Button onClick={handleSave} disabled={saving} className="admin-button-primary h-10 px-6">
                         {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         <span>Save Changes</span>
                     </Button>
-                </div>
+                </motion.div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    {/* Profile Section */}
-                    <div className="lg:col-span-4 space-y-6">
-                        <div className="admin-card p-6 flex flex-col items-center text-center space-y-4 shadow-md border-primary/10">
-                            <div className="h-24 w-24 bg-primary flex items-center justify-center text-primary-foreground text-3xl font-black rounded-xl shadow-lg border-4 border-background">
+                    {/* Identity Profile Section */}
+                    <motion.div variants={itemVariants} className="lg:col-span-4 space-y-6">
+                        <div className="admin-card p-6 flex flex-col items-center text-center space-y-4 shadow-sm border-primary/10 transition-all hover:border-primary/20">
+                            <div className="h-24 w-24 bg-primary flex items-center justify-center text-primary-foreground text-3xl font-black rounded-2xl shadow-lg border-4 border-background">
                                 {userData?.name?.charAt(0).toUpperCase() || "A"}
                             </div>
                             <div>
-                                <h3 className="text-lg font-bold uppercase tracking-widest text-foreground">{userData?.name || "Admin User"}</h3>
-                                <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-tighter flex items-center justify-center gap-1">
+                                <h3 className="text-lg font-bold text-foreground">{userData?.name || "Admin User"}</h3>
+                                <p className="text-[11px] text-muted-foreground font-semibold uppercase tracking-wider flex items-center justify-center gap-1">
                                     <BadgeCheck size={12} className="text-primary" /> Verified System {userData?.role || "Administrator"}
                                 </p>
                             </div>
                             <div className="w-full pt-4 border-t border-border space-y-2">
-                                <div className="flex justify-between text-[11px] font-bold uppercase">
-                                    <span className="text-muted-foreground opacity-60">Status:</span>
-                                    <span className="text-emerald-600">Active</span>
+                                <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest">
+                                    <span className="text-muted-foreground opacity-50">Operational Status</span>
+                                    <span className="text-emerald-500">ACTIVE</span>
                                 </div>
-                                <div className="flex justify-between text-[11px] font-bold uppercase">
-                                    <span className="text-muted-foreground opacity-60">Last Access:</span>
-                                    <span>{new Date().toLocaleDateString()}</span>
+                                <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest">
+                                    <span className="text-muted-foreground opacity-50">Last Access</span>
+                                    <span className="tabular-nums">{new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="admin-card p-6 space-y-4">
-                            <h4 className="text-[11px] font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
-                                <Shield size={14} /> Security Status
+                        <div className="admin-card p-6 space-y-4 shadow-sm border-primary/10">
+                            <h4 className="text-xs font-bold uppercase tracking-widest text-foreground flex items-center gap-2">
+                                <Shield size={14} className="text-primary" /> Security Integrity
                             </h4>
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3 p-3 bg-muted/30 border border-border">
-                                    <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">Two-Factor Auth: Enabled</span>
-                                </div>
-                                <div className="flex items-center gap-3 p-3 bg-muted/30 border border-border">
-                                    <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest">Data Encryption: AES-256</span>
-                                </div>
+                            <div className="p-3 bg-blue-500/5 border border-blue-500/10 rounded-lg">
+                                <p className="text-[10px] text-blue-600 font-bold uppercase tracking-wider leading-relaxed">
+                                    Your account is currently secured with role-based access control (RBAC). 
+                                </p>
                             </div>
                         </div>
-                    </div>
+                    </motion.div>
 
-                    {/* Edit Form Section */}
-                    <div className="lg:col-span-8 space-y-8">
-                        <div className="admin-card h-full">
-                            <div className="p-4 border-b border-border bg-muted/10">
-                                <h3 className="text-[11px] font-black uppercase tracking-widest">Profile & Password</h3>
+                    {/* Operational Settings Section */}
+                    <motion.div variants={itemVariants} className="lg:col-span-8 space-y-8">
+                        <div className="space-y-6 bg-card border border-border rounded-xl p-8 shadow-sm">
+                            <div className="border-b border-border pb-4">
+                                <h3 className="text-sm font-bold uppercase tracking-widest text-foreground flex items-center gap-2">
+                                    <User size={16} className="text-primary" /> Personal Identity
+                                </h3>
                             </div>
-                            <div className="p-8 space-y-8">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <Label className="admin-label flex items-center gap-2">
-                                            <User size={12} className="opacity-40" /> Full Legal Name
-                                        </Label>
-                                        <Input 
-                                            defaultValue={userData?.name} 
-                                            className="admin-input" 
-                                            placeholder="E.G. DENNIS MUTUKU"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="admin-label flex items-center gap-2">
-                                            <Mail size={12} className="opacity-40" /> Administrative Email
-                                        </Label>
-                                        <Input 
-                                            defaultValue={userData?.email} 
-                                            className="admin-input" 
-                                            placeholder="ADMIN@GROWTHSPIRE.COM"
-                                        />
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="space-y-1.5">
+                                    <label className="admin-label">Full Name</label>
+                                    <div className="relative">
+                                        <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground opacity-40" />
+                                        <input className="admin-input pl-10" defaultValue={userData?.name || "Admin"} />
                                     </div>
                                 </div>
-
-                                <div className="space-y-4 pt-6 border-t border-border">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary">Password Management</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                        <div className="space-y-2">
-                                            <Label className="admin-label flex items-center gap-2">
-                                                <Lock size={12} className="opacity-40" /> New Password
-                                            </Label>
-                                            <Input 
-                                                type="password"
-                                                className="admin-input" 
-                                                placeholder="••••••••"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label className="admin-label flex items-center gap-2">
-                                                <Lock size={12} className="opacity-40" /> Confirm New Password
-                                            </Label>
-                                            <Input 
-                                                type="password"
-                                                className="admin-input" 
-                                                placeholder="••••••••"
-                                            />
-                                        </div>
+                                <div className="space-y-1.5">
+                                    <label className="admin-label">Administrative Role</label>
+                                    <div className="relative">
+                                        <Shield size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground opacity-40" />
+                                        <input className="admin-input pl-10 opacity-70 cursor-not-allowed" disabled value={userData?.role || "Super Admin"} />
                                     </div>
-                                    <p className="text-[10px] text-muted-foreground italic uppercase">Leave blank to maintain current secure credentials.</p>
                                 </div>
+                                <div className="col-span-2 space-y-1.5">
+                                    <label className="admin-label">Communication Access (Email)</label>
+                                    <div className="relative">
+                                        <Mail size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground opacity-40" />
+                                        <input className="admin-input pl-10" defaultValue={userData?.email || "admin@growthspire.com"} />
+                                    </div>
+                                </div>
+                            </div>
 
-                                <div className="space-y-4 pt-6 border-t border-border">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary">Portal Preferences</h4>
-                                    <div className="flex items-center gap-8">
-                                        <div className="flex items-center gap-2">
-                                            <input type="checkbox" id="email-notif" defaultChecked className="accent-primary h-4 w-4" />
-                                            <Label htmlFor="email-notif" className="text-[11px] font-bold uppercase tracking-widest cursor-pointer">Email Notifications</Label>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <input type="checkbox" id="dark-mode" defaultChecked className="accent-primary h-4 w-4" />
-                                            <Label htmlFor="dark-mode" className="text-[11px] font-bold uppercase tracking-widest cursor-pointer">Dark Mode Optimised</Label>
-                                        </div>
+                            <div className="pt-6 border-t border-border">
+                                <h3 className="text-sm font-bold uppercase tracking-widest text-foreground flex items-center gap-2 mb-6">
+                                    <Lock size={16} className="text-primary" /> Narrative Authentication (Password)
+                                </h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-1.5">
+                                        <label className="admin-label">Current Key</label>
+                                        <input className="admin-input" type="password" placeholder="••••••••" />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="admin-label">New Strategy</label>
+                                        <input className="admin-input" type="password" placeholder="New Secret" />
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                {/* Footer Component */}
-                <div className="flex items-center justify-between border-t border-border pt-6 mt-12">
-                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-40">GrowthSpire Security: Enabled</p>
-                   <Button variant="ghost" className="text-destructive text-[10px] font-bold uppercase tracking-widest h-8 rounded-none hover:bg-destructive/10">
-                      Delete Account
-                   </Button>
+                        <div className="p-4 bg-muted/20 border border-dashed border-border rounded-xl">
+                            <p className="text-[10px] text-muted-foreground font-bold text-center uppercase tracking-widest">
+                                Core System Configuration Version 2.4.0 • Updated Weekly
+                            </p>
+                        </div>
+                    </motion.div>
                 </div>
-            </div>
+            </motion.div>
         </DashboardLayout>
     )
 }
