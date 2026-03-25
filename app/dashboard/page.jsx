@@ -7,20 +7,15 @@ import {
   Rocket,
   Calendar,
   Building,
-  MessageSquare,
-  ArrowRight,
   Plus,
-  Clock,
-  CheckCircle2,
+  ArrowRight,
   ChevronRight,
-  Loader2,
-  TrendingUp,
-  Users,
-  Briefcase
+  Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "framer-motion";
 
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
@@ -68,16 +63,35 @@ export default function Dashboard() {
     );
   }
 
-  // Limit to 3 latest entries for each category
   const applications = data?.recentApplications?.slice(0, 3) || [];
   const startups = data?.recentStartups?.slice(0, 3) || [];
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: { 
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+  };
+
   return (
     <DashboardLayout>
-      <div className="space-y-10 pb-12 animate-in fade-in duration-700">
+      <motion.div 
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="space-y-10 pb-12"
+      >
         
         {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+        <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground text-[20px]">
               Dashboard
@@ -94,11 +108,11 @@ export default function Dashboard() {
               </Button>
             </Link>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Primary Metrics Section - AT THE TOP */}
+        {/* Primary Metrics Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="admin-card p-5 flex items-center gap-4 hover:border-primary/20 transition-all cursor-default group">
+            <motion.div variants={itemVariants} className="admin-card p-5 flex items-center gap-4 hover:border-primary/20 transition-all cursor-default group">
                 <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 group-hover:bg-blue-500/20">
                     <Building size={18} className="text-blue-500" />
                 </div>
@@ -106,8 +120,8 @@ export default function Dashboard() {
                     <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Total Sponsors</h4>
                     <p className="text-xl font-bold mt-0.5">{data?.stats?.sponsors || "0"}</p>
                 </div>
-            </div>
-            <div className="admin-card p-5 flex items-center gap-4 hover:border-primary/20 transition-all cursor-default group">
+            </motion.div>
+            <motion.div variants={itemVariants} className="admin-card p-5 flex items-center gap-4 hover:border-primary/20 transition-all cursor-default group">
                 <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0 border border-purple-500/20 group-hover:bg-purple-500/20">
                     <Users size={18} className="text-purple-500" />
                 </div>
@@ -115,8 +129,8 @@ export default function Dashboard() {
                     <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Active Mentors</h4>
                     <p className="text-xl font-bold mt-0.5">{data?.stats?.mentors || "0"}</p>
                 </div>
-            </div>
-            <div className="admin-card p-5 flex items-center gap-4 hover:border-primary/20 transition-all cursor-default group">
+            </motion.div>
+            <motion.div variants={itemVariants} className="admin-card p-5 flex items-center gap-4 hover:border-primary/20 transition-all cursor-default group">
                 <div className="h-10 w-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-500/20 group-hover:bg-orange-500/20">
                     <Calendar size={18} className="text-orange-500" />
                 </div>
@@ -124,14 +138,14 @@ export default function Dashboard() {
                     <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Live Events</h4>
                     <p className="text-xl font-bold mt-0.5">3 Active</p>
                 </div>
-            </div>
+            </motion.div>
         </div>
 
         {/* Main Content Grid - Small Tables */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
           {/* Latest Applications Table */}
-          <div className="space-y-4">
+          <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-xs font-bold flex items-center gap-2 text-foreground/80 uppercase tracking-wider">
                 <FileText size={14} className="text-primary" />
@@ -176,10 +190,10 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </motion.div>
 
           {/* Latest Startups Table */}
-          <div className="space-y-4">
+          <motion.div variants={itemVariants} className="space-y-4">
             <div className="flex items-center justify-between px-1">
               <h2 className="text-xs font-bold flex items-center gap-2 text-foreground/80 uppercase tracking-wider">
                 <Rocket size={14} className="text-primary" />
@@ -222,21 +236,11 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </motion.div>
 
         </div>
 
-        {/* Footer */}
-        <div className="pt-8 mt-4 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30">
-          <div className="flex items-center gap-4">
-              <span>Primary Control Center</span>
-              <span className="h-1 w-1 rounded-full bg-border" />
-              <span className="lowercase font-medium">Auto-sync active</span>
-          </div>
-          <p>© 2026 Admin Infrastructure</p>
-        </div>
-
-      </div>
+      </motion.div>
     </DashboardLayout>
   );
 }
