@@ -51,11 +51,11 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
 
     const sidebarClass = isMobile
         ? cn(
-            "fixed inset-y-0 left-0 z-50 bg-white border-r border-border transition-transform duration-300 w-64",
+            "fixed inset-y-0 left-0 z-50 bg-card border-r border-border transition-transform duration-300 w-64",
             isSidebarOpen ? "translate-x-0" : "-translate-x-full shadow-none"
         )
         : cn(
-            "fixed inset-y-0 left-0 z-50 bg-white border-r border-border transition-all duration-300 hidden lg:flex flex-col",
+            "fixed inset-y-0 left-0 z-50 bg-card border-r border-border transition-all duration-300 hidden lg:flex flex-col",
             isSidebarOpen ? "w-60" : "w-16"
         );
 
@@ -84,7 +84,7 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                                     className="h-7 w-auto object-contain grayscale"
                                     priority
                                 />
-                                <span className="font-bold text-[13px] uppercase tracking-widest text-foreground">GrowthSpire</span>
+                                <span className="font-semibold text-lg tracking-tight text-foreground">GrowthSpire</span>
                             </div>
                         ) : (
                             <Image
@@ -112,8 +112,8 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                                         <button
                                             onClick={() => toggleMenu(item.id)}
                                             className={cn(
-                                                "w-full flex items-center gap-3 px-3 py-2 transition-all group relative text-[11px] font-bold uppercase tracking-widest",
-                                                isActive ? "text-foreground" : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                                                "w-full flex items-center gap-3 px-3 py-2.5 transition-all group relative text-sm font-medium",
+                                                isActive ? "text-foreground bg-muted/50 rounded-lg" : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
                                             )}
                                         >
                                             <item.icon size={16} className={cn("shrink-0 transition-colors", isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
@@ -134,7 +134,7 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                                                             key={child.name}
                                                             href={createHref(child.href)}
                                                             className={cn(
-                                                                "block px-2 py-2 text-[10px] font-bold uppercase tracking-widest transition-all",
+                                                                "block px-2 py-2 text-xs font-medium transition-all",
                                                                 isChildActive
                                                                     ? "text-primary border-r-2 border-primary"
                                                                     : "text-muted-foreground hover:text-foreground"
@@ -151,7 +151,7 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                                         <Link
                                         href={createHref(item.href)}
                                         className={cn(
-                                            "flex items-center gap-3 px-3 py-2 transition-all group relative text-[11px] font-bold uppercase tracking-widest",
+                                            "flex items-center gap-3 px-3 py-2.5 transition-all group relative text-sm font-medium",
                                             isActive
                                                 ? "bg-primary text-primary-foreground rounded-lg shadow-sm"
                                                 : "text-muted-foreground hover:bg-muted/30 hover:text-foreground rounded-lg"
@@ -173,10 +173,10 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                 <div className="absolute bottom-4 w-full px-2">
                     <button
                         onClick={() => setShowLogoutModal(true)}
-                        className="w-full flex items-center gap-3 px-3 py-2 text-muted-foreground hover:text-destructive hover:bg-red-50/50 transition-all text-[11px] font-bold uppercase tracking-widest"
+                        className="w-full flex items-center gap-3 px-3 py-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all text-sm font-medium rounded-lg"
                     >
                         <LogOut size={16} />
-                        {showText && <span>Term. Session</span>}
+                        {showText && <span>Logout</span>}
                     </button>
                 </div>
             </aside>
@@ -185,10 +185,10 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
             <Modal
                 isOpen={showLogoutModal}
                 onClose={() => setShowLogoutModal(false)}
-                title="TERMINATE SESSION"
-                description="Are you sure you want to sign out of the GrowthSpire core?"
+                title="Logout Confirmation"
+                description="Are you sure you want to log out of the GrowthSpire Admin?"
                 type="danger"
-                confirmText="Sign Out"
+                confirmText="Logout"
                 onConfirm={() => {
                     Cookies.remove("user_data");
                     window.location.href = '/login';
