@@ -180,7 +180,7 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                                                 {item.badge > 0 && (
                                                     <span className={cn(
                                                         "text-[10px] h-5 min-w-[20px] px-1.5 flex items-center justify-center rounded-full font-bold",
-                                                        isActive ? "bg-white text-primary" : "bg-primary/10 text-primary border border-primary/20"
+                                                        isActive ? "bg-primary-foreground text-primary shadow-inner" : "bg-primary/10 text-primary border border-primary/20"
                                                     )}>
                                                         {item.badge}
                                                     </span>
@@ -200,7 +200,7 @@ export function Sidebar({ isSidebarOpen, setIsSidebarOpen, isMobile, pathname })
                         className="w-full flex items-center gap-3 px-3 py-2.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all text-sm font-medium rounded-lg"
                     >
                         <LogOut size={16} />
-                        {showText && <span>Logout</span>}
+                        {showText && <span>Sign Out</span>}
                     </button>
                 </div>
             </aside>
