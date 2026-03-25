@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label"
 import { Shield, User, Mail, Lock, Settings as SettingsIcon, Save, Loader2, BadgeCheck } from "lucide-react"
 import Cookies from "js-cookie"
 import { toast } from "sonner"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function SettingsPage() {
     const [userData, setUserData] = useState<any>(null)
@@ -35,8 +36,19 @@ export default function SettingsPage() {
     if (loading) {
         return (
             <DashboardLayout>
-                <div className="flex h-[60vh] items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                <div className="space-y-8 pb-20 mt-4">
+                    <div className="flex justify-between border-b border-border pb-6">
+                        <Skeleton className="h-8 w-48" />
+                        <Skeleton className="h-10 w-32" />
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div className="lg:col-span-4 space-y-6">
+                            <Skeleton className="h-64 w-full" />
+                        </div>
+                        <div className="lg:col-span-8">
+                            <Skeleton className="h-[500px] w-full" />
+                        </div>
+                    </div>
                 </div>
             </DashboardLayout>
         )
@@ -65,8 +77,8 @@ export default function SettingsPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Profile Section */}
                     <div className="lg:col-span-4 space-y-6">
-                        <div className="admin-card p-6 flex flex-col items-center text-center space-y-4">
-                            <div className="h-24 w-24 bg-foreground flex items-center justify-center text-background text-3xl font-bold border-4 border-muted">
+                        <div className="admin-card p-6 flex flex-col items-center text-center space-y-4 shadow-md border-primary/10">
+                            <div className="h-24 w-24 bg-primary flex items-center justify-center text-primary-foreground text-3xl font-black rounded-xl shadow-lg border-4 border-background">
                                 {userData?.name?.charAt(0).toUpperCase() || "A"}
                             </div>
                             <div>
@@ -108,7 +120,7 @@ export default function SettingsPage() {
                     <div className="lg:col-span-8 space-y-8">
                         <div className="admin-card h-full">
                             <div className="p-4 border-b border-border bg-muted/10">
-                                <h3 className="text-[11px] font-black uppercase tracking-widest">Identity & Credentials</h3>
+                                <h3 className="text-[11px] font-black uppercase tracking-widest">Profile & Password</h3>
                             </div>
                             <div className="p-8 space-y-8">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -135,7 +147,7 @@ export default function SettingsPage() {
                                 </div>
 
                                 <div className="space-y-4 pt-6 border-t border-border">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary">Credential Termination & Rotation</h4>
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary">Password Management</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         <div className="space-y-2">
                                             <Label className="admin-label flex items-center gap-2">
@@ -181,9 +193,9 @@ export default function SettingsPage() {
 
                 {/* Footer Component */}
                 <div className="flex items-center justify-between border-t border-border pt-6 mt-12">
-                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-40">GS-CORE SECURITY LEVEL: MAXIMUM</p>
+                   <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em] opacity-40">GrowthSpire Security: Enabled</p>
                    <Button variant="ghost" className="text-destructive text-[10px] font-bold uppercase tracking-widest h-8 rounded-none hover:bg-destructive/10">
-                      Delete Account Record
+                      Delete Account
                    </Button>
                 </div>
             </div>
