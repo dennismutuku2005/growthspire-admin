@@ -13,11 +13,14 @@ import {
   Clock,
   CheckCircle2,
   ChevronRight,
-  Loader2
+  Loader2,
+  TrendingUp,
+  Users,
+  Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Dashboard() {
   const [mounted, setMounted] = useState(false);
@@ -45,22 +48,29 @@ export default function Dashboard() {
 
   if (!mounted) return null;
 
-  const quickStats = [
-    { label: "New Applications", value: data?.stats?.applications || "0", icon: FileText, color: "text-blue-600", bg: "bg-blue-50" },
-    { label: "Portfolio Startups", value: data?.stats?.startups || "0", icon: Rocket, color: "text-purple-600", bg: "bg-purple-50" },
-    { label: "Active Sponsors", value: data?.stats?.sponsors || "0", icon: Building, color: "text-emerald-600", bg: "bg-emerald-50" },
-    { label: "Mentors Joined", value: data?.stats?.mentors || "0", icon: CheckCircle2, color: "text-orange-600", bg: "bg-orange-50" },
-  ];
-
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex h-[60vh] items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        <div className="space-y-10 pb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+            <div className="space-y-2">
+              <Skeleton className="h-6 w-48" />
+              <Skeleton className="h-4 w-64" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             <Skeleton className="h-24 w-full rounded-xl" />
+             <Skeleton className="h-24 w-full rounded-xl" />
+             <Skeleton className="h-24 w-full rounded-xl" />
+          </div>
         </div>
       </DashboardLayout>
     );
   }
+
+  // Limit to 3 latest entries for each category
+  const applications = data?.recentApplications?.slice(0, 3) || [];
+  const startups = data?.recentStartups?.slice(0, 3) || [];
 
   return (
     <DashboardLayout>
@@ -69,47 +79,66 @@ export default function Dashboard() {
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground uppercase tracking-widest text-[18px]">
-              System Overview
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground text-[20px]">
+              Dashboard
             </h1>
-            <p className="text-muted-foreground mt-1 text-[12px] uppercase tracking-wider font-medium opacity-70">
-              Live metrics and recent activity across the platform
+            <p className="text-muted-foreground mt-1 text-xs font-medium opacity-70">
+              Overview of the most recent activities within the GrowthSpire network.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Link href="/dashboard/blogs/create">
-              <Button className="admin-button-primary">
-                <Plus size={16} />
+              <Button className="admin-button-primary h-9">
+                <Plus size={14} />
                 <span>New Article</span>
               </Button>
             </Link>
           </div>
         </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border border-border divide-x divide-y sm:divide-y-0 border-collapse">
-          {quickStats.map((stat, i) => (
-            <div key={i} className="p-6 bg-card hover:bg-muted/5 transition-colors group">
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{stat.label}</p>
-                <stat.icon size={16} className={cn("opacity-40 group-hover:opacity-100 transition-opacity", stat.color)} />
-              </div>
-              <h3 className="text-3xl font-bold tracking-tighter">{stat.value}</h3>
+        {/* Primary Metrics Section - AT THE TOP */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="admin-card p-5 flex items-center gap-4 hover:border-primary/20 transition-all cursor-default group">
+                <div className="h-10 w-10 rounded-lg bg-blue-500/10 flex items-center justify-center shrink-0 border border-blue-500/20 group-hover:bg-blue-500/20">
+                    <Building size={18} className="text-blue-500" />
+                </div>
+                <div>
+                    <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Total Sponsors</h4>
+                    <p className="text-xl font-bold mt-0.5">{data?.stats?.sponsors || "0"}</p>
+                </div>
             </div>
-          ))}
+            <div className="admin-card p-5 flex items-center gap-4 hover:border-primary/20 transition-all cursor-default group">
+                <div className="h-10 w-10 rounded-lg bg-purple-500/10 flex items-center justify-center shrink-0 border border-purple-500/20 group-hover:bg-purple-500/20">
+                    <Users size={18} className="text-purple-500" />
+                </div>
+                <div>
+                    <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Active Mentors</h4>
+                    <p className="text-xl font-bold mt-0.5">{data?.stats?.mentors || "0"}</p>
+                </div>
+            </div>
+            <div className="admin-card p-5 flex items-center gap-4 hover:border-primary/20 transition-all cursor-default group">
+                <div className="h-10 w-10 rounded-lg bg-orange-500/10 flex items-center justify-center shrink-0 border border-orange-500/20 group-hover:bg-orange-500/20">
+                    <Calendar size={18} className="text-orange-500" />
+                </div>
+                <div>
+                    <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Live Events</h4>
+                    <p className="text-xl font-bold mt-0.5">3 Active</p>
+                </div>
+            </div>
         </div>
 
-        {/* Main Sections Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Main Content Grid - Small Tables */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           
-          {/* Recent Applications */}
-          <div className="lg:col-span-8 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-                Recent Applications
+          {/* Latest Applications Table */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-xs font-bold flex items-center gap-2 text-foreground/80 uppercase tracking-wider">
+                <FileText size={14} className="text-primary" />
+                Latest Applications
               </h2>
-              <Link href="/dashboard/applications" className="text-[10px] uppercase tracking-wider font-bold text-primary hover:underline flex items-center gap-1">
-                Full Pipeline <ChevronRight size={12} />
+              <Link href="/dashboard/applications" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 uppercase tracking-widest">
+                View All <ChevronRight size={10} />
               </Link>
             </div>
             <div className="admin-table-container">
@@ -117,79 +146,94 @@ export default function Dashboard() {
                 <thead>
                   <tr>
                     <th>Company</th>
-                    <th>Industry</th>
-                    <th>Status</th>
-                    <th>Submitted</th>
+                    <th>Sector</th>
+                    <th className="text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {data?.recentApplications?.length > 0 ? (
-                    data.recentApplications.map((app, i) => (
-                      <tr key={i}>
-                        <td className="font-semibold">{app.name}</td>
-                        <td className="text-muted-foreground">{app.sector || 'N/A'}</td>
+                  {applications.length > 0 ? (
+                    applications.map((app, i) => (
+                      <tr key={i} className="group">
                         <td>
-                          <span className={cn(
-                            "text-[10px] font-bold px-2 py-0.5 uppercase tracking-tighter",
-                            app.status === 'pending' ? "bg-amber-50 text-amber-700" : 
-                            app.status === 'accepted' ? "bg-emerald-50 text-emerald-700" : "bg-muted text-muted-foreground"
-                          )}>
-                            {app.status}
-                          </span>
+                            <div className="font-bold text-foreground group-hover:text-primary transition-colors text-xs">{app.name}</div>
+                            <div className="text-[10px] text-muted-foreground">{new Date(app.created_at).toLocaleDateString()}</div>
                         </td>
-                        <td className="text-muted-foreground text-[11px]">{new Date(app.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <div className="text-[10px] font-medium text-muted-foreground uppercase">{app.sector || 'N/A'}</div>
+                        </td>
+                        <td className="text-right">
+                           <Link href="/dashboard/applications">
+                             <Button variant="ghost" size="sm" className="h-7 w-7 p-0 hover:bg-primary/5 hover:text-primary">
+                               <ArrowRight size={12} />
+                             </Button>
+                           </Link>
+                        </td>
                       </tr>
                     ))
                   ) : (
-                    <tr><td colSpan="4" className="text-center py-8 text-muted-foreground">No recent applications</td></tr>
+                    <tr><td colSpan="3" className="text-center py-10 text-[10px] font-bold text-muted-foreground uppercase opacity-50">Empty Queue</td></tr>
                   )}
                 </tbody>
               </table>
             </div>
           </div>
 
-          {/* Side Column */}
-          <div className="lg:col-span-4 space-y-8">
-            {/* Recent Portfolio */}
-            <div className="space-y-4">
-                <h2 className="text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-                   Portfolio Updates
-                </h2>
-                <div className="divide-y divide-border border border-border bg-card">
-                  {data?.recentStartups?.length > 0 ? (
-                    data.recentStartups.map((startup, i) => (
-                      <div key={i} className="p-3 hover:bg-muted/5 transition-colors cursor-default group">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-[13px] font-bold group-hover:text-primary transition-colors">{startup.name}</p>
-                            <p className="text-[11px] text-muted-foreground">{startup.category}</p>
-                          </div>
-                          <span className="text-[10px] font-bold text-muted-foreground">{startup.founded_year}</span>
-                        </div>
-                      </div>
+          {/* Latest Startups Table */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <h2 className="text-xs font-bold flex items-center gap-2 text-foreground/80 uppercase tracking-wider">
+                <Rocket size={14} className="text-primary" />
+                Latest Startups
+              </h2>
+              <Link href="/dashboard/startups" className="text-[10px] font-bold text-primary hover:underline flex items-center gap-1 uppercase tracking-widest">
+                Directory <ChevronRight size={10} />
+              </Link>
+            </div>
+            <div className="admin-table-container">
+               <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Startup</th>
+                    <th>Category</th>
+                    <th className="text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {startups.length > 0 ? (
+                    startups.map((startup, i) => (
+                      <tr key={i} className="group">
+                        <td>
+                            <div className="font-bold text-foreground group-hover:text-primary transition-colors text-xs">{startup.name}</div>
+                            <div className="text-[10px] text-muted-foreground">Founded {startup.founded_year}</div>
+                        </td>
+                        <td>
+                            <div className="text-[10px] font-medium text-muted-foreground uppercase">{startup.category || 'N/A'}</div>
+                        </td>
+                        <td className="text-right">
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 bg-primary/10 text-primary border border-primary/20 rounded">
+                                ACTIVE
+                            </span>
+                        </td>
+                      </tr>
                     ))
                   ) : (
-                    <div className="p-4 text-center text-muted-foreground text-xs text-[11px]">No portfolio data</div>
+                    <tr><td colSpan="3" className="text-center py-10 text-[10px] font-bold text-muted-foreground uppercase opacity-50">No Data</td></tr>
                   )}
-                </div>
-            </div>
-
-            {/* Platform Status */}
-            <div className="admin-card p-4 border-2 border-primary/20 bg-primary/5">
-               <div className="flex items-center gap-3">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <p className="text-[11px] font-bold uppercase tracking-widest">GrowthSpire Node: Operational</p>
-               </div>
-               <p className="text-[10px] text-muted-foreground mt-2 font-medium">Latency: 24ms • Uptime: 99.9%</p>
+                </tbody>
+              </table>
             </div>
           </div>
 
         </div>
 
         {/* Footer */}
-        <div className="pt-8 border-t border-border flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-muted-foreground/50">
-          <span>GrowthSpire Admin Alpha v2.5</span>
-          <span>© 2024 GS-CORE</span>
+        <div className="pt-8 mt-4 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/30">
+          <div className="flex items-center gap-4">
+              <span>Primary Control Center</span>
+              <span className="h-1 w-1 rounded-full bg-border" />
+              <span className="lowercase font-medium">Auto-sync active</span>
+          </div>
+          <p>© 2026 Admin Infrastructure</p>
         </div>
 
       </div>
