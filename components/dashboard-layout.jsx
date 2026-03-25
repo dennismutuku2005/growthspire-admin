@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Sidebar } from "@/components/Sidebar"
 
+import { ThemeToggle } from "@/components/theme-toggle"
+
 export function DashboardLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
   const [userData, setUserData] = useState(null)
@@ -87,8 +89,8 @@ export function DashboardLayout({ children }) {
         "flex-1 flex flex-col overflow-hidden transition-all duration-300",
         isSidebarOpen ? "lg:pl-60" : "lg:pl-16"
       )}>
-        {/* Header - 2D Elegant */}
-        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-card px-4 lg:px-8">
+        {/* Header - Modern Glassmorphism-style */}
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-border bg-card/80 backdrop-blur-md px-4 lg:px-8">
           <div className="flex items-center gap-4">
             <button
                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -97,13 +99,15 @@ export function DashboardLayout({ children }) {
               <Menu className="h-4 w-4 text-foreground" />
             </button>
             <div className="hidden lg:block">
-              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] opacity-40">
-                Core / {pathname.split('/').pop()?.replace('-', ' ') || "Overview"}
+              <h2 className="text-sm font-medium text-muted-foreground">
+                Admin <span className="mx-1.5 opacity-40">/</span> {pathname.split('/').pop()?.replace('-', ' ') || "Overview"}
               </h2>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            
             {/* Profile Dropdown */}
             <div className="relative profile-dropdown">
               <button
@@ -113,23 +117,23 @@ export function DashboardLayout({ children }) {
                 <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-[10px] font-bold shadow-sm">
                     {getInitials(username)}
                 </div>
-                <span className="hidden sm:inline text-[11px] font-bold uppercase tracking-wider">{username}</span>
+                <span className="hidden sm:inline text-sm font-semibold">{username}</span>
                 <ChevronDown size={14} className={cn("transition-transform opacity-40", isProfileOpen ? "rotate-180" : "")} />
               </button>
 
               {isProfileOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-border rounded-xl shadow-lg z-50 animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
+                <div className="absolute right-0 mt-2 w-56 bg-card border border-border rounded-xl shadow-lg z-50 animate-in fade-in zoom-in-95 duration-100 overflow-hidden">
                   <div className="p-4 border-b border-border bg-muted/20">
-                    <p className="text-[11px] font-black uppercase tracking-widest">{username}</p>
-                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1 opacity-60">Session Role: {userRole}</p>
+                    <p className="text-sm font-bold">{username}</p>
+                    <p className="text-[11px] font-medium text-muted-foreground mt-0.5 capitalize">Role: {userRole}</p>
                   </div>
                   <div className="p-1">
                     <button
-                      className="w-full flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest text-destructive hover:bg-destructive/5 transition-all"
+                      className="w-full flex items-center gap-2 px-3 py-2 text-xs font-semibold text-destructive hover:bg-destructive/10 transition-all text-left rounded-lg"
                       onClick={handleLogout}
                     >
                       <LogOut className="h-3.5 w-3.5" />
-                      Terminate Session
+                      Logout
                     </button>
                   </div>
                 </div>
