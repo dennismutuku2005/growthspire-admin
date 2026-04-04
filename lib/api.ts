@@ -1,4 +1,5 @@
-export const API_BASE_URL = "http://localhost/growthspire/backend";
+export const API_BASE_URL = "https://api.growthspire.org";
+
 
 export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}/${endpoint}`;
