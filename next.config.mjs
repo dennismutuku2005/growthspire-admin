@@ -1,11 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',           // Enable static export
-  trailingSlash: true,        // Optional: adds a trailing slash to all routes
+  output: 'export',
   images: {
-    unoptimized: true,        // Required: disables Next.js image optimization
+    unoptimized: true,
+    remotePatterns: [
+      {
+      protocol: 'https',
+        hostname: 'ui-avatars.com',
+        pathname: '/api/**',
+      },
+    ],
   },
-  reactStrictMode: true,      // Recommended
 };
 
 export default nextConfig;
