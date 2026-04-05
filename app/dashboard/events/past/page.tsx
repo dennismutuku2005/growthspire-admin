@@ -8,7 +8,7 @@ import { useState, useEffect } from "react"
 import { Modal } from "@/components/Modal"
 import { toast } from "sonner"
 
-const API = "http://localhost/growthspire/backend/events.php"
+const API = "https://api.growthspire.org/events.php"
 
 const defaultForm = {
     title: "",
