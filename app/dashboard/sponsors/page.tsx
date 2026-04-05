@@ -54,7 +54,7 @@ export default function SponsorsPage() {
     const fetchSponsors = async () => {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost/growthspire/backend/sponsors.php?action=get_sponsors")
+            const res = await fetch("https://api.growthspire.org/sponsors.php?action=get_sponsors")
             const data = await res.json()
             if (data.success) {
                 setSponsors(data.data)
@@ -72,7 +72,7 @@ export default function SponsorsPage() {
         const body = isEdit ? { action, id: selectedSponsor!.id, ...formData } : { action, ...formData }
         
         try {
-            const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
+            const res = await fetch("https://api.growthspire.org/sponsors.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body)
@@ -94,7 +94,7 @@ export default function SponsorsPage() {
     const handleDelete = async () => {
         if (!selectedSponsor) return;
         try {
-            const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
+            const res = await fetch("https://api.growthspire.org/sponsors.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "delete_sponsor", id: selectedSponsor.id })
