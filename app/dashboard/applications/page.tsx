@@ -39,7 +39,7 @@ export default function ApplicationsPage() {
     const fetchApps = async () => {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost/growthspire/backend/applications.php?action=get_applications")
+            const res = await fetch("https://api.growthspire.org/applications.php?action=get_applications")
             const data = await res.json()
             if (data.success) {
                 setApps(data.data)
@@ -53,7 +53,7 @@ export default function ApplicationsPage() {
 
     const updateStatus = async (appId: string, status: string) => {
         try {
-            const res = await fetch("http://localhost/growthspire/backend/applications.php", {
+            const res = await fetch("https://api.growthspire.org/applications.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "update_status", id: appId, status })
@@ -71,7 +71,7 @@ export default function ApplicationsPage() {
 
     const deleteApp = async () => {
         try {
-            const res = await fetch("http://localhost/growthspire/backend/applications.php", {
+            const res = await fetch("https://api.growthspire.org/applications.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "delete_application", id: selectedApp.id })
