@@ -65,7 +65,7 @@ export default function StartupsPage() {
     const fetchStartups = async () => {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost/growthspire/backend/startups.php?action=get_startups")
+            const res = await fetch("https://api.growthspire.org/startups.php?action=get_startups")
             const data = await res.json()
             if (data.success) {
                 setStartups(data.data)
@@ -82,7 +82,7 @@ export default function StartupsPage() {
         const body = isEdit ? { action, id: selectedStartup?.id, ...formData } : { action, ...formData }
         
         try {
-            const res = await fetch("http://localhost/growthspire/backend/startups.php", {
+            const res = await fetch("https://api.growthspire.org/startups.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body)
@@ -103,7 +103,7 @@ export default function StartupsPage() {
 
     const handleDelete = async () => {
         try {
-            const res = await fetch("http://localhost/growthspire/backend/startups.php", {
+            const res = await fetch("https://api.growthspire.org/startups.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "delete_startup", id: selectedStartup?.id })
