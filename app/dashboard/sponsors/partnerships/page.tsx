@@ -64,7 +64,7 @@ export default function PartnershipsPage() {
     const fetchPartnerships = async () => {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost/growthspire/backend/sponsors.php?action=get_partnerships")
+            const res = await fetch("https://api.growthspire.org/sponsors.php?action=get_partnerships")
             const data = await res.json()
             if (data.success) {
                 setPartnerships(data.data)
@@ -78,7 +78,7 @@ export default function PartnershipsPage() {
 
     const handleCreate = async () => {
         try {
-            const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
+            const res = await fetch("https://api.growthspire.org/sponsors.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "create_partnership", ...formData })
@@ -98,7 +98,7 @@ export default function PartnershipsPage() {
     const handleDelete = async () => {
         if (!selectedPartner) return
         try {
-            const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
+            const res = await fetch("https://api.growthspire.org/sponsors.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "delete_partnership", id: selectedPartner.id })
