@@ -53,7 +53,7 @@ export default function BlogsPage() {
     const fetchBlogs = async () => {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost/growthspire/backend/blogs.php?action=get_blogs")
+            const res = await fetch("https://api.growthspire.org/blogs.php?action=get_blogs")
             const data = await res.json()
             if (data.success) {
                 setBlogs(data.data)
@@ -67,7 +67,7 @@ export default function BlogsPage() {
 
     const handleCreateBlog = async () => {
         try {
-            const res = await fetch("http://localhost/growthspire/backend/blogs.php", {
+            const res = await fetch("https://api.growthspire.org/blogs.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "create_blog", ...formData })
@@ -88,7 +88,7 @@ export default function BlogsPage() {
 
     const handleUpdateBlog = async () => {
         try {
-            const res = await fetch("http://localhost/growthspire/backend/blogs.php", {
+            const res = await fetch("https://api.growthspire.org/blogs.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "update_blog", id: selectedBlog.id, ...formData })
@@ -108,7 +108,7 @@ export default function BlogsPage() {
 
     const handleDeleteBlog = async () => {
         try {
-            const res = await fetch("http://localhost/growthspire/backend/blogs.php", {
+            const res = await fetch("https://api.growthspire.org/blogs.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "delete_blog", id: selectedBlog.id })
