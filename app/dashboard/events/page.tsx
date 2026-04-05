@@ -53,7 +53,7 @@ export default function EventsPage() {
     const fetchEvents = async () => {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost/growthspire/backend/events.php?action=get_events")
+            const res = await fetch("https://api.growthspire.org/events.php?action=get_events")
             const data = await res.json()
             if (data.success) {
                 setEvents(data.data)
@@ -70,7 +70,7 @@ export default function EventsPage() {
         const body = isEdit ? { action, id: selectedEvent.id, ...formData } : { action, ...formData }
         
         try {
-            const res = await fetch("http://localhost/growthspire/backend/events.php", {
+            const res = await fetch("https://api.growthspire.org/events.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(body)
@@ -91,7 +91,7 @@ export default function EventsPage() {
 
     const handleDelete = async () => {
         try {
-            const res = await fetch("http://localhost/growthspire/backend/events.php", {
+            const res = await fetch("https://api.growthspire.org/events.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "delete_event", id: selectedEvent.id })
