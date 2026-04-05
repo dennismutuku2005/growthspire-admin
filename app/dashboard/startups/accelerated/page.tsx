@@ -23,7 +23,7 @@ export default function AcceleratedStartupsPage() {
     const fetchStartups = async () => {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost/growthspire/backend/startups.php?action=get_startups")
+            const res = await fetch("https://api.growthspire.org/startups.php?action=get_startups")
             const data = await res.json()
             if (data.success) {
                 // Filter only accelerated ones
