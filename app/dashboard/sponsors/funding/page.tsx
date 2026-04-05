@@ -48,7 +48,7 @@ export default function SponsorshipFundingPage() {
     const fetchFunding = async () => {
         setLoading(true)
         try {
-            const res = await fetch("http://localhost/growthspire/backend/sponsors.php?action=get_funding")
+            const res = await fetch("https://api.growthspire.org/sponsors.php?action=get_funding")
             const data = await res.json()
             if (data.success) {
                 setFunding(data.data)
@@ -62,7 +62,7 @@ export default function SponsorshipFundingPage() {
 
     const handleCreate = async () => {
         try {
-            const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
+            const res = await fetch("https://api.growthspire.org/sponsors.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "create_funding", ...formData })
@@ -82,7 +82,7 @@ export default function SponsorshipFundingPage() {
     const handleDelete = async () => {
         if (!selectedFunding) return
         try {
-            const res = await fetch("http://localhost/growthspire/backend/sponsors.php", {
+            const res = await fetch("https://api.growthspire.org/sponsors.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action: "delete_funding", id: selectedFunding.id })
